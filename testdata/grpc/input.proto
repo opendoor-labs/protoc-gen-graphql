@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.grpc;
+
+service ServiceA {
+  rpc MethodA(RequestA) returns (ResponseA);
+}
+
+message RequestA {
+  message RequestAA {
+    message RequestAAA {
+      string aaa = 1;
+    }
+  }
+
+  string string_field = 1;
+  RequestAA request_aa = 2;
+  repeated RequestAA.RequestAAA request_aaa = 3;
+  map<string, EnumType> map_field = 4;
+  oneof oneof_field {
+    string first_oneof_value = 5;
+    RequestAA second_oneof_value = 6;
+  }
+}
+
+message ResponseA {
+  string string_field = 1;
+}
+
+enum EnumType {
+  UNKNOWN = 0;
+  FIRST = 1;
+  SECOND = 2;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package graphql;
+
+option go_package = "github.com/martinxsliu/protoc-gen-graphql/graphqlpb";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MethodOptions {
+  string operation = 82731;
+}
