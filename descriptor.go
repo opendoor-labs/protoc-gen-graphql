@@ -44,7 +44,7 @@ type ServiceDescriptor struct {
 	FullName string
 }
 
-func wrapFile(proto *descriptor.FileDescriptorProto) *FileDescriptor {
+func WrapFile(proto *descriptor.FileDescriptorProto) *FileDescriptor {
 	file := &FileDescriptor{
 		Proto: proto,
 	}

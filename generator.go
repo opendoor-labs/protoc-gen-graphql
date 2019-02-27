@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/golang/protobuf/proto"
@@ -8,6 +9,7 @@ import (
 	"github.com/golang/protobuf/protoc-gen-go/generator"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 
+	"github.com/martinxsliu/protoc-gen-graphql/graphql"
 	"github.com/martinxsliu/protoc-gen-graphql/graphqlpb"
 )
 
@@ -52,7 +54,7 @@ func (g *Generator) Generate() error {
 func (g *Generator) wrapFiles() {
 	g.files = make(map[string]*FileDescriptor)
 	for _, fileProto := range g.req.GetProtoFile() {
-		g.files[fileProto.GetName()] = wrapFile(fileProto)
+		g.files[fileProto.GetName()] = WrapFile(fileProto)
 	}
 	g.buildTypeMaps()
 }
@@ -148,39 +150,36 @@ func (g *Generator) generateFiles() {
 
 		file := g.files[fileName]
 
-		var graphqlTypes []GraphqlType
+		var gqlTypes []graphql.Type
 
 		for _, service := range file.Services {
-			for _, graphql := range g.graphqlFromService(service) {
-				graphqlTypes = append(graphqlTypes, graphql)
+			for _, gqlType := range g.graphqlFromService(service) {
+				gqlTypes = append(gqlTypes, gqlType)
 			}
 		}
 
 		for _, message := range file.Messages {
-			for _, graphql := range g.graphqlFromMessage(message) {
-				graphqlTypes = append(graphqlTypes, graphql)
+			for _, gqlType := range g.graphqlFromMessage(message) {
+				gqlTypes = append(gqlTypes, gqlType)
 			}
 		}
 
 		for _, enum := range file.Enums {
-			for _, graphql := range g.graphqlFromEnum(enum) {
-				graphqlTypes = append(graphqlTypes, graphql)
+			for _, gqlType := range g.graphqlFromEnum(enum) {
+				gqlTypes = append(gqlTypes, gqlType)
 			}
 		}
 
 		// Don't generate files without any type declarations.
-		if len(graphqlTypes) == 0 {
+		if len(gqlTypes) == 0 {
 			continue
 		}
 
 		var b strings.Builder
 		b.WriteString(header)
-		b.WriteString("\n\n")
-		for i, graphql := range graphqlTypes {
-			b.WriteString(graphql.ToGQL())
-			if i != len(graphqlTypes)-1 {
-				b.WriteString("\n\n")
-			}
+		for _, gqlType := range gqlTypes {
+			b.WriteString("\n\n")
+			b.WriteString(graphql.TypeDef(gqlType))
 		}
 		b.WriteString("\n")
 		fileResp.Content = stringPtr(b.String())
@@ -189,11 +188,11 @@ func (g *Generator) generateFiles() {
 	}
 }
 
-func (g *Generator) graphqlFromMessage(message *MessageDescriptor) []GraphqlType {
-	var graphqlTypes []GraphqlType
+func (g *Generator) graphqlFromMessage(message *MessageDescriptor) []graphql.Type {
+	var graphqlTypes []graphql.Type
 
 	if typeName, ok := g.typeNameMap[message.FullName]; ok {
-		graphqlTypes = append(graphqlTypes, &GraphqlObject{
+		graphqlTypes = append(graphqlTypes, &graphql.Object{
 			Name:   typeName,
 			Fields: g.graphqlFields(message, false),
 		})
@@ -204,7 +203,7 @@ func (g *Generator) graphqlFromMessage(message *MessageDescriptor) []GraphqlType
 	}
 
 	if inputName, ok := g.inputNameMap[message.FullName]; ok {
-		graphqlTypes = append(graphqlTypes, &GraphqlInput{
+		graphqlTypes = append(graphqlTypes, &graphql.Input{
 			Name:   inputName,
 			Fields: g.graphqlFields(message, true),
 		})
@@ -217,29 +216,27 @@ func (g *Generator) graphqlFromMessage(message *MessageDescriptor) []GraphqlType
 	return graphqlTypes
 }
 
-func (g *Generator) graphqlFields(message *MessageDescriptor, input bool) []*GraphqlField {
-	var fields []*GraphqlField
+func (g *Generator) graphqlFields(message *MessageDescriptor, input bool) []*graphql.Field {
+	var fields []*graphql.Field
 
 	seenOneofs := make(map[int32]bool)
 	for _, fieldProto := range message.Proto.GetField() {
-		// if g.emptyMessages[fieldProto.GetTypeName()] {
-		// 	continue
-		// }
-
 		if fieldProto.OneofIndex == nil {
+			// Handle normal field.
 			fields = append(fields, g.graphqlField(fieldProto, fieldOptions{Input: input}))
 			continue
 		}
 
+		// Handle field that's part of a oneof. We only want to append the graphql oneof type
+		// the first time we encounter it.
 		index := *fieldProto.OneofIndex
 		if seenOneofs[index] {
 			continue
 		}
 
 		oneof := message.Proto.GetOneofDecl()[index].GetName()
-		fields = append(fields, &GraphqlField{
+		fields = append(fields, &graphql.Field{
 			Name: oneof,
-			Type: GraphqlTypeClassObject,
 			TypeName: buildGraphqlTypeName(&graphqlTypeNameParts{
 				Package:  message.Package,
 				TypeName: append(message.TypeName, oneof),
@@ -258,8 +255,8 @@ type fieldOptions struct {
 	NullableScalars bool
 }
 
-func (g *Generator) graphqlField(proto *descriptor.FieldDescriptorProto, options fieldOptions) *GraphqlField {
-	field := &GraphqlField{
+func (g *Generator) graphqlField(proto *descriptor.FieldDescriptorProto, options fieldOptions) *graphql.Field {
+	field := &graphql.Field{
 		Name: proto.GetName(),
 	}
 
@@ -268,58 +265,65 @@ func (g *Generator) graphqlField(proto *descriptor.FieldDescriptorProto, options
 		descriptor.FieldDescriptorProto_TYPE_UINT32, descriptor.FieldDescriptorProto_TYPE_SINT32,
 		descriptor.FieldDescriptorProto_TYPE_FIXED32, descriptor.FieldDescriptorProto_TYPE_SFIXED32:
 
-		field.Type = GraphqlTypeClassFloat
-		field.Modifiers = GraphqlTypeModifierNonNull
+		field.TypeName = graphql.ScalarFloat.TypeName()
+		field.Modifiers = graphql.TypeModifierNonNull
+
 	case descriptor.FieldDescriptorProto_TYPE_STRING, descriptor.FieldDescriptorProto_TYPE_BYTES,
 		descriptor.FieldDescriptorProto_TYPE_INT64, descriptor.FieldDescriptorProto_TYPE_UINT64, descriptor.FieldDescriptorProto_TYPE_SINT64,
 		descriptor.FieldDescriptorProto_TYPE_FIXED64, descriptor.FieldDescriptorProto_TYPE_SFIXED64:
 
-		field.Type = GraphqlTypeClassString
+		field.TypeName = graphql.ScalarString.TypeName()
 		if !options.NullableScalars {
-			field.Modifiers = GraphqlTypeModifierNonNull
+			field.Modifiers = graphql.TypeModifierNonNull
 		}
+
 	case descriptor.FieldDescriptorProto_TYPE_INT32:
-		field.Type = GraphqlTypeClassInt
+		field.TypeName = graphql.ScalarInt.TypeName()
 		if !options.NullableScalars {
-			field.Modifiers = GraphqlTypeModifierNonNull
+			field.Modifiers = graphql.TypeModifierNonNull
 		}
+
 	case descriptor.FieldDescriptorProto_TYPE_BOOL:
-		field.Type = GraphqlTypeClassBoolean
+		field.TypeName = graphql.ScalarBoolean.TypeName()
 		if !options.NullableScalars {
-			field.Modifiers = GraphqlTypeModifierNonNull
+			field.Modifiers = graphql.TypeModifierNonNull
 		}
+
 	case descriptor.FieldDescriptorProto_TYPE_ENUM:
-		field.Type = GraphqlTypeClassEnum
 		field.TypeName = g.typeNameMap[proto.GetTypeName()]
 		if !options.NullableScalars {
-			field.Modifiers = GraphqlTypeModifierNonNull
+			field.Modifiers = graphql.TypeModifierNonNull
 		}
+
 	case descriptor.FieldDescriptorProto_TYPE_MESSAGE:
 		if g.emptyMessages[proto.GetTypeName()] {
-			field.Type = GraphqlTypeClassBoolean
-		} else {
-			field.Type = GraphqlTypeClassObject
-			if options.Input {
-				field.TypeName = g.inputNameMap[proto.GetTypeName()]
-			} else {
-				field.TypeName = g.typeNameMap[proto.GetTypeName()]
-			}
-
-			// Map elements are non-nullable.
-			if g.messages[proto.GetTypeName()].IsMap {
-				field.Modifiers = GraphqlTypeModifierNonNull
-			}
+			field.TypeName = graphql.ScalarBoolean.TypeName()
+			break
 		}
+
+		if options.Input {
+			field.TypeName = g.inputNameMap[proto.GetTypeName()]
+		} else {
+			field.TypeName = g.typeNameMap[proto.GetTypeName()]
+		}
+
+		// Map elements are non-nullable.
+		if g.messages[proto.GetTypeName()].IsMap {
+			field.Modifiers = graphql.TypeModifierNonNull
+		}
+
+	default:
+		panic(fmt.Sprintf("unexpected protobuf descriptor type: %s", proto.GetType().String()))
 	}
 
 	if proto.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REPEATED {
-		field.Modifiers = field.Modifiers | GraphqlTypeModifierList
+		field.Modifiers = field.Modifiers | graphql.TypeModifierList
 	}
 
 	return g.graphqlSpecialTypes(field, proto.GetTypeName())
 }
 
-func (g *Generator) graphqlSpecialTypes(field *GraphqlField, protoTypeName string) *GraphqlField {
+func (g *Generator) graphqlSpecialTypes(field *graphql.Field, protoTypeName string) *graphql.Field {
 	if protoTypeName == ".google.protobuf.Timestamp" && g.params.TimestampTypeName != "" {
 		field.TypeName = g.params.TimestampTypeName
 	}
@@ -330,32 +334,28 @@ func (g *Generator) graphqlSpecialTypes(field *GraphqlField, protoTypeName strin
 	if g.params.WrappersAsNull {
 		switch protoTypeName {
 		case ".google.protobuf.FloatValue", ".google.protobuf.DoubleValue", ".google.protobuf.UInt32Value":
-			field.Type = GraphqlTypeClassFloat
-			field.TypeName = ""
+			field.TypeName = graphql.ScalarFloat.TypeName()
 		case ".google.protobuf.StringValue", ".google.protobuf.BytesValue", ".google.protobuf.Int64Value", ".google.protobuf.UInt64Value":
-			field.Type = GraphqlTypeClassString
-			field.TypeName = ""
+			field.TypeName = graphql.ScalarString.TypeName()
 		case ".google.protobuf.Int32Value":
-			field.Type = GraphqlTypeClassInt
-			field.TypeName = ""
+			field.TypeName = graphql.ScalarInt.TypeName()
 		case ".google.protobuf.BoolValue":
-			field.Type = GraphqlTypeClassBoolean
-			field.TypeName = ""
+			field.TypeName = graphql.ScalarBoolean.TypeName()
 		}
 	}
 
 	return field
 }
 
-func (g *Generator) graphqlUnionFromOneof(message *MessageDescriptor, oneofIndex int32) []GraphqlType {
+func (g *Generator) graphqlUnionFromOneof(message *MessageDescriptor, oneofIndex int32) []graphql.Type {
 	oneof := message.Proto.GetOneofDecl()[oneofIndex].GetName()
-	union := &GraphqlUnion{
+	union := &graphql.Union{
 		Name: buildGraphqlTypeName(&graphqlTypeNameParts{
 			Package:  message.Package,
 			TypeName: append(message.TypeName, oneof),
 		}),
 	}
-	graphqlTypes := []GraphqlType{union}
+	graphqlTypes := []graphql.Type{union}
 
 	for _, fieldProto := range message.Proto.GetField() {
 		if fieldProto.OneofIndex == nil || *fieldProto.OneofIndex != oneofIndex {
@@ -368,19 +368,19 @@ func (g *Generator) graphqlUnionFromOneof(message *MessageDescriptor, oneofIndex
 		})
 
 		union.TypeNames = append(union.TypeNames, typeName)
-		graphqlTypes = append(graphqlTypes, &GraphqlObject{
+		graphqlTypes = append(graphqlTypes, &graphql.Object{
 			Name:   typeName,
-			Fields: []*GraphqlField{g.graphqlField(fieldProto, fieldOptions{})},
+			Fields: []*graphql.Field{g.graphqlField(fieldProto, fieldOptions{})},
 		})
 	}
 
 	return graphqlTypes
 }
 
-func (g *Generator) graphqlInputFromOneof(message *MessageDescriptor, oneofIndex int32) GraphqlType {
+func (g *Generator) graphqlInputFromOneof(message *MessageDescriptor, oneofIndex int32) graphql.Type {
 	oneof := message.Proto.GetOneofDecl()[oneofIndex].GetName()
 
-	var fields []*GraphqlField
+	var fields []*graphql.Field
 	for _, fieldProto := range message.Proto.GetField() {
 		if fieldProto.OneofIndex == nil || *fieldProto.OneofIndex != oneofIndex {
 			continue
@@ -388,7 +388,7 @@ func (g *Generator) graphqlInputFromOneof(message *MessageDescriptor, oneofIndex
 		fields = append(fields, g.graphqlField(fieldProto, fieldOptions{Input: true, NullableScalars: true}))
 	}
 
-	return &GraphqlInput{
+	return &graphql.Input{
 		Name: buildGraphqlTypeName(&graphqlTypeNameParts{
 			Package:  message.Package,
 			TypeName: append(message.TypeName, oneof),
@@ -398,8 +398,8 @@ func (g *Generator) graphqlInputFromOneof(message *MessageDescriptor, oneofIndex
 	}
 }
 
-func (g *Generator) graphqlFromEnum(enum *EnumDescriptor) []GraphqlType {
-	var graphqlTypes []GraphqlType
+func (g *Generator) graphqlFromEnum(enum *EnumDescriptor) []graphql.Type {
+	var graphqlTypes []graphql.Type
 
 	if g.typeNameMap[enum.FullName] == "" {
 		return graphqlTypes
@@ -410,7 +410,7 @@ func (g *Generator) graphqlFromEnum(enum *EnumDescriptor) []GraphqlType {
 		values = append(values, protoValue.GetName())
 	}
 
-	graphqlTypes = append(graphqlTypes, &GraphqlEnum{
+	graphqlTypes = append(graphqlTypes, &graphql.Enum{
 		Name:   g.typeNameMap[enum.FullName],
 		Values: values,
 	})
@@ -418,12 +418,12 @@ func (g *Generator) graphqlFromEnum(enum *EnumDescriptor) []GraphqlType {
 	return graphqlTypes
 }
 
-func (g *Generator) graphqlFromService(service *ServiceDescriptor) []GraphqlType {
+func (g *Generator) graphqlFromService(service *ServiceDescriptor) []graphql.Type {
 	var (
-		graphqlTypes  []GraphqlType
-		queries       []*GraphqlField
-		mutations     []*GraphqlField
-		subscriptions []*GraphqlField
+		graphqlTypes  []graphql.Type
+		queries       []*graphql.Field
+		mutations     []*graphql.Field
+		subscriptions []*graphql.Field
 	)
 
 	for _, method := range service.Proto.GetMethod() {
@@ -453,19 +453,19 @@ func (g *Generator) graphqlFromService(service *ServiceDescriptor) []GraphqlType
 	}
 
 	if len(queries) > 0 {
-		graphqlTypes = append(graphqlTypes, &GraphqlObject{
+		graphqlTypes = append(graphqlTypes, &graphql.Object{
 			Name:   g.typeNameMap[service.FullName] + "_Query",
 			Fields: queries,
 		})
 	}
 	if len(mutations) > 0 {
-		graphqlTypes = append(graphqlTypes, &GraphqlObject{
+		graphqlTypes = append(graphqlTypes, &graphql.Object{
 			Name:   g.typeNameMap[service.FullName] + "_Mutation",
 			Fields: mutations,
 		})
 	}
 	if len(subscriptions) > 0 {
-		graphqlTypes = append(graphqlTypes, &GraphqlObject{
+		graphqlTypes = append(graphqlTypes, &graphql.Object{
 			Name:   g.typeNameMap[service.FullName] + "_Subscription",
 			Fields: subscriptions,
 		})
@@ -474,16 +474,15 @@ func (g *Generator) graphqlFromService(service *ServiceDescriptor) []GraphqlType
 	return graphqlTypes
 }
 
-func (g *Generator) graphqlFieldFromMethod(method *descriptor.MethodDescriptorProto) *GraphqlField {
+func (g *Generator) graphqlFieldFromMethod(method *descriptor.MethodDescriptorProto) *graphql.Field {
 	// Only add an argument if there are fields in the gRPC request message.
-	var arguments []*GraphqlArgument
+	var arguments []*graphql.Argument
 	inputType := g.messages[method.GetInputType()]
 	if len(inputType.Proto.GetField()) != 0 {
-		arguments = append(arguments, &GraphqlArgument{
+		arguments = append(arguments, &graphql.Argument{
 			Name:      "input",
-			Type:      GraphqlTypeClassInput,
 			TypeName:  g.inputNameMap[method.GetInputType()],
-			Modifiers: GraphqlTypeModifierNonNull,
+			Modifiers: graphql.TypeModifierNonNull,
 		})
 	}
 
@@ -492,19 +491,18 @@ func (g *Generator) graphqlFieldFromMethod(method *descriptor.MethodDescriptorPr
 	// actual boolean value or default to null.
 	outputType := g.messages[method.GetOutputType()]
 	if len(outputType.Proto.GetField()) == 0 {
-		return &GraphqlField{
+		return &graphql.Field{
 			Name:      method.GetName(),
-			Type:      GraphqlTypeClassBoolean,
+			TypeName:  graphql.ScalarBoolean.TypeName(),
 			Arguments: arguments,
 		}
 	}
 
-	return &GraphqlField{
+	return &graphql.Field{
 		Name:      method.GetName(),
-		Type:      GraphqlTypeClassObject,
 		TypeName:  g.typeNameMap[method.GetOutputType()],
 		Arguments: arguments,
-		Modifiers: GraphqlTypeModifierNonNull,
+		Modifiers: graphql.TypeModifierNonNull,
 	}
 }
 
