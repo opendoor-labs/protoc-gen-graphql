@@ -2,6 +2,6 @@ module github.com/martinxsliu/protoc-gen-graphql
 
 require (
 	github.com/golang/protobuf v1.2.0
-	github.com/onsi/ginkgo v1.7.0
-	github.com/onsi/gomega v1.4.3
+	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
+	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f // indirect
 )

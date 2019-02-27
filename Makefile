@@ -8,7 +8,7 @@ install: protoc
 
 .PHONY: test
 test: build
-	ginkgo ./...
+	go test ./...
 
 .PHONY: protoc
 protoc:

@@ -7,19 +7,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"testing"
 )
 
-func findProtoFiles(name string) []string {
-	protos, err := filepath.Glob(filepath.Join("testdata", name, "*.proto"))
-	Expect(err).NotTo(HaveOccurred())
-	Expect(protos).NotTo(BeEmpty())
-	return protos
-}
-
-func runProtoc(protoFiles []string, parameter string) {
+func runProtoc(protoFiles []string, parameter string) error {
 	args := append([]string{
 		"-I", "testdata",
 		"--plugin=bin/protoc-gen-graphql",
@@ -27,29 +18,40 @@ func runProtoc(protoFiles []string, parameter string) {
 	}, protoFiles...)
 	cmd := exec.Command("protoc", args...)
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	Expect(err).NotTo(HaveOccurred())
+	return cmd.Run()
 }
 
-func itGeneratesTheCorrectOutput(name string) {
-	protoFiles := findProtoFiles(name)
-	runProtoc(protoFiles, "")
+func itGeneratesTheCorrectOutput(t *testing.T, name string) {
+	protoFiles, err := filepath.Glob(filepath.Join("testdata", name, "*.proto"))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if err := runProtoc(protoFiles, ""); err != nil {
+		t.Error(err)
+	}
 
 	for _, proto := range protoFiles {
 		graphql, err := ioutil.ReadFile(strings.TrimSuffix(proto, ".proto") + "_pb.graphql")
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			t.Error(err)
+		}
+
 		expected, err := ioutil.ReadFile(strings.TrimSuffix(proto, ".proto") + ".golden")
-		Expect(err).NotTo(HaveOccurred())
-		Expect(string(graphql)).To(Equal(string(expected)))
+		if err != nil {
+			t.Error(err)
+		}
+
+		if string(graphql) != string(expected) {
+			t.Errorf("expected %s to equal %s", graphql, expected)
+		}
 	}
 }
 
-var _ = Describe("Plugin", func() {
-	It("generates basic protobuf types", func() {
-		itGeneratesTheCorrectOutput("basic")
-	})
+func TestBasicProtobufTypes(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "basic")
+}
 
-	It("generates input types for gRPC services", func() {
-		itGeneratesTheCorrectOutput("grpc")
-	})
-})
+func TestInputTypesForGrpcServices(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "grpc")
+}
