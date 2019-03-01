@@ -7,80 +7,102 @@ import (
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 )
 
-type FileDescriptor struct {
-	Proto    *descriptor.FileDescriptorProto
-	Messages []*MessageDescriptor
-	Enums    []*EnumDescriptor
-	Services []*ServiceDescriptor
+type File struct {
+	Proto *descriptor.FileDescriptorProto
+	// All the protobuf types defined in this file, including nested types.
+	Messages []*Message
+	Enums    []*Enum
+	Services []*Service
 }
 
-// MessageDescriptor represents a protobuf message.
-type MessageDescriptor struct {
-	Proto    *descriptor.DescriptorProto
-	Package  string
-	Parent   *MessageDescriptor
-	Nested   []*MessageDescriptor
-	Enums    []*EnumDescriptor
+// Message represents a protobuf message.
+type Message struct {
+	Proto   *descriptor.DescriptorProto
+	Package string
+	// nil if Message is a top level message (not nested).
+	Parent *Message
+	Nested []*Message
+	Enums  []*Enum
+	// Effective fields of the protobuf message, where fields belonging to a
+	// oneof fields are represented as a single field. Note that this
+	// behaviour is different from Proto.Field.
+	Fields   []*Field
+	Oneofs   []*Oneof
 	IsMap    bool
 	TypeName []string
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
 }
 
-type EnumDescriptor struct {
-	Proto    *descriptor.EnumDescriptorProto
-	Package  string
-	Parent   *MessageDescriptor
+// Field represents a protobuf field.
+type Field struct {
+	// nil if IsOneof is true.
+	Proto     *descriptor.FieldDescriptorProto
+	Parent    *Message
+	IsOneof   bool
+	OneofName string
+}
+
+type Oneof struct {
+	Proto       *descriptor.OneofDescriptorProto
+	Parent      *Message
+	FieldProtos []*descriptor.FieldDescriptorProto
+}
+
+type Enum struct {
+	Proto   *descriptor.EnumDescriptorProto
+	Package string
+	// nil if Enum is a top level enum (not nested).
+	Parent   *Message
 	TypeName []string
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
 }
 
-type ServiceDescriptor struct {
+type Service struct {
 	Proto    *descriptor.ServiceDescriptorProto
-	File     *FileDescriptor
+	Package  string
 	TypeName []string
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
 }
 
-func WrapFile(proto *descriptor.FileDescriptorProto) *FileDescriptor {
-	file := &FileDescriptor{
+func WrapFile(proto *descriptor.FileDescriptorProto) *File {
+	file := &File{
 		Proto: proto,
 	}
 
 	for _, serviceProto := range file.Proto.GetService() {
-		wrapServiceDescriptor(file, serviceProto)
+		wrapService(file, serviceProto)
 	}
 	for _, msgProto := range file.Proto.GetMessageType() {
-		wrapMessageDescriptor(file, msgProto, nil)
+		wrapMessage(file, msgProto, nil)
 	}
 	for _, enumProto := range file.Proto.GetEnumType() {
-		wrapEnumDescriptor(file, enumProto, nil)
+		wrapEnum(file, enumProto, nil)
 	}
 
 	return file
 }
 
-func wrapServiceDescriptor(file *FileDescriptor, proto *descriptor.ServiceDescriptorProto) {
-	service := &ServiceDescriptor{
+func wrapService(file *File, proto *descriptor.ServiceDescriptorProto) {
+	service := &Service{
 		Proto:    proto,
-		File:     file,
+		Package:  file.Proto.GetPackage(),
 		TypeName: []string{proto.GetName()},
 		FullName: fmt.Sprintf(".%s.%s", file.Proto.GetPackage(), proto.GetName()),
 	}
 	file.Services = append(file.Services, service)
 }
 
-// wrapMessageDescriptor returns a slice containing the wrapped message and all
+// wrapMessage returns a slice containing the wrapped message and all
 // of its nested messages.
-func wrapMessageDescriptor(file *FileDescriptor, proto *descriptor.DescriptorProto, parent *MessageDescriptor) {
+func wrapMessage(file *File, proto *descriptor.DescriptorProto, parent *Message) {
 	typeName := calculateTypeName(proto.GetName(), parent)
-	msg := &MessageDescriptor{
+	msg := &Message{
 		Proto:    proto,
 		Package:  file.Proto.GetPackage(),
 		Parent:   parent,
-		Nested:   []*MessageDescriptor{},
 		IsMap:    proto.GetOptions().GetMapEntry(),
 		TypeName: typeName,
 		FullName: fmt.Sprintf(".%s.%s", file.Proto.GetPackage(), strings.Join(typeName, ".")),
@@ -90,17 +112,64 @@ func wrapMessageDescriptor(file *FileDescriptor, proto *descriptor.DescriptorPro
 		parent.Nested = append(parent.Nested, msg)
 	}
 
+	wrapFields(msg)
+	wrapOneof(msg)
 	for _, nested := range proto.GetNestedType() {
-		wrapMessageDescriptor(file, nested, msg)
+		wrapMessage(file, nested, msg)
 	}
 	for _, enum := range proto.GetEnumType() {
-		wrapEnumDescriptor(file, enum, msg)
+		wrapEnum(file, enum, msg)
 	}
 }
 
-func wrapEnumDescriptor(file *FileDescriptor, proto *descriptor.EnumDescriptorProto, parent *MessageDescriptor) {
+func wrapFields(parent *Message) {
+	seenOneofs := make(map[int32]bool)
+	for _, fieldProto := range parent.Proto.GetField() {
+		// Handle normal field.
+		if fieldProto.OneofIndex == nil {
+			parent.Fields = append(parent.Fields, &Field{
+				Proto:  fieldProto,
+				Parent: parent,
+			})
+			continue
+		}
+
+		// Handle field that belongs to a oneof. We only want to append the oneof field
+		// the first time we encounter it.
+		index := *fieldProto.OneofIndex
+		if seenOneofs[index] {
+			continue
+		}
+		seenOneofs[index] = true
+
+		name := parent.Proto.GetOneofDecl()[index].GetName()
+		parent.Fields = append(parent.Fields, &Field{
+			Parent:    parent,
+			IsOneof:   true,
+			OneofName: name,
+		})
+	}
+}
+
+func wrapOneof(parent *Message) {
+	for _, oneofProto := range parent.Proto.GetOneofDecl() {
+		parent.Oneofs = append(parent.Oneofs, &Oneof{
+			Proto:  oneofProto,
+			Parent: parent,
+		})
+	}
+
+	for _, fieldProto := range parent.Proto.GetField() {
+		if fieldProto.OneofIndex != nil {
+			index := *fieldProto.OneofIndex
+			parent.Oneofs[index].FieldProtos = append(parent.Oneofs[index].FieldProtos, fieldProto)
+		}
+	}
+}
+
+func wrapEnum(file *File, proto *descriptor.EnumDescriptorProto, parent *Message) {
 	typeName := calculateTypeName(proto.GetName(), parent)
-	enum := &EnumDescriptor{
+	enum := &Enum{
 		Proto:    proto,
 		Package:  file.Proto.GetPackage(),
 		Parent:   parent,
@@ -113,7 +182,7 @@ func wrapEnumDescriptor(file *FileDescriptor, proto *descriptor.EnumDescriptorPr
 	}
 }
 
-func calculateTypeName(name string, parent *MessageDescriptor) []string {
+func calculateTypeName(name string, parent *Message) []string {
 	parts := []string{name}
 	for ; parent != nil; parent = parent.Parent {
 		parts = append(parts, parent.Proto.GetName())

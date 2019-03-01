@@ -2,6 +2,8 @@ package graphql
 
 import "strings"
 
+// TypeDef returns the schema definition language (SDL) representation
+// of the GraphQL type.
 func TypeDef(graphqlType Type) string {
 	switch graphqlType := graphqlType.(type) {
 	case *Scalar:

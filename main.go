@@ -22,10 +22,7 @@ func main() {
 		fail("error parsing input: " + err.Error())
 	}
 
-	generator, err := New(req, resp)
-	if err != nil {
-		writeErr(resp, err)
-	}
+	generator := New(req, resp)
 
 	err = generator.Generate()
 	if err != nil {
