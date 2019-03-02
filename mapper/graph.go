@@ -1,6 +1,9 @@
 package mapper
 
 import (
+	"fmt"
+	"strconv"
+
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"gonum.org/v1/gonum/graph"
@@ -59,6 +62,22 @@ func (g *Graph) Sort() ([]*descriptor.Message, error) {
 
 	sortedNodes, err := topo.Sort(g.g)
 	if err != nil {
+		if unorderable, ok := err.(topo.Unorderable); ok {
+			var nameSets [][]string
+			for _, set := range unorderable {
+				var names []string
+				for _, node := range set {
+					message, ok := g.nodes[node]
+					if ok {
+						names = append(names, message.FullName)
+					} else {
+						names = append(names, strconv.Itoa(int(node.ID())))
+					}
+				}
+				nameSets = append(nameSets, names)
+			}
+			return nil, fmt.Errorf("%s: %v", err, nameSets)
+		}
 		return nil, err
 	}
 

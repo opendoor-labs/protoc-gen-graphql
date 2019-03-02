@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package protoc_gen_graphql.test.grpc;
 
+import "grpc/data.proto";
+
 service ServiceA {
   rpc MethodA(RequestA) returns (ResponseA);
+  rpc MethodB(RequestB) returns (ResponseB);
 }
 
 message RequestA {

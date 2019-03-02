@@ -2,6 +2,7 @@
 
 type ProtocGenGraphqlTestGrpc_ServiceA_Query {
   MethodA(input: ProtocGenGraphqlTestGrpc_RequestA_Input!): ProtocGenGraphqlTestGrpc_ResponseA!
+  MethodB(input: ProtocGenGraphqlTestGrpc_RequestB_Input!): ProtocGenGraphqlTestGrpc_ResponseB!
 }
 
 type ProtocGenGraphqlTestGrpc_RequestA {

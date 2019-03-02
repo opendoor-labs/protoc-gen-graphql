@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.grpc;
+
+message RequestB {
+  string id = 1;
+}
+
+message ResponseB {
+  string id = 1;
+}

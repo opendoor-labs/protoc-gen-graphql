@@ -74,6 +74,11 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		ServiceMappers: make(map[string]*ServiceMapper),
 	}
 
+	var (
+		messages      []*descriptor.Message
+		inputMessages []*descriptor.Message
+	)
+
 	for _, filePb := range filePbs {
 		file := descriptor.WrapFile(filePb)
 
@@ -81,6 +86,7 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		m.Files[filePb.GetName()] = file
 		for _, message := range file.Messages {
 			m.Messages[message.FullName] = message
+			messages = append(messages, message)
 		}
 		for _, enum := range file.Enums {
 			m.Enums[enum.FullName] = enum
@@ -105,22 +111,27 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		}
 
 		for _, service := range file.Services {
-			// Build inputs for service methods.
-			var inputs []*descriptor.Message
 			for _, method := range service.Proto.GetMethod() {
-				inputs = append(inputs, m.Messages[method.GetInputType()])
+				inputMessages = append(inputMessages, m.Messages[method.GetInputType()])
 			}
+		}
+	}
 
-			inputMessages, err := g.SortTo(inputs)
-			if err != nil {
-				panic(err)
-			}
+	// Build inputs for service methods.
+	g := NewGraph(messages)
+	inputMessages, err := g.SortTo(inputMessages)
+	if err != nil {
+		panic(err)
+	}
 
-			for _, message := range inputMessages {
-				m.buildMessageMapper(message, true)
-			}
+	for _, message := range inputMessages {
+		m.buildMessageMapper(message, true)
+	}
 
-			// Build service mapper last, after all dependencies are mapped.
+	// Build service mapper last, after all dependencies are mapped.
+	for _, filePb := range filePbs {
+		file := descriptor.WrapFile(filePb)
+		for _, service := range file.Services {
 			m.buildServiceMapper(service)
 		}
 	}
@@ -422,9 +433,6 @@ func (m *Mapper) graphqlFieldFromMethod(method *pb.MethodDescriptorProto) *graph
 	// Only add an argument if there are fields in the gRPC request message.
 	var arguments []*graphql.Argument
 	inputType := m.Messages[method.GetInputType()]
-	if m.MessageMappers[method.GetInputType()].Input == nil {
-		panic(fmt.Sprintf("%s: %+v", method.GetInputType(), m.MessageMappers[method.GetInputType()]))
-	}
 	if len(inputType.Fields) != 0 {
 		arguments = append(arguments, &graphql.Argument{
 			Name:      "input",
