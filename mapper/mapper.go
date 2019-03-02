@@ -7,10 +7,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/golang/protobuf/protoc-gen-go/generator"
+	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/graphql"
 	"github.com/martinxsliu/protoc-gen-graphql/graphqlpb"
-
-	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 )
 
 type Mapper struct {
@@ -19,15 +18,18 @@ type Mapper struct {
 
 	// Maps file names to descriptors.
 	Files map[string]*descriptor.File
-	// Maps qualified protobuf names to descriptors.
+	// Maps protobuf types to descriptors.
 	Messages map[string]*descriptor.Message
 	Enums    map[string]*descriptor.Enum
 
 	// Set of protobuf messages with no fields. Values are always true.
 	EmptyMessages map[string]bool
 
+	// Maps protobuf messages and enums to graphql type names.
+	ObjectNames map[string]string
+	InputNames  map[string]string
+
 	// Maps protobuf types to graphql types.
-	// e.m. ".google.protobuf.StringValue" -> "GoogleProtobuf_StringValue"
 	MessageMappers map[string]*MessageMapper
 	EnumMappers    map[string]*EnumMapper
 	ServiceMappers map[string]*ServiceMapper
@@ -35,6 +37,7 @@ type Mapper struct {
 
 type MessageMapper struct {
 	Descriptor *descriptor.Message
+	Empty      bool
 	Object     *graphql.Object
 	Input      *graphql.Input
 	Oneofs     []*OneofMapper
@@ -53,129 +56,165 @@ type EnumMapper struct {
 }
 
 type ServiceMapper struct {
-	Descriptor          *descriptor.Service
-	QueriesObject       *graphql.Object
-	MutationsObject     *graphql.Object
-	SubscriptionsObject *graphql.Object
+	Descriptor    *descriptor.Service
+	Queries       *graphql.Object
+	Mutations     *graphql.Object
+	Subscriptions *graphql.Object
 }
 
 // New creates a new Mapper with all mappings populated from the provided file
 // descriptors. The provided file descriptors must be in topological order.
 func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 	m := &Mapper{
-		FilePbs:        filePbs,
-		Params:         params,
-		Files:          make(map[string]*descriptor.File),
-		Messages:       make(map[string]*descriptor.Message),
-		Enums:          make(map[string]*descriptor.Enum),
-		EmptyMessages:  make(map[string]bool),
+		FilePbs: filePbs,
+		Params:  params,
+
+		Files:    make(map[string]*descriptor.File),
+		Messages: make(map[string]*descriptor.Message),
+		Enums:    make(map[string]*descriptor.Enum),
+
+		EmptyMessages: make(map[string]bool),
+		ObjectNames:   make(map[string]string),
+		InputNames:    make(map[string]string),
+
 		MessageMappers: make(map[string]*MessageMapper),
 		EnumMappers:    make(map[string]*EnumMapper),
 		ServiceMappers: make(map[string]*ServiceMapper),
 	}
+	m.buildDescriptorMaps()
+	m.buildTypeMaps()
+	m.buildMappers()
+	return m
+}
 
-	var (
-		messages      []*descriptor.Message
-		inputMessages []*descriptor.Message
-	)
-
-	for _, filePb := range filePbs {
+func (m *Mapper) buildDescriptorMaps() {
+	for _, filePb := range m.FilePbs {
 		file := descriptor.WrapFile(filePb)
-
-		// Build descriptor maps.
 		m.Files[filePb.GetName()] = file
-		for _, message := range file.Messages {
-			m.Messages[message.FullName] = message
-			messages = append(messages, message)
-		}
 		for _, enum := range file.Enums {
 			m.Enums[enum.FullName] = enum
 		}
+		for _, message := range file.Messages {
+			m.Messages[message.FullName] = message
+		}
+	}
+}
 
-		// Build protobuf to graphql mappers.
+func (m *Mapper) buildTypeMaps() {
+	for _, filePb := range m.FilePbs {
+		file := m.Files[filePb.GetName()]
+		for _, enum := range file.Enums {
+			m.ObjectNames[enum.FullName] = BuildGraphqlTypeName(&GraphqlTypeNameParts{
+				Package:  enum.Package,
+				TypeName: enum.TypeName,
+			})
+		}
+
+		for _, message := range file.Messages {
+			m.buildMessageTypeMaps(message, false)
+		}
+		for _, service := range file.Services {
+			for _, method := range service.Proto.GetMethod() {
+				m.buildMessageTypeMaps(m.Messages[method.GetInputType()], true)
+			}
+		}
+	}
+}
+
+func (m *Mapper) buildMessageTypeMaps(message *descriptor.Message, input bool) {
+	nameMap := m.ObjectNames
+	if input {
+		nameMap = m.InputNames
+	}
+
+	if nameMap[message.FullName] != "" {
+		return
+	}
+	if len(message.Proto.GetField()) == 0 {
+		m.EmptyMessages[message.FullName] = true
+		return
+	}
+
+	nameMap[message.FullName] = BuildGraphqlTypeName(&GraphqlTypeNameParts{
+		Package:    message.Package,
+		TypeName:   message.TypeName,
+		Input:      input,
+		IsProtoMap: message.IsMap,
+	})
+
+	for _, field := range message.Proto.GetField() {
+		if field.GetType() == pb.FieldDescriptorProto_TYPE_MESSAGE {
+			m.buildMessageTypeMaps(m.Messages[field.GetTypeName()], input)
+		}
+	}
+}
+
+func (m *Mapper) buildMappers() {
+	for _, filePb := range m.FilePbs {
+		file := m.Files[filePb.GetName()]
 
 		// Build enum mapper first as it has no dependencies.
 		for _, enum := range file.Enums {
 			m.buildEnumMapper(enum)
 		}
-
-		// Build message mapper, first sort messages in topological order.
-		g := NewGraph(file.Messages)
-		messages, err := g.Sort()
-		if err != nil {
-			panic(err)
-		}
-
-		for _, message := range messages {
+		for _, message := range file.Messages {
 			m.buildMessageMapper(message, false)
 		}
 
 		for _, service := range file.Services {
 			for _, method := range service.Proto.GetMethod() {
-				inputMessages = append(inputMessages, m.Messages[method.GetInputType()])
+				m.buildMessageMapper(m.Messages[method.GetInputType()], true)
 			}
-		}
-	}
 
-	// Build inputs for service methods.
-	g := NewGraph(messages)
-	inputMessages, err := g.SortTo(inputMessages)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, message := range inputMessages {
-		m.buildMessageMapper(message, true)
-	}
-
-	// Build service mapper last, after all dependencies are mapped.
-	for _, filePb := range filePbs {
-		file := descriptor.WrapFile(filePb)
-		for _, service := range file.Services {
+			// Build service mapper last, after all dependencies are mapped.
 			m.buildServiceMapper(service)
 		}
 	}
-
-	return m
 }
 
+// Do not call buildMessageMapper with the same message and input=false
+// after calling it with input=true, otherwise the input objects for
+// the oneofs will be overwritten.
 func (m *Mapper) buildMessageMapper(message *descriptor.Message, input bool) {
-	if len(message.Fields) == 0 {
-		m.EmptyMessages[message.FullName] = true
-		m.MessageMappers[message.FullName] = &MessageMapper{Descriptor: message}
+	mapper, ok := m.MessageMappers[message.FullName]
+	if ok {
+		if (input && mapper.Input != nil) || (!input && mapper.Object != nil) {
+			return
+		}
+	}
+
+	if !ok {
+		mapper = &MessageMapper{Descriptor: message}
+		m.MessageMappers[message.FullName] = mapper
+	}
+
+	if m.EmptyMessages[message.FullName] {
+		mapper.Empty = true
 		return
 	}
 
-	mapper := &MessageMapper{
-		Descriptor: message,
-		Object: &graphql.Object{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:    message.Package,
-				TypeName:   message.TypeName,
-				Input:      false,
-				IsProtoMap: message.IsMap,
-			}),
-			Fields: m.graphqlFields(message, false),
-		},
+	mapper.Object = &graphql.Object{
+		Name:   m.ObjectNames[message.FullName],
+		Fields: m.graphqlFields(message, false),
 	}
-
 	if input {
 		mapper.Input = &graphql.Input{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:    message.Package,
-				TypeName:   message.TypeName,
-				Input:      true,
-				IsProtoMap: message.IsMap,
-			}),
+			Name:   m.InputNames[message.FullName],
 			Fields: m.graphqlFields(message, true),
 		}
 	}
 
+	var oneofMappers []*OneofMapper
 	for _, oneof := range message.Oneofs {
-		mapper.Oneofs = append(mapper.Oneofs, m.buildOneofMapper(oneof, input))
+		oneofMappers = append(oneofMappers, m.buildOneofMapper(oneof, input))
 	}
+	mapper.Oneofs = oneofMappers
 
-	m.MessageMappers[message.FullName] = mapper
+	for _, field := range message.Proto.GetField() {
+		if field.GetType() == pb.FieldDescriptorProto_TYPE_MESSAGE {
+			m.buildMessageMapper(m.Messages[field.GetTypeName()], input)
+		}
+	}
 }
 
 func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graphql.Field {
@@ -183,10 +222,10 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 	for _, field := range message.Fields {
 		if field.IsOneof {
 			fields = append(fields, &graphql.Field{
-				Name: field.OneofName,
+				Name: field.Name,
 				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 					Package:  message.Package,
-					TypeName: append(message.TypeName, field.OneofName),
+					TypeName: append(message.TypeName, field.Name),
 					Input:    input,
 				}),
 			})
@@ -250,15 +289,9 @@ func (m *Mapper) graphqlField(proto *pb.FieldDescriptorProto, options fieldOptio
 		}
 
 		if options.Input {
-			if m.MessageMappers[proto.GetTypeName()].Input == nil {
-				panic(fmt.Sprintf("%s: %+v", proto.GetTypeName(), m.MessageMappers[proto.GetTypeName()]))
-			}
-			field.TypeName = m.MessageMappers[proto.GetTypeName()].Input.Name
+			field.TypeName = m.InputNames[proto.GetTypeName()]
 		} else {
-			if m.MessageMappers[proto.GetTypeName()] == nil {
-				panic(fmt.Sprintf("%s: %v", proto.GetTypeName(), m.MessageMappers))
-			}
-			field.TypeName = m.MessageMappers[proto.GetTypeName()].Object.Name
+			field.TypeName = m.ObjectNames[proto.GetTypeName()]
 		}
 
 		// Map elements are non-nullable.
@@ -354,10 +387,7 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 	m.EnumMappers[enum.FullName] = &EnumMapper{
 		Descriptor: enum,
 		Enum: &graphql.Enum{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:  enum.Package,
-				TypeName: enum.TypeName,
-			}),
+			Name:   m.ObjectNames[enum.FullName],
 			Values: values,
 		},
 	}
@@ -399,7 +429,7 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		Descriptor: service,
 	}
 	if len(queries) > 0 {
-		mapper.QueriesObject = &graphql.Object{
+		mapper.Queries = &graphql.Object{
 			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 				Package:  service.Package,
 				TypeName: append(service.TypeName, "Query"),
@@ -408,7 +438,7 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		}
 	}
 	if len(mutations) > 0 {
-		mapper.MutationsObject = &graphql.Object{
+		mapper.Mutations = &graphql.Object{
 			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 				Package:  service.Package,
 				TypeName: append(service.TypeName, "Mutation"),
@@ -417,7 +447,7 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		}
 	}
 	if len(subscriptions) > 0 {
-		mapper.SubscriptionsObject = &graphql.Object{
+		mapper.Subscriptions = &graphql.Object{
 			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 				Package:  service.Package,
 				TypeName: append(service.TypeName, "Subscription"),

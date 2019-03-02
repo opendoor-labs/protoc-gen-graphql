@@ -52,6 +52,10 @@ func TestBasicProtobufTypes(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "basic")
 }
 
+func TestMessagesWithCycles(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "cycle")
+}
+
 func TestInputTypesForGrpcServices(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "grpc")
 }

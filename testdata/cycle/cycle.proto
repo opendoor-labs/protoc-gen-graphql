@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.cycle;
+
+message A {
+  B b = 1;
+}
+
+message B {
+  C c = 1;
+}
+
+message C {
+  A a = 1;
+}

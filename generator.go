@@ -46,14 +46,14 @@ func (g *Generator) generateFiles() {
 
 		for _, service := range file.Services {
 			m := g.mapper.ServiceMappers[service.FullName]
-			if m.QueriesObject != nil {
-				gqlTypes = append(gqlTypes, m.QueriesObject)
+			if m.Queries != nil {
+				gqlTypes = append(gqlTypes, m.Queries)
 			}
-			if m.MutationsObject != nil {
-				gqlTypes = append(gqlTypes, m.MutationsObject)
+			if m.Mutations != nil {
+				gqlTypes = append(gqlTypes, m.Mutations)
 			}
-			if m.SubscriptionsObject != nil {
-				gqlTypes = append(gqlTypes, m.SubscriptionsObject)
+			if m.Subscriptions != nil {
+				gqlTypes = append(gqlTypes, m.Subscriptions)
 			}
 		}
 

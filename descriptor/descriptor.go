@@ -36,11 +36,12 @@ type Message struct {
 
 // Field represents a protobuf field.
 type Field struct {
+	Name string
 	// nil if IsOneof is true.
-	Proto     *descriptor.FieldDescriptorProto
-	Parent    *Message
-	IsOneof   bool
-	OneofName string
+	Proto      *descriptor.FieldDescriptorProto
+	Parent     *Message
+	IsOneof    bool
+	OneofIndex int32
 }
 
 type Oneof struct {
@@ -113,7 +114,7 @@ func wrapMessage(file *File, proto *descriptor.DescriptorProto, parent *Message)
 	}
 
 	wrapFields(msg)
-	wrapOneof(msg)
+	wrapOneofs(msg)
 	for _, nested := range proto.GetNestedType() {
 		wrapMessage(file, nested, msg)
 	}
@@ -128,6 +129,7 @@ func wrapFields(parent *Message) {
 		// Handle normal field.
 		if fieldProto.OneofIndex == nil {
 			parent.Fields = append(parent.Fields, &Field{
+				Name:   fieldProto.GetName(),
 				Proto:  fieldProto,
 				Parent: parent,
 			})
@@ -144,14 +146,15 @@ func wrapFields(parent *Message) {
 
 		name := parent.Proto.GetOneofDecl()[index].GetName()
 		parent.Fields = append(parent.Fields, &Field{
-			Parent:    parent,
-			IsOneof:   true,
-			OneofName: name,
+			Name:       name,
+			Parent:     parent,
+			IsOneof:    true,
+			OneofIndex: index,
 		})
 	}
 }
 
-func wrapOneof(parent *Message) {
+func wrapOneofs(parent *Message) {
 	for _, oneofProto := range parent.Proto.GetOneofDecl() {
 		parent.Oneofs = append(parent.Oneofs, &Oneof{
 			Proto:  oneofProto,
