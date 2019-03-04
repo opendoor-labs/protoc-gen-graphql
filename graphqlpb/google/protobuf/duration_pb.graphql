@@ -4,3 +4,8 @@ type GoogleProtobuf_Duration {
   seconds: String!
   nanos: Int!
 }
+
+input GoogleProtobuf_DurationInput {
+  seconds: String!
+  nanos: Int!
+}

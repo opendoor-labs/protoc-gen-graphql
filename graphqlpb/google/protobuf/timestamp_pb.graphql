@@ -4,3 +4,8 @@ type GoogleProtobuf_Timestamp {
   seconds: String!
   nanos: Int!
 }
+
+input GoogleProtobuf_TimestampInput {
+  seconds: String!
+  nanos: Int!
+}

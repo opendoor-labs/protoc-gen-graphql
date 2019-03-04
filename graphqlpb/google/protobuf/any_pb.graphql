@@ -4,3 +4,8 @@ type GoogleProtobuf_Any {
   type_url: String!
   value: String!
 }
+
+input GoogleProtobuf_AnyInput {
+  type_url: String!
+  value: String!
+}

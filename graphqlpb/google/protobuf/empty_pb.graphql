@@ -3,3 +3,7 @@
 type GoogleProtobuf_Empty {
   _empty: Boolean
 }
+
+input GoogleProtobuf_EmptyInput {
+  _empty: Boolean
+}

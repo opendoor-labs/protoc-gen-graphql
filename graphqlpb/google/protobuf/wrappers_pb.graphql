@@ -4,7 +4,15 @@ type GoogleProtobuf_DoubleValue {
   value: Float!
 }
 
+input GoogleProtobuf_DoubleValueInput {
+  value: Float!
+}
+
 type GoogleProtobuf_FloatValue {
+  value: Float!
+}
+
+input GoogleProtobuf_FloatValueInput {
   value: Float!
 }
 
@@ -12,7 +20,15 @@ type GoogleProtobuf_Int64Value {
   value: String!
 }
 
+input GoogleProtobuf_Int64ValueInput {
+  value: String!
+}
+
 type GoogleProtobuf_UInt64Value {
+  value: String!
+}
+
+input GoogleProtobuf_UInt64ValueInput {
   value: String!
 }
 
@@ -20,7 +36,15 @@ type GoogleProtobuf_Int32Value {
   value: Int!
 }
 
+input GoogleProtobuf_Int32ValueInput {
+  value: Int!
+}
+
 type GoogleProtobuf_UInt32Value {
+  value: Float!
+}
+
+input GoogleProtobuf_UInt32ValueInput {
   value: Float!
 }
 
@@ -28,10 +52,22 @@ type GoogleProtobuf_BoolValue {
   value: Boolean!
 }
 
+input GoogleProtobuf_BoolValueInput {
+  value: Boolean!
+}
+
 type GoogleProtobuf_StringValue {
   value: String!
 }
 
+input GoogleProtobuf_StringValueInput {
+  value: String!
+}
+
 type GoogleProtobuf_BytesValue {
+  value: String!
+}
+
+input GoogleProtobuf_BytesValueInput {
   value: String!
 }

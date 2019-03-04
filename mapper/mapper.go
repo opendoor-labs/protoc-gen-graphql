@@ -108,11 +108,7 @@ func (m *Mapper) buildTypeMaps() {
 
 		for _, message := range file.Messages {
 			m.buildMessageTypeMaps(message, false)
-		}
-		for _, service := range file.Services {
-			for _, method := range service.Proto.GetMethod() {
-				m.buildMessageTypeMaps(m.Messages[method.GetInputType()], true)
-			}
+			m.buildMessageTypeMaps(message, true)
 		}
 	}
 }
@@ -153,13 +149,23 @@ func (m *Mapper) buildMappers() {
 			m.buildMessageMapper(message, false)
 		}
 
+		if m.Params.InputMode == InputModeAll {
+			for _, message := range file.Messages {
+				m.buildMessageMapper(message, true)
+			}
+		}
+
 		for _, service := range file.Services {
-			for _, method := range service.Proto.GetMethod() {
-				m.buildMessageMapper(m.Messages[method.GetInputType()], true)
+			if m.Params.InputMode == InputModeService {
+				for _, method := range service.Proto.GetMethod() {
+					m.buildMessageMapper(m.Messages[method.GetInputType()], true)
+				}
 			}
 
 			// Build service mapper last, after all dependencies are mapped.
-			m.buildServiceMapper(service)
+			if m.Params.InputMode != InputModeNone {
+				m.buildServiceMapper(service)
+			}
 		}
 	}
 }

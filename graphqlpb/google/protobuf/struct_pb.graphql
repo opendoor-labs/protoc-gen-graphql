@@ -4,9 +4,18 @@ type GoogleProtobuf_Struct {
   fields: [GoogleProtobuf_Struct_FieldsMap!]!
 }
 
+input GoogleProtobuf_StructInput {
+  fields: [GoogleProtobuf_Struct_FieldsMapInput!]!
+}
+
 type GoogleProtobuf_Struct_FieldsMap {
   key: String!
   value: GoogleProtobuf_Value
+}
+
+input GoogleProtobuf_Struct_FieldsMapInput {
+  key: String!
+  value: GoogleProtobuf_ValueInput
 }
 
 type GoogleProtobuf_Value {
@@ -39,8 +48,25 @@ type GoogleProtobuf_Value_KindOneof_ListValue {
   list_value: GoogleProtobuf_ListValue
 }
 
+input GoogleProtobuf_ValueInput {
+  kind: GoogleProtobuf_Value_KindOneofInput
+}
+
+input GoogleProtobuf_Value_KindOneofInput {
+  null_value: GoogleProtobuf_NullValue
+  number_value: Float!
+  string_value: String
+  bool_value: Boolean
+  struct_value: GoogleProtobuf_StructInput
+  list_value: GoogleProtobuf_ListValueInput
+}
+
 type GoogleProtobuf_ListValue {
-  values: [GoogleProtobuf_Value]!
+  values: [GoogleProtobuf_Value!]!
+}
+
+input GoogleProtobuf_ListValueInput {
+  values: [GoogleProtobuf_ValueInput!]!
 }
 
 enum GoogleProtobuf_NullValue {

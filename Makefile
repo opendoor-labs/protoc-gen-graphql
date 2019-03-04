@@ -18,5 +18,5 @@ protoc:
 protoc-wkt: build
 	protoc -I graphqlpb \
 		--plugin=bin/protoc-gen-graphql \
-		--graphql_out=graphqlpb \
+		--graphql_out=input_mode=all:graphqlpb \
 		graphqlpb/google/protobuf/*.proto

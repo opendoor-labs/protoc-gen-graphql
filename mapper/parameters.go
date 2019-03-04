@@ -5,22 +5,28 @@ import (
 	"strings"
 )
 
+const (
+	InputModeNone    = "none"
+	InputModeService = "service"
+	InputModeAll     = "all"
+)
+
 type Parameters struct {
 	TimestampTypeName string
 	DurationTypeName  string
 	WrappersAsNull    bool
-	ServiceTypesOnly  bool
+	InputMode         string
 }
 
 func NewParameters(parameter string) (*Parameters, error) {
 	params := &Parameters{}
 
-	if parameter == "" {
-		return params, nil
-	}
-
 	parts := strings.Split(parameter, ",")
 	for _, part := range parts {
+		if part == "" {
+			continue
+		}
+
 		keyValue := strings.SplitN(part, "=", 2)
 		key := keyValue[0]
 		var value string
@@ -41,11 +47,15 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.DurationTypeName = value
 		case "null_wrappers":
 			params.WrappersAsNull = true
-		case "service_only":
-			params.ServiceTypesOnly = true
+		case "input_mode":
+			params.InputMode = value
 		default:
 			return nil, fmt.Errorf("unknown parameter: %s", key)
 		}
+	}
+
+	if params.InputMode == "" {
+		params.InputMode = InputModeService
 	}
 
 	return params, nil

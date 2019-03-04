@@ -2,10 +2,19 @@
 
 type GoogleProtobuf_Type {
   name: String!
-  fields: [GoogleProtobuf_Field]!
+  fields: [GoogleProtobuf_Field!]!
   oneofs: [String!]!
-  options: [GoogleProtobuf_Option]!
+  options: [GoogleProtobuf_Option!]!
   source_context: GoogleProtobuf_SourceContext
+  syntax: GoogleProtobuf_Syntax!
+}
+
+input GoogleProtobuf_TypeInput {
+  name: String!
+  fields: [GoogleProtobuf_FieldInput!]!
+  oneofs: [String!]!
+  options: [GoogleProtobuf_OptionInput!]!
+  source_context: GoogleProtobuf_SourceContextInput
   syntax: GoogleProtobuf_Syntax!
 }
 
@@ -17,28 +26,60 @@ type GoogleProtobuf_Field {
   type_url: String!
   oneof_index: Int!
   packed: Boolean!
-  options: [GoogleProtobuf_Option]!
+  options: [GoogleProtobuf_Option!]!
+  json_name: String!
+  default_value: String!
+}
+
+input GoogleProtobuf_FieldInput {
+  kind: GoogleProtobuf_Field_Kind!
+  cardinality: GoogleProtobuf_Field_Cardinality!
+  number: Int!
+  name: String!
+  type_url: String!
+  oneof_index: Int!
+  packed: Boolean!
+  options: [GoogleProtobuf_OptionInput!]!
   json_name: String!
   default_value: String!
 }
 
 type GoogleProtobuf_Enum {
   name: String!
-  enumvalue: [GoogleProtobuf_EnumValue]!
-  options: [GoogleProtobuf_Option]!
+  enumvalue: [GoogleProtobuf_EnumValue!]!
+  options: [GoogleProtobuf_Option!]!
   source_context: GoogleProtobuf_SourceContext
+  syntax: GoogleProtobuf_Syntax!
+}
+
+input GoogleProtobuf_EnumInput {
+  name: String!
+  enumvalue: [GoogleProtobuf_EnumValueInput!]!
+  options: [GoogleProtobuf_OptionInput!]!
+  source_context: GoogleProtobuf_SourceContextInput
   syntax: GoogleProtobuf_Syntax!
 }
 
 type GoogleProtobuf_EnumValue {
   name: String!
   number: Int!
-  options: [GoogleProtobuf_Option]!
+  options: [GoogleProtobuf_Option!]!
+}
+
+input GoogleProtobuf_EnumValueInput {
+  name: String!
+  number: Int!
+  options: [GoogleProtobuf_OptionInput!]!
 }
 
 type GoogleProtobuf_Option {
   name: String!
   value: GoogleProtobuf_Any
+}
+
+input GoogleProtobuf_OptionInput {
+  name: String!
+  value: GoogleProtobuf_AnyInput
 }
 
 enum GoogleProtobuf_Field_Kind {
