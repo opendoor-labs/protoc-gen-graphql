@@ -19,6 +19,7 @@ type File struct {
 type Message struct {
 	Proto   *descriptor.DescriptorProto
 	Package string
+	File    *File
 	// nil if Message is a top level message (not nested).
 	Parent *Message
 	Nested []*Message
@@ -53,6 +54,7 @@ type Oneof struct {
 type Enum struct {
 	Proto   *descriptor.EnumDescriptorProto
 	Package string
+	File    *File
 	// nil if Enum is a top level enum (not nested).
 	Parent   *Message
 	TypeName []string
@@ -103,6 +105,7 @@ func wrapMessage(file *File, proto *descriptor.DescriptorProto, parent *Message)
 	msg := &Message{
 		Proto:    proto,
 		Package:  file.Proto.GetPackage(),
+		File:     file,
 		Parent:   parent,
 		IsMap:    proto.GetOptions().GetMapEntry(),
 		TypeName: typeName,
@@ -175,6 +178,7 @@ func wrapEnum(file *File, proto *descriptor.EnumDescriptorProto, parent *Message
 	enum := &Enum{
 		Proto:    proto,
 		Package:  file.Proto.GetPackage(),
+		File:     file,
 		Parent:   parent,
 		TypeName: typeName,
 		FullName: fmt.Sprintf(".%s.%s", file.Proto.GetPackage(), strings.Join(typeName, ".")),

@@ -20,7 +20,7 @@ type ProtocGenGraphqlTestBasic_ComplexFields {
   message_field: ProtocGenGraphqlTestBasic_ScalarFields
   enum_field: ProtocGenGraphqlTestBasic_EnumType!
   repeated_scalar_field: [String!]!
-  repeated_message_field: [ProtocGenGraphqlTestBasic_ScalarFields]!
+  repeated_message_field: [ProtocGenGraphqlTestBasic_ScalarFields!]!
   map_field: [ProtocGenGraphqlTestBasic_ComplexFields_MapFieldMap!]!
   oneof_field: ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof
   empty_field: ProtocGenGraphqlTestBasic_Empty

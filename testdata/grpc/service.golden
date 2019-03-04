@@ -8,7 +8,7 @@ type ProtocGenGraphqlTestGrpc_ServiceA_Query {
 type ProtocGenGraphqlTestGrpc_RequestA {
   string_field: String!
   request_aa: ProtocGenGraphqlTestGrpc_RequestA_RequestAA
-  request_aaa: [ProtocGenGraphqlTestGrpc_RequestA_RequestAA_RequestAAA]!
+  request_aaa: [ProtocGenGraphqlTestGrpc_RequestA_RequestAA_RequestAAA!]!
   map_field: [ProtocGenGraphqlTestGrpc_RequestA_MapFieldMap!]!
   oneof_field: ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof
 }
@@ -26,7 +26,7 @@ type ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof_SecondOneofValue {
 input ProtocGenGraphqlTestGrpc_RequestAInput {
   string_field: String!
   request_aa: ProtocGenGraphqlTestGrpc_RequestA_RequestAAInput
-  request_aaa: [ProtocGenGraphqlTestGrpc_RequestA_RequestAA_RequestAAAInput]!
+  request_aaa: [ProtocGenGraphqlTestGrpc_RequestA_RequestAA_RequestAAAInput!]!
   map_field: [ProtocGenGraphqlTestGrpc_RequestA_MapFieldMapInput!]!
   oneof_field: ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneofInput
 }

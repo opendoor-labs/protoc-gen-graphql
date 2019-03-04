@@ -300,7 +300,7 @@ func (m *Mapper) graphqlField(proto *pb.FieldDescriptorProto, options fieldOptio
 	}
 
 	if proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
-		field.Modifiers = field.Modifiers | graphql.TypeModifierList
+		field.Modifiers = field.Modifiers | graphql.TypeModifierNonNull | graphql.TypeModifierList
 	}
 
 	return m.graphqlSpecialTypes(field, proto.GetTypeName())
