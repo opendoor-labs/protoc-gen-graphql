@@ -22,9 +22,6 @@ type Mapper struct {
 	Messages map[string]*descriptor.Message
 	Enums    map[string]*descriptor.Enum
 
-	// Set of protobuf messages with no fields. Values are always true.
-	EmptyMessages map[string]bool
-
 	// Maps protobuf messages and enums to graphql type names.
 	ObjectNames map[string]string
 	InputNames  map[string]string
@@ -73,9 +70,8 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		Messages: make(map[string]*descriptor.Message),
 		Enums:    make(map[string]*descriptor.Enum),
 
-		EmptyMessages: make(map[string]bool),
-		ObjectNames:   make(map[string]string),
-		InputNames:    make(map[string]string),
+		ObjectNames: make(map[string]string),
+		InputNames:  make(map[string]string),
 
 		MessageMappers: make(map[string]*MessageMapper),
 		EnumMappers:    make(map[string]*EnumMapper),
@@ -128,10 +124,6 @@ func (m *Mapper) buildMessageTypeMaps(message *descriptor.Message, input bool) {
 	}
 
 	if nameMap[message.FullName] != "" {
-		return
-	}
-	if len(message.Proto.GetField()) == 0 {
-		m.EmptyMessages[message.FullName] = true
 		return
 	}
 
@@ -188,9 +180,8 @@ func (m *Mapper) buildMessageMapper(message *descriptor.Message, input bool) {
 		m.MessageMappers[message.FullName] = mapper
 	}
 
-	if m.EmptyMessages[message.FullName] {
+	if len(message.Fields) == 0 {
 		mapper.Empty = true
-		return
 	}
 
 	mapper.Object = &graphql.Object{
@@ -219,13 +210,23 @@ func (m *Mapper) buildMessageMapper(message *descriptor.Message, input bool) {
 
 func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graphql.Field {
 	var fields []*graphql.Field
+
+	if len(message.Fields) == 0 {
+		fields = append(fields, &graphql.Field{
+			Name:     "_empty",
+			TypeName: graphql.ScalarBoolean.TypeName(),
+		})
+		return fields
+	}
+
 	for _, field := range message.Fields {
 		if field.IsOneof {
+			oneofObjectName := field.Name + "Oneof"
 			fields = append(fields, &graphql.Field{
 				Name: field.Name,
 				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 					Package:  message.Package,
-					TypeName: append(message.TypeName, field.Name),
+					TypeName: append(message.TypeName, oneofObjectName),
 					Input:    input,
 				}),
 			})
@@ -283,18 +284,13 @@ func (m *Mapper) graphqlField(proto *pb.FieldDescriptorProto, options fieldOptio
 		}
 
 	case pb.FieldDescriptorProto_TYPE_MESSAGE:
-		if m.EmptyMessages[proto.GetTypeName()] {
-			field.TypeName = graphql.ScalarBoolean.TypeName()
-			break
-		}
-
 		if options.Input {
 			field.TypeName = m.InputNames[proto.GetTypeName()]
 		} else {
 			field.TypeName = m.ObjectNames[proto.GetTypeName()]
 		}
 
-		// Map elements are non-nullable.
+		// IsProtoMap elements are non-nullable.
 		if m.Messages[proto.GetTypeName()].IsMap {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
@@ -335,11 +331,12 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 }
 
 func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMapper {
+	oneofObjectName := oneof.Proto.GetName() + "Oneof"
 	mapper := &OneofMapper{
 		Union: &graphql.Union{
 			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 				Package:  oneof.Parent.Package,
-				TypeName: append(oneof.Parent.TypeName, oneof.Proto.GetName()),
+				TypeName: append(oneof.Parent.TypeName, oneofObjectName),
 			}),
 		},
 	}
@@ -347,7 +344,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 	for _, fieldProto := range oneof.FieldProtos {
 		typeName := BuildGraphqlTypeName(&GraphqlTypeNameParts{
 			Package:  oneof.Parent.Package,
-			TypeName: append(oneof.Parent.TypeName, oneof.Proto.GetName(), fieldProto.GetName()),
+			TypeName: append(oneof.Parent.TypeName, oneofObjectName, fieldProto.GetName()),
 		})
 
 		mapper.Union.TypeNames = append(mapper.Union.TypeNames, typeName)
@@ -369,7 +366,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 	mapper.Input = &graphql.Input{
 		Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 			Package:  oneof.Parent.Package,
-			TypeName: append(oneof.Parent.TypeName, oneof.Proto.GetName()),
+			TypeName: append(oneof.Parent.TypeName, oneofObjectName),
 			Input:    true,
 		}),
 		Fields: inputFields,
@@ -509,8 +506,12 @@ func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 		b.WriteString("_")
 		b.WriteString(generator.CamelCase(name))
 	}
-	if parts.Input {
-		b.WriteString("_Input")
+	if parts.IsProtoMap {
+		b.WriteString("Map")
 	}
+	if parts.Input {
+		b.WriteString("Input")
+	}
+
 	return b.String()
 }

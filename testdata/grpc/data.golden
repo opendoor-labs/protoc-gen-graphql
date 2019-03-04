@@ -4,7 +4,7 @@ type ProtocGenGraphqlTestGrpc_RequestB {
   id: String!
 }
 
-input ProtocGenGraphqlTestGrpc_RequestB_Input {
+input ProtocGenGraphqlTestGrpc_RequestBInput {
   id: String!
 }
 

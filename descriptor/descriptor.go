@@ -37,7 +37,7 @@ type Message struct {
 // Field represents a protobuf field.
 type Field struct {
 	Name string
-	// nil if IsOneof is true.
+	// nil if IsProtoOneof is true.
 	Proto      *descriptor.FieldDescriptorProto
 	Parent     *Message
 	IsOneof    bool
