@@ -339,6 +339,7 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMapper {
 	oneofObjectName := oneof.Proto.GetName() + "Oneof"
 	mapper := &OneofMapper{
+		Descriptor: oneof,
 		Union: &graphql.Union{
 			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 				Package:  oneof.Parent.Package,
@@ -355,8 +356,15 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 
 		mapper.Union.TypeNames = append(mapper.Union.TypeNames, typeName)
 		mapper.Objects = append(mapper.Objects, &graphql.Object{
-			Name:   typeName,
-			Fields: []*graphql.Field{m.graphqlField(fieldProto, fieldOptions{})},
+			Name: typeName,
+			Fields: []*graphql.Field{
+				// Include typename so we can differentiate between messages in a oneof.
+				&graphql.Field{
+					Name:     "_typename",
+					TypeName: graphql.ScalarString.TypeName(),
+				},
+				m.graphqlField(fieldProto, fieldOptions{}),
+			},
 		})
 	}
 

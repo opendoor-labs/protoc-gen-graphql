@@ -29,10 +29,12 @@ type ProtocGenGraphqlTestBasic_ComplexFields {
 union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_FirstOneofValue | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_SecondOneofValue
 
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_FirstOneofValue {
+  _typename: String
   first_oneof_value: String!
 }
 
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_SecondOneofValue {
+  _typename: String
   second_oneof_value: ProtocGenGraphqlTestBasic_ScalarFields
 }
 

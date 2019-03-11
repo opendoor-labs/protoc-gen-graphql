@@ -16,10 +16,12 @@ type ProtocGenGraphqlTestGrpc_RequestA {
 union ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof = ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof_FirstOneofValue | ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof_SecondOneofValue
 
 type ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof_FirstOneofValue {
+  _typename: String
   first_oneof_value: String!
 }
 
 type ProtocGenGraphqlTestGrpc_RequestA_OneofFieldOneof_SecondOneofValue {
+  _typename: String
   second_oneof_value: ProtocGenGraphqlTestGrpc_RequestA_RequestAA
 }
 
