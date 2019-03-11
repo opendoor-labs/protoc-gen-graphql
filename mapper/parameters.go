@@ -16,6 +16,7 @@ type Parameters struct {
 	DurationTypeName  string
 	WrappersAsNull    bool
 	InputMode         string
+	String64Bit       bool
 }
 
 func NewParameters(parameter string) (*Parameters, error) {
@@ -49,6 +50,8 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.WrappersAsNull = true
 		case "input_mode":
 			params.InputMode = value
+		case "string_64bit":
+			params.String64Bit = true
 		default:
 			return nil, fmt.Errorf("unknown parameter: %s", key)
 		}

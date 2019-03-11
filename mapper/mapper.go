@@ -255,24 +255,29 @@ func (m *Mapper) graphqlField(proto *pb.FieldDescriptorProto, options fieldOptio
 	}
 
 	switch proto.GetType() {
-	case pb.FieldDescriptorProto_TYPE_FLOAT, pb.FieldDescriptorProto_TYPE_DOUBLE,
-		pb.FieldDescriptorProto_TYPE_UINT32, pb.FieldDescriptorProto_TYPE_SINT32,
-		pb.FieldDescriptorProto_TYPE_FIXED32, pb.FieldDescriptorProto_TYPE_SFIXED32:
-
-		field.TypeName = graphql.ScalarFloat.TypeName()
-		field.Modifiers = graphql.TypeModifierNonNull
-
-	case pb.FieldDescriptorProto_TYPE_STRING, pb.FieldDescriptorProto_TYPE_BYTES,
-		pb.FieldDescriptorProto_TYPE_INT64, pb.FieldDescriptorProto_TYPE_UINT64, pb.FieldDescriptorProto_TYPE_SINT64,
-		pb.FieldDescriptorProto_TYPE_FIXED64, pb.FieldDescriptorProto_TYPE_SFIXED64:
-
+	case pb.FieldDescriptorProto_TYPE_STRING, pb.FieldDescriptorProto_TYPE_BYTES:
 		field.TypeName = graphql.ScalarString.TypeName()
 		if !options.NullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
-	case pb.FieldDescriptorProto_TYPE_INT32:
-		field.TypeName = graphql.ScalarInt.TypeName()
+	case pb.FieldDescriptorProto_TYPE_FLOAT, pb.FieldDescriptorProto_TYPE_DOUBLE,
+		pb.FieldDescriptorProto_TYPE_INT32, pb.FieldDescriptorProto_TYPE_UINT32, pb.FieldDescriptorProto_TYPE_SINT32,
+		pb.FieldDescriptorProto_TYPE_FIXED32, pb.FieldDescriptorProto_TYPE_SFIXED32:
+
+		field.TypeName = graphql.ScalarFloat.TypeName()
+		if !options.NullableScalars {
+			field.Modifiers = graphql.TypeModifierNonNull
+		}
+
+	case pb.FieldDescriptorProto_TYPE_INT64, pb.FieldDescriptorProto_TYPE_UINT64, pb.FieldDescriptorProto_TYPE_SINT64,
+		pb.FieldDescriptorProto_TYPE_FIXED64, pb.FieldDescriptorProto_TYPE_SFIXED64:
+
+		if m.Params.String64Bit {
+			field.TypeName = graphql.ScalarString.TypeName()
+		} else {
+			field.TypeName = graphql.ScalarFloat.TypeName()
+		}
 		if !options.NullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
