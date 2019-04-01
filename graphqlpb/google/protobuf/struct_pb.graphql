@@ -25,26 +25,32 @@ type GoogleProtobuf_Value {
 union GoogleProtobuf_Value_KindOneof = GoogleProtobuf_Value_KindOneof_NullValue | GoogleProtobuf_Value_KindOneof_NumberValue | GoogleProtobuf_Value_KindOneof_StringValue | GoogleProtobuf_Value_KindOneof_BoolValue | GoogleProtobuf_Value_KindOneof_StructValue | GoogleProtobuf_Value_KindOneof_ListValue
 
 type GoogleProtobuf_Value_KindOneof_NullValue {
+  _typename: String
   null_value: GoogleProtobuf_NullValue!
 }
 
 type GoogleProtobuf_Value_KindOneof_NumberValue {
+  _typename: String
   number_value: Float!
 }
 
 type GoogleProtobuf_Value_KindOneof_StringValue {
+  _typename: String
   string_value: String!
 }
 
 type GoogleProtobuf_Value_KindOneof_BoolValue {
+  _typename: String
   bool_value: Boolean!
 }
 
 type GoogleProtobuf_Value_KindOneof_StructValue {
+  _typename: String
   struct_value: GoogleProtobuf_Struct
 }
 
 type GoogleProtobuf_Value_KindOneof_ListValue {
+  _typename: String
   list_value: GoogleProtobuf_ListValue
 }
 
@@ -54,7 +60,7 @@ input GoogleProtobuf_ValueInput {
 
 input GoogleProtobuf_Value_KindOneofInput {
   null_value: GoogleProtobuf_NullValue
-  number_value: Float!
+  number_value: Float
   string_value: String
   bool_value: Boolean
   struct_value: GoogleProtobuf_StructInput

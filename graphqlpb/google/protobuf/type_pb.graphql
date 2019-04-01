@@ -21,10 +21,10 @@ input GoogleProtobuf_TypeInput {
 type GoogleProtobuf_Field {
   kind: GoogleProtobuf_Field_Kind!
   cardinality: GoogleProtobuf_Field_Cardinality!
-  number: Int!
+  number: Float!
   name: String!
   type_url: String!
-  oneof_index: Int!
+  oneof_index: Float!
   packed: Boolean!
   options: [GoogleProtobuf_Option!]!
   json_name: String!
@@ -34,10 +34,10 @@ type GoogleProtobuf_Field {
 input GoogleProtobuf_FieldInput {
   kind: GoogleProtobuf_Field_Kind!
   cardinality: GoogleProtobuf_Field_Cardinality!
-  number: Int!
+  number: Float!
   name: String!
   type_url: String!
-  oneof_index: Int!
+  oneof_index: Float!
   packed: Boolean!
   options: [GoogleProtobuf_OptionInput!]!
   json_name: String!
@@ -62,13 +62,13 @@ input GoogleProtobuf_EnumInput {
 
 type GoogleProtobuf_EnumValue {
   name: String!
-  number: Int!
+  number: Float!
   options: [GoogleProtobuf_Option!]!
 }
 
 input GoogleProtobuf_EnumValueInput {
   name: String!
-  number: Int!
+  number: Float!
   options: [GoogleProtobuf_OptionInput!]!
 }
 

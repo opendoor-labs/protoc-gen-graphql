@@ -17,27 +17,27 @@ input GoogleProtobuf_FloatValueInput {
 }
 
 type GoogleProtobuf_Int64Value {
-  value: String!
+  value: Float!
 }
 
 input GoogleProtobuf_Int64ValueInput {
-  value: String!
+  value: Float!
 }
 
 type GoogleProtobuf_UInt64Value {
-  value: String!
+  value: Float!
 }
 
 input GoogleProtobuf_UInt64ValueInput {
-  value: String!
+  value: Float!
 }
 
 type GoogleProtobuf_Int32Value {
-  value: Int!
+  value: Float!
 }
 
 input GoogleProtobuf_Int32ValueInput {
-  value: Int!
+  value: Float!
 }
 
 type GoogleProtobuf_UInt32Value {

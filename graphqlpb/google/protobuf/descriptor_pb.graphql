@@ -12,8 +12,8 @@ type GoogleProtobuf_FileDescriptorProto {
   name: String!
   package: String!
   dependency: [String!]!
-  public_dependency: [Int!]!
-  weak_dependency: [Int!]!
+  public_dependency: [Float!]!
+  weak_dependency: [Float!]!
   message_type: [GoogleProtobuf_DescriptorProto!]!
   enum_type: [GoogleProtobuf_EnumDescriptorProto!]!
   service: [GoogleProtobuf_ServiceDescriptorProto!]!
@@ -27,8 +27,8 @@ input GoogleProtobuf_FileDescriptorProtoInput {
   name: String!
   package: String!
   dependency: [String!]!
-  public_dependency: [Int!]!
-  weak_dependency: [Int!]!
+  public_dependency: [Float!]!
+  weak_dependency: [Float!]!
   message_type: [GoogleProtobuf_DescriptorProtoInput!]!
   enum_type: [GoogleProtobuf_EnumDescriptorProtoInput!]!
   service: [GoogleProtobuf_ServiceDescriptorProtoInput!]!
@@ -65,25 +65,25 @@ input GoogleProtobuf_DescriptorProtoInput {
 }
 
 type GoogleProtobuf_DescriptorProto_ExtensionRange {
-  start: Int!
-  end: Int!
+  start: Float!
+  end: Float!
   options: GoogleProtobuf_ExtensionRangeOptions
 }
 
 input GoogleProtobuf_DescriptorProto_ExtensionRangeInput {
-  start: Int!
-  end: Int!
+  start: Float!
+  end: Float!
   options: GoogleProtobuf_ExtensionRangeOptionsInput
 }
 
 type GoogleProtobuf_DescriptorProto_ReservedRange {
-  start: Int!
-  end: Int!
+  start: Float!
+  end: Float!
 }
 
 input GoogleProtobuf_DescriptorProto_ReservedRangeInput {
-  start: Int!
-  end: Int!
+  start: Float!
+  end: Float!
 }
 
 type GoogleProtobuf_ExtensionRangeOptions {
@@ -96,26 +96,26 @@ input GoogleProtobuf_ExtensionRangeOptionsInput {
 
 type GoogleProtobuf_FieldDescriptorProto {
   name: String!
-  number: Int!
+  number: Float!
   label: GoogleProtobuf_FieldDescriptorProto_Label!
   type: GoogleProtobuf_FieldDescriptorProto_Type!
   type_name: String!
   extendee: String!
   default_value: String!
-  oneof_index: Int!
+  oneof_index: Float!
   json_name: String!
   options: GoogleProtobuf_FieldOptions
 }
 
 input GoogleProtobuf_FieldDescriptorProtoInput {
   name: String!
-  number: Int!
+  number: Float!
   label: GoogleProtobuf_FieldDescriptorProto_Label!
   type: GoogleProtobuf_FieldDescriptorProto_Type!
   type_name: String!
   extendee: String!
   default_value: String!
-  oneof_index: Int!
+  oneof_index: Float!
   json_name: String!
   options: GoogleProtobuf_FieldOptionsInput
 }
@@ -147,24 +147,24 @@ input GoogleProtobuf_EnumDescriptorProtoInput {
 }
 
 type GoogleProtobuf_EnumDescriptorProto_EnumReservedRange {
-  start: Int!
-  end: Int!
+  start: Float!
+  end: Float!
 }
 
 input GoogleProtobuf_EnumDescriptorProto_EnumReservedRangeInput {
-  start: Int!
-  end: Int!
+  start: Float!
+  end: Float!
 }
 
 type GoogleProtobuf_EnumValueDescriptorProto {
   name: String!
-  number: Int!
+  number: Float!
   options: GoogleProtobuf_EnumValueOptions
 }
 
 input GoogleProtobuf_EnumValueDescriptorProtoInput {
   name: String!
-  number: Int!
+  number: Float!
   options: GoogleProtobuf_EnumValueOptionsInput
 }
 
@@ -337,8 +337,8 @@ input GoogleProtobuf_MethodOptionsInput {
 type GoogleProtobuf_UninterpretedOption {
   name: [GoogleProtobuf_UninterpretedOption_NamePart!]!
   identifier_value: String!
-  positive_int_value: String!
-  negative_int_value: String!
+  positive_int_value: Float!
+  negative_int_value: Float!
   double_value: Float!
   string_value: String!
   aggregate_value: String!
@@ -347,8 +347,8 @@ type GoogleProtobuf_UninterpretedOption {
 input GoogleProtobuf_UninterpretedOptionInput {
   name: [GoogleProtobuf_UninterpretedOption_NamePartInput!]!
   identifier_value: String!
-  positive_int_value: String!
-  negative_int_value: String!
+  positive_int_value: Float!
+  negative_int_value: Float!
   double_value: Float!
   string_value: String!
   aggregate_value: String!
@@ -373,16 +373,16 @@ input GoogleProtobuf_SourceCodeInfoInput {
 }
 
 type GoogleProtobuf_SourceCodeInfo_Location {
-  path: [Int!]!
-  span: [Int!]!
+  path: [Float!]!
+  span: [Float!]!
   leading_comments: String!
   trailing_comments: String!
   leading_detached_comments: [String!]!
 }
 
 input GoogleProtobuf_SourceCodeInfo_LocationInput {
-  path: [Int!]!
-  span: [Int!]!
+  path: [Float!]!
+  span: [Float!]!
   leading_comments: String!
   trailing_comments: String!
   leading_detached_comments: [String!]!
@@ -397,17 +397,17 @@ input GoogleProtobuf_GeneratedCodeInfoInput {
 }
 
 type GoogleProtobuf_GeneratedCodeInfo_Annotation {
-  path: [Int!]!
+  path: [Float!]!
   source_file: String!
-  begin: Int!
-  end: Int!
+  begin: Float!
+  end: Float!
 }
 
 input GoogleProtobuf_GeneratedCodeInfo_AnnotationInput {
-  path: [Int!]!
+  path: [Float!]!
   source_file: String!
-  begin: Int!
-  end: Int!
+  begin: Float!
+  end: Float!
 }
 
 enum GoogleProtobuf_FieldDescriptorProto_Type {
