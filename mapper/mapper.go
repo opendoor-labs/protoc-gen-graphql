@@ -7,6 +7,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/golang/protobuf/protoc-gen-go/generator"
+	"github.com/huandu/xstrings"
 	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/graphql"
 	"github.com/martinxsliu/protoc-gen-graphql/graphqlpb"
@@ -489,20 +490,22 @@ func (m *Mapper) graphqlFieldFromMethod(method *pb.MethodDescriptorProto) *graph
 		})
 	}
 
+	fieldName := xstrings.ToSnakeCase(method.GetName())
+
 	// If the response message has no fields then return a nullable Boolean.
 	// It is up to the resolver's implementation whether or not to return an
 	// actual boolean value or default to null.
 	outputType := m.Messages[method.GetOutputType()]
 	if len(outputType.Fields) == 0 {
 		return &graphql.Field{
-			Name:      method.GetName(),
+			Name:      fieldName,
 			TypeName:  graphql.ScalarBoolean.TypeName(),
 			Arguments: arguments,
 		}
 	}
 
 	return &graphql.Field{
-		Name:      method.GetName(),
+		Name:      fieldName,
 		TypeName:  m.MessageMappers[method.GetOutputType()].Object.Name,
 		Arguments: arguments,
 		Modifiers: graphql.TypeModifierNonNull,
