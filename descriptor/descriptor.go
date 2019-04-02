@@ -65,6 +65,7 @@ type Enum struct {
 type Service struct {
 	Proto    *descriptor.ServiceDescriptorProto
 	Package  string
+	File     *File
 	TypeName []string
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
@@ -92,6 +93,7 @@ func wrapService(file *File, proto *descriptor.ServiceDescriptorProto) {
 	service := &Service{
 		Proto:    proto,
 		Package:  file.Proto.GetPackage(),
+		File:     file,
 		TypeName: []string{proto.GetName()},
 		FullName: fmt.Sprintf(".%s.%s", file.Proto.GetPackage(), proto.GetName()),
 	}
