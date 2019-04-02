@@ -54,9 +54,14 @@ type EnumMapper struct {
 
 type ServiceMapper struct {
 	Descriptor    *descriptor.Service
-	Queries       *graphql.Object
-	Mutations     *graphql.Object
-	Subscriptions *graphql.Object
+	Queries       *MethodsMapper
+	Mutations     *MethodsMapper
+	Subscriptions *MethodsMapper
+}
+
+type MethodsMapper struct {
+	Methods []*pb.MethodDescriptorProto
+	Object  *graphql.Object
 }
 
 // New creates a new Mapper with all mappings populated from the provided file
@@ -364,7 +369,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 			Name: typeName,
 			Fields: []*graphql.Field{
 				// Include typename so we can differentiate between messages in a oneof.
-				&graphql.Field{
+				{
 					Name:     "_typename",
 					TypeName: graphql.ScalarString.TypeName(),
 				},
@@ -411,9 +416,9 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 
 func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	var (
-		queries       []*graphql.Field
-		mutations     []*graphql.Field
-		subscriptions []*graphql.Field
+		queries       = &MethodsMapper{Object: &graphql.Object{}}
+		mutations     = &MethodsMapper{Object: &graphql.Object{}}
+		subscriptions = &MethodsMapper{Object: &graphql.Object{}}
 	)
 
 	for _, method := range service.Proto.GetMethod() {
@@ -433,43 +438,40 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 
 		switch operation {
 		case "mutation":
-			mutations = append(mutations, field)
+			mutations.Object.Fields = append(mutations.Object.Fields, field)
+			mutations.Methods = append(mutations.Methods, method)
 		case "subscription":
-			subscriptions = append(subscriptions, field)
+			subscriptions.Object.Fields = append(subscriptions.Object.Fields, field)
+			subscriptions.Methods = append(subscriptions.Methods, method)
 		default:
-			queries = append(queries, field)
+			queries.Object.Fields = append(queries.Object.Fields, field)
+			queries.Methods = append(queries.Methods, method)
 		}
 	}
 
 	mapper := &ServiceMapper{
 		Descriptor: service,
 	}
-	if len(queries) > 0 {
-		mapper.Queries = &graphql.Object{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:  service.Package,
-				TypeName: append(service.TypeName, "Query"),
-			}),
-			Fields: queries,
-		}
+	if len(queries.Methods) > 0 {
+		queries.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
+			Package:  service.Package,
+			TypeName: append(service.TypeName, "Query"),
+		})
+		mapper.Queries = queries
 	}
-	if len(mutations) > 0 {
-		mapper.Mutations = &graphql.Object{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:  service.Package,
-				TypeName: append(service.TypeName, "Mutation"),
-			}),
-			Fields: mutations,
-		}
+	if len(mutations.Methods) > 0 {
+		mutations.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
+			Package:  service.Package,
+			TypeName: append(service.TypeName, "Mutation"),
+		})
+		mapper.Mutations = mutations
 	}
-	if len(subscriptions) > 0 {
-		mapper.Subscriptions = &graphql.Object{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:  service.Package,
-				TypeName: append(service.TypeName, "Subscription"),
-			}),
-			Fields: subscriptions,
-		}
+	if len(subscriptions.Methods) > 0 {
+		subscriptions.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
+			Package:  service.Package,
+			TypeName: append(service.TypeName, "Subscription"),
+		})
+		mapper.Subscriptions = subscriptions
 	}
 
 	m.ServiceMappers[service.FullName] = mapper
