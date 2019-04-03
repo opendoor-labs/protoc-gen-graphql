@@ -21,13 +21,13 @@ func runProtoc(protoFiles []string, parameter string) error {
 	return cmd.Run()
 }
 
-func itGeneratesTheCorrectOutput(t *testing.T, name string) {
+func itGeneratesTheCorrectOutput(t *testing.T, name, parameter string) {
 	protoFiles, err := filepath.Glob(filepath.Join("testdata", name, "*.proto"))
 	if err != nil {
 		t.Error(err)
 	}
 
-	if err := runProtoc(protoFiles, ""); err != nil {
+	if err := runProtoc(protoFiles, parameter); err != nil {
 		t.Error(err)
 	}
 
@@ -49,13 +49,17 @@ func itGeneratesTheCorrectOutput(t *testing.T, name string) {
 }
 
 func TestBasicProtobufTypes(t *testing.T) {
-	itGeneratesTheCorrectOutput(t, "basic")
+	itGeneratesTheCorrectOutput(t, "basic", "")
 }
 
 func TestMessagesWithCycles(t *testing.T) {
-	itGeneratesTheCorrectOutput(t, "cycle")
+	itGeneratesTheCorrectOutput(t, "cycle", "")
 }
 
 func TestInputTypesForGrpcServices(t *testing.T) {
-	itGeneratesTheCorrectOutput(t, "grpc")
+	itGeneratesTheCorrectOutput(t, "grpc", "")
+}
+
+func TestWrappersParameter(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "wrappers", "null_wrappers")
 }

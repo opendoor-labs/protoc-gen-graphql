@@ -335,18 +335,23 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 		switch protoTypeName {
 		case ".google.protobuf.FloatValue", ".google.protobuf.DoubleValue", ".google.protobuf.UInt32Value":
 			field.TypeName = graphql.ScalarFloat.TypeName()
+			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.StringValue", ".google.protobuf.BytesValue":
 			field.TypeName = graphql.ScalarString.TypeName()
+			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.Int64Value", ".google.protobuf.UInt64Value":
 			if m.Params.String64Bit {
 				field.TypeName = graphql.ScalarString.TypeName()
 			} else {
 				field.TypeName = graphql.ScalarFloat.TypeName()
 			}
+			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.Int32Value":
 			field.TypeName = graphql.ScalarInt.TypeName()
+			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.BoolValue":
 			field.TypeName = graphql.ScalarBoolean.TypeName()
+			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		}
 	}
 
