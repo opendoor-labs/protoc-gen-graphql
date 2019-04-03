@@ -52,8 +52,6 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.InputMode = value
 		case "string_64bit":
 			params.String64Bit = true
-		default:
-			return nil, fmt.Errorf("unknown parameter: %s", key)
 		}
 	}
 
