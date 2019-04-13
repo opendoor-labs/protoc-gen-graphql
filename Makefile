@@ -12,11 +12,11 @@ test: build
 
 .PHONY: protoc
 protoc:
-	protoc -I graphqlpb --go_out=paths=source_relative:graphqlpb graphqlpb/*.proto
+	protoc -I protobuf --go_out=paths=source_relative:protobuf protobuf/**/*.proto
 
 .PHONY: protoc-wkt
 protoc-wkt: build
-	protoc -I graphqlpb \
+	protoc -I protobuf \
 		--plugin=bin/protoc-gen-graphql \
-		--graphql_out=input_mode=all:graphqlpb \
-		graphqlpb/google/protobuf/*.proto
+		--graphql_out=input_mode=all:protobuf \
+		protobuf/google/protobuf/**/*.proto

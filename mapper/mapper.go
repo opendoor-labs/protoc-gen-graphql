@@ -10,7 +10,7 @@ import (
 	"github.com/huandu/xstrings"
 	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/graphql"
-	"github.com/martinxsliu/protoc-gen-graphql/graphqlpb"
+	graphqlpb "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 )
 
 type Mapper struct {

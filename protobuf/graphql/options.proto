@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package graphql;
 
-option go_package = "github.com/martinxsliu/protoc-gen-graphql/graphqlpb";
+option go_package = "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql";
 
 import "google/protobuf/descriptor.proto";
 
