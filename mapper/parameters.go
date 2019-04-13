@@ -17,6 +17,7 @@ type Parameters struct {
 	WrappersAsNull    bool
 	InputMode         string
 	String64Bit       bool
+	RootTypePrefix    *string
 }
 
 func NewParameters(parameter string) (*Parameters, error) {
@@ -52,6 +53,8 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.InputMode = value
 		case "string_64bit":
 			params.String64Bit = true
+		case "root_type_prefix":
+			params.RootTypePrefix = &value
 		}
 	}
 

@@ -10,6 +10,8 @@ func TypeDef(graphqlType Type) string {
 		return typeDefScalar(graphqlType)
 	case *Object:
 		return typeDefObject(graphqlType)
+	case *ExtendObject:
+		return typeDefExtendObject(graphqlType)
 	case *Input:
 		return typeDefInput(graphqlType)
 	case *Enum:
@@ -88,6 +90,25 @@ func typeDefArgument(argument *Argument) string {
 	if argument.Default != "" {
 		b.WriteString(" = ")
 		b.WriteString(argument.Default)
+	}
+
+	return b.String()
+}
+
+func typeDefExtendObject(object *ExtendObject) string {
+	var b strings.Builder
+	b.WriteString("extend type ")
+	b.WriteString(object.Name)
+
+	// Omit braces if we don't have any fields, e.g. `type Empty`.
+	if len(object.Fields) > 0 {
+		b.WriteString(" {\n")
+		for _, field := range object.Fields {
+			b.WriteString("  ")
+			b.WriteString(typeDefField(field))
+			b.WriteString("\n")
+		}
+		b.WriteString("}")
 	}
 
 	return b.String()

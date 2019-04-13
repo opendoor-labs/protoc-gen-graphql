@@ -44,6 +44,15 @@ func (g *Object) Kind() Kind       { return KindObject }
 func (g *Object) TypeName() string { return g.Name }
 func (g *Object) String() string   { return g.Name }
 
+type ExtendObject struct {
+	Name   string
+	Fields []*Field
+}
+
+func (g *ExtendObject) Kind() Kind       { return KindObject }
+func (g *ExtendObject) TypeName() string { return g.Name }
+func (g *ExtendObject) String() string   { return g.Name }
+
 type Input struct {
 	Name        string
 	Description string

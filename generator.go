@@ -47,12 +47,21 @@ func (g *Generator) generateFiles() {
 		for _, service := range file.Services {
 			m := g.mapper.ServiceMappers[service.FullName]
 			if m.Queries != nil {
+				if m.Queries.ExtendRootObject != nil {
+					gqlTypes = append(gqlTypes, m.Queries.ExtendRootObject)
+				}
 				gqlTypes = append(gqlTypes, m.Queries.Object)
 			}
 			if m.Mutations != nil {
+				if m.Mutations.ExtendRootObject != nil {
+					gqlTypes = append(gqlTypes, m.Mutations.ExtendRootObject)
+				}
 				gqlTypes = append(gqlTypes, m.Mutations.Object)
 			}
 			if m.Subscriptions != nil {
+				if m.Subscriptions.ExtendRootObject != nil {
+					gqlTypes = append(gqlTypes, m.Subscriptions.ExtendRootObject)
+				}
 				gqlTypes = append(gqlTypes, m.Subscriptions.Object)
 			}
 		}

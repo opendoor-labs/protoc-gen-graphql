@@ -61,8 +61,9 @@ type ServiceMapper struct {
 }
 
 type MethodsMapper struct {
-	Methods []*pb.MethodDescriptorProto
-	Object  *graphql.Object
+	Methods          []*pb.MethodDescriptorProto
+	ExtendRootObject *graphql.ExtendObject
+	Object           *graphql.Object
 }
 
 // New creates a new Mapper with all mappings populated from the provided file
@@ -428,9 +429,9 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 
 func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	var (
-		queries       = &MethodsMapper{Object: &graphql.Object{}}
-		mutations     = &MethodsMapper{Object: &graphql.Object{}}
-		subscriptions = &MethodsMapper{Object: &graphql.Object{}}
+		queries       = m.buildMethodsMapper(service, "Query")
+		mutations     = m.buildMethodsMapper(service, "Mutation")
+		subscriptions = m.buildMethodsMapper(service, "Subscription")
 	)
 
 	for _, method := range service.Proto.GetMethod() {
@@ -489,6 +490,27 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	m.ServiceMappers[service.FullName] = mapper
 }
 
+func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string) *MethodsMapper {
+	var extends *graphql.ExtendObject
+	if m.Params.RootTypePrefix != nil {
+		extends = &graphql.ExtendObject{
+			Name: fmt.Sprintf("%s%s", *m.Params.RootTypePrefix, rootType),
+			Fields: []*graphql.Field{{
+				Name: serviceName(service),
+				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
+					Package:  service.Package,
+					TypeName: append(service.TypeName, rootType),
+				}),
+			}},
+		}
+	}
+
+	return &MethodsMapper{
+		ExtendRootObject: extends,
+		Object:           &graphql.Object{},
+	}
+}
+
 func (m *Mapper) graphqlFieldFromMethod(method *pb.MethodDescriptorProto) *graphql.Field {
 	// Only add an argument if there are fields in the gRPC request message.
 	var arguments []*graphql.Argument
@@ -535,4 +557,12 @@ func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 	}
 
 	return b.String()
+}
+
+func serviceName(s *descriptor.Service) string {
+	// e.g. .foo.bar.Baz -> foo_bar_baz
+	name := s.FullName
+	name = strings.TrimPrefix(name, ".")
+	name = strings.Replace(name, ".", "_", -1)
+	return xstrings.ToSnakeCase(name)
 }
