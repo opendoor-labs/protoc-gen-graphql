@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.extensions;
+
+import "graphql/options.proto";
+
+service Foo {
+  option (graphql.service_options).reference_name = "foo";
+
+  rpc QueryMethod(Request) returns (Response) {
+    option (graphql.method_options).operation = "query";
+  }
+  rpc MutationMethod(Request) returns (Response) {
+    option (graphql.method_options).operation = "mutation";
+  }
+  rpc SubscriptionMethod(Request) returns (Response) {
+    option (graphql.method_options).operation = "subscription";
+  }
+  rpc UnknownMethod(Request) returns (Response) {
+    option (graphql.method_options).operation = "unknown";
+  }
+}
+
+message Request {
+  string id = 1;
+}
+
+message Response {
+  string name = 1;
+}

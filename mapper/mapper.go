@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/golang/protobuf/protoc-gen-go/generator"
 	"github.com/huandu/xstrings"
 	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/graphql"
-	graphqlpb "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 )
 
 type Mapper struct {
@@ -55,6 +53,7 @@ type EnumMapper struct {
 
 type ServiceMapper struct {
 	Descriptor    *descriptor.Service
+	ReferenceName string
 	Queries       *MethodsMapper
 	Mutations     *MethodsMapper
 	Subscriptions *MethodsMapper
@@ -435,21 +434,14 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	)
 
 	for _, method := range service.Proto.GetMethod() {
-		var operation string
-		if proto.HasExtension(method.GetOptions(), graphqlpb.E_Operation) {
-			extVal, err := proto.GetExtension(method.GetOptions(), graphqlpb.E_Operation)
-			if err != nil {
-				panic(err)
-			}
-			operation = *extVal.(*string)
-		}
-		if operation == "none" {
+		methodOptions := getMessageOptions(method)
+		if methodOptions.Operation == "none" {
 			return
 		}
 
 		field := m.graphqlFieldFromMethod(method)
 
-		switch operation {
+		switch methodOptions.Operation {
 		case "mutation":
 			mutations.Object.Fields = append(mutations.Object.Fields, field)
 			mutations.Methods = append(mutations.Methods, method)
@@ -463,7 +455,8 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	}
 
 	mapper := &ServiceMapper{
-		Descriptor: service,
+		Descriptor:    service,
+		ReferenceName: referenceName(service),
 	}
 	if len(queries.Methods) > 0 {
 		queries.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
@@ -496,7 +489,7 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 		extends = &graphql.ExtendObject{
 			Name: fmt.Sprintf("%s%s", *m.Params.RootTypePrefix, rootType),
 			Fields: []*graphql.Field{{
-				Name: serviceName(service),
+				Name: referenceName(service),
 				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 					Package:  service.Package,
 					TypeName: append(service.TypeName, rootType),
@@ -559,7 +552,12 @@ func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 	return b.String()
 }
 
-func serviceName(s *descriptor.Service) string {
+func referenceName(s *descriptor.Service) string {
+	serviceOptions := getServiceOptions(s.Proto)
+	if serviceOptions.ReferenceName != "" {
+		return serviceOptions.ReferenceName
+	}
+
 	// e.g. .foo.bar.Baz -> foo_bar_baz
 	name := s.FullName
 	name = strings.TrimPrefix(name, ".")

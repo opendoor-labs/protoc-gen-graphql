@@ -12,7 +12,7 @@ test: build
 
 .PHONY: protoc
 protoc:
-	protoc -I protobuf --go_out=paths=source_relative:protobuf protobuf/**/*.proto
+	protoc -I protobuf --go_out=paths=source_relative:protobuf protobuf/graphql/*.proto
 
 .PHONY: protoc-wkt
 protoc-wkt: build

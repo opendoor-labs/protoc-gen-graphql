@@ -6,6 +6,23 @@ option go_package = "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 
 import "google/protobuf/descriptor.proto";
 
+extend google.protobuf.ServiceOptions {
+  ServiceOptions service_options = 82731;
+}
+
 extend google.protobuf.MethodOptions {
-  string operation = 82731;
+  MethodOptions method_options = 82731;
+}
+
+message ServiceOptions {
+  // A variable-like name to reference the service with, in lieu of the
+  // name generated from the service's package and service name. The name
+  // should be short, snake cased, and unique across all services.
+  string reference_name = 1;
+}
+
+message MethodOptions {
+  // Type of GraphQL operation. Valid values are: "query", "mutation",
+  // or "subscription". Defaults to "query".
+  string operation = 1;
 }

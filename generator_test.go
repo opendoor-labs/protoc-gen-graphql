@@ -13,6 +13,7 @@ import (
 func runProtoc(protoFiles []string, parameter string) error {
 	args := append([]string{
 		"-I", "testdata",
+		"-I", "protobuf",
 		"--plugin=bin/protoc-gen-graphql",
 		fmt.Sprintf("--graphql_out=%s:testdata", parameter),
 	}, protoFiles...)
@@ -62,4 +63,8 @@ func TestInputTypesForGrpcServices(t *testing.T) {
 
 func TestWrappersParameter(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "wrappers", "null_wrappers")
+}
+
+func TestProtobufExtensions(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "extensions", "root_type_prefix")
 }
