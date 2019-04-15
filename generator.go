@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
@@ -25,7 +26,13 @@ func New(req *plugin.CodeGeneratorRequest, resp *plugin.CodeGeneratorResponse) *
 	}
 }
 
-func (g *Generator) Generate() error {
+func (g *Generator) Generate() (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("%v", r)
+		}
+	}()
+
 	params, err := mapper.NewParameters(g.req.GetParameter())
 	if err != nil {
 		return err

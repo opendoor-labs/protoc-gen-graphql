@@ -5,19 +5,19 @@ package protoc_gen_graphql.test.extensions;
 import "graphql/options.proto";
 
 service Foo {
-  option (graphql.service_options).reference_name = "foo";
+  option (graphql.service).reference_name = "foo";
 
   rpc QueryMethod(Request) returns (Response) {
-    option (graphql.method_options).operation = "query";
+    option (graphql.method).operation = "query";
   }
   rpc MutationMethod(Request) returns (Response) {
-    option (graphql.method_options).operation = "mutation";
+    option (graphql.method).operation = "mutation";
   }
   rpc SubscriptionMethod(Request) returns (Response) {
-    option (graphql.method_options).operation = "subscription";
+    option (graphql.method).operation = "subscription";
   }
   rpc UnknownMethod(Request) returns (Response) {
-    option (graphql.method_options).operation = "unknown";
+    option (graphql.method).operation = "unknown";
   }
 }
 
