@@ -434,6 +434,11 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	)
 
 	for _, method := range service.Proto.GetMethod() {
+		// Ignore streaming RPC methods.
+		if method.GetClientStreaming() || method.GetServerStreaming() {
+			continue
+		}
+
 		methodOptions := getMessageOptions(method)
 		if methodOptions.Operation == "none" {
 			return
