@@ -68,3 +68,7 @@ func TestWrappersParameter(t *testing.T) {
 func TestProtobufExtensions(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "extensions", "root_type_prefix")
 }
+
+func TestFieldNamePreserve(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "field_name_preserve", "field_name=preserve")
+}

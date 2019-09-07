@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.basic;
+
+service FooService {
+  rpc BarMethod(ScalarFields) returns (ScalarFields);
+  rpc BazMethod(ScalarFields) returns (ScalarFields);
+}
+
+message ScalarFields {
+  string string_field = 1;
+  bytes bytes_field = 2;
+  int32 int32_field = 3;
+  uint32 uint32_field = 4;
+  sint32 sint32_field = 5;
+  fixed32 fixed32_field = 6;
+  int64 int64_field = 7;
+  uint64 uint64_field = 8;
+  sint64 sint64_field = 9;
+  fixed64 fixed64_field = 10;
+  float float_field = 11;
+  double double_field = 12;
+  bool bool_field = 13;
+}
+
+enum EnumType {
+  UNKNOWN = 0;
+  FIRST = 1;
+  SECOND = 2;
+}
+
+enum UnusedEnum {
+  ZERO = 0;
+}
+
+message ComplexFields {
+  ScalarFields message_field = 1;
+  EnumType enum_field = 2;
+  repeated string repeated_scalar_field = 3;
+  repeated ScalarFields repeated_message_field = 4;
+  map<string, EnumType> map_field = 5;
+  oneof oneof_field {
+    string first_oneof_value = 6;
+    ScalarFields second_oneof_value = 7;
+  }
+  Empty empty_field = 8;
+}
+
+message Outer {
+  message Middle {
+    message Inner {
+      string inner_name = 1;
+    }
+    string middle_name = 1;
+  }
+  Middle middle = 1;
+  Middle.Inner inner = 2;
+}
+
+message Empty {}

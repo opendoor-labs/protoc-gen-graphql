@@ -11,6 +11,11 @@ const (
 	InputModeAll     = "all"
 )
 
+const (
+	FieldNameDefault  = "lower_camel_case"
+	FieldNamePreserve = "preserve"
+)
+
 type Parameters struct {
 	TimestampTypeName string
 	DurationTypeName  string
@@ -18,6 +23,7 @@ type Parameters struct {
 	InputMode         string
 	String64Bit       bool
 	RootTypePrefix    *string
+	FieldName         string
 }
 
 func NewParameters(parameter string) (*Parameters, error) {
@@ -55,6 +61,11 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.String64Bit = true
 		case "root_type_prefix":
 			params.RootTypePrefix = &value
+		case "field_name":
+			if value != FieldNamePreserve {
+				value = FieldNameDefault
+			}
+			params.FieldName = value
 		}
 	}
 

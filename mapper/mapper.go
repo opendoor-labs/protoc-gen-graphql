@@ -6,14 +6,16 @@ import (
 
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/golang/protobuf/protoc-gen-go/generator"
-	"github.com/huandu/xstrings"
 	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/graphql"
 )
 
 type Mapper struct {
 	FilePbs []*pb.FileDescriptorProto
-	Params  *Parameters
+
+	Params                *Parameters
+	FieldNameTransformer  func(string) string
+	MethodNameTransformer func(string) string
 
 	// Maps file names to descriptors.
 	Files map[string]*descriptor.File
@@ -83,6 +85,16 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		EnumMappers:    make(map[string]*EnumMapper),
 		ServiceMappers: make(map[string]*ServiceMapper),
 	}
+
+	switch params.FieldName {
+	case FieldNameDefault, "":
+		m.FieldNameTransformer = lowerUnderscoreToLowerCamelTransformer
+		m.MethodNameTransformer = upperCamelToLowerCamelTransformer
+	case FieldNamePreserve:
+		m.FieldNameTransformer = preserveTransformer
+		m.MethodNameTransformer = preserveTransformer
+	}
+
 	m.buildDescriptorMaps()
 	m.buildTypeMaps()
 	m.buildMappers()
@@ -235,7 +247,7 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 		if field.IsOneof {
 			oneofObjectName := field.Name + "Oneof"
 			fields = append(fields, &graphql.Field{
-				Name: field.Name,
+				Name: m.FieldNameTransformer(field.Name),
 				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 					Package:  message.Package,
 					TypeName: append(message.TypeName, oneofObjectName),
@@ -257,7 +269,7 @@ type fieldOptions struct {
 
 func (m *Mapper) graphqlField(proto *pb.FieldDescriptorProto, options fieldOptions) *graphql.Field {
 	field := &graphql.Field{
-		Name: proto.GetName(),
+		Name: m.FieldNameTransformer(proto.GetName()),
 	}
 
 	switch proto.GetType() {
@@ -380,7 +392,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 		mapper.Objects = append(mapper.Objects, &graphql.Object{
 			Name: typeName,
 			Fields: []*graphql.Field{
-				// Include typename so we can differentiate between messages in a oneof.
+				// Include _typename field so we can differentiate between messages in a oneof.
 				{
 					Name:     "_typename",
 					TypeName: graphql.ScalarString.TypeName(),
@@ -461,7 +473,7 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 
 	mapper := &ServiceMapper{
 		Descriptor:    service,
-		ReferenceName: referenceName(service),
+		ReferenceName: m.referenceName(service),
 	}
 	if len(queries.Methods) > 0 {
 		queries.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
@@ -494,7 +506,7 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 		extends = &graphql.ExtendObject{
 			Name: fmt.Sprintf("%s%s", *m.Params.RootTypePrefix, rootType),
 			Fields: []*graphql.Field{{
-				Name: referenceName(service),
+				Name: m.referenceName(service),
 				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
 					Package:  service.Package,
 					TypeName: append(service.TypeName, rootType),
@@ -522,7 +534,7 @@ func (m *Mapper) graphqlFieldFromMethod(method *pb.MethodDescriptorProto) *graph
 	}
 
 	return &graphql.Field{
-		Name:      xstrings.ToSnakeCase(method.GetName()),
+		Name:      m.MethodNameTransformer(method.GetName()),
 		TypeName:  m.MessageMappers[method.GetOutputType()].Object.Name,
 		Arguments: arguments,
 		Modifiers: graphql.TypeModifierNonNull,
@@ -557,7 +569,7 @@ func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 	return b.String()
 }
 
-func referenceName(s *descriptor.Service) string {
+func (m *Mapper) referenceName(s *descriptor.Service) string {
 	serviceOptions := getServiceOptions(s.Proto)
 	if serviceOptions.ReferenceName != "" {
 		return serviceOptions.ReferenceName
@@ -567,5 +579,5 @@ func referenceName(s *descriptor.Service) string {
 	name := s.FullName
 	name = strings.TrimPrefix(name, ".")
 	name = strings.Replace(name, ".", "_", -1)
-	return xstrings.ToSnakeCase(name)
+	return m.MethodNameTransformer(name)
 }

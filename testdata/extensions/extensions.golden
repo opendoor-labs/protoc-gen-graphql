@@ -5,8 +5,8 @@ extend type Query {
 }
 
 type ProtocGenGraphqlTestExtensions_Foo_Query {
-  query_method(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
-  unknown_method(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
+  queryMethod(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
+  unknownMethod(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
 }
 
 extend type Mutation {
@@ -14,7 +14,7 @@ extend type Mutation {
 }
 
 type ProtocGenGraphqlTestExtensions_Foo_Mutation {
-  mutation_method(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
+  mutationMethod(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
 }
 
 extend type Subscription {
@@ -22,7 +22,7 @@ extend type Subscription {
 }
 
 type ProtocGenGraphqlTestExtensions_Foo_Subscription {
-  subscription_method(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
+  subscriptionMethod(input: ProtocGenGraphqlTestExtensions_RequestInput!): ProtocGenGraphqlTestExtensions_Response!
 }
 
 type ProtocGenGraphqlTestExtensions_Request {

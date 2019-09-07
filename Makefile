@@ -1,14 +1,15 @@
 .PHONY: build
 build: protoc
-	go build -o bin/protoc-gen-graphql *.go
+	GO111MODULE=on go build -o bin/protoc-gen-graphql *.go
 
 .PHONY: install
 install: protoc
-	go install .
+	GO111MODULE=on go install .
 
 .PHONY: test
 test: build
-	go test ./...
+	find testdata -name "*.graphql" -type f -delete
+	GO111MODULE=on go test ./...
 
 .PHONY: protoc
 protoc:
