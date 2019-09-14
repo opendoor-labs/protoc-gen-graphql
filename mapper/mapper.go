@@ -560,7 +560,7 @@ func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 		b.WriteString(generator.CamelCase(name))
 	}
 	if parts.IsProtoMap {
-		b.WriteString("Map")
+		b.WriteString("Entry")
 	}
 	if parts.Input {
 		b.WriteString("Input")

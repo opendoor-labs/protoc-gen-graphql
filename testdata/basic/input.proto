@@ -35,8 +35,8 @@ message ComplexFields {
   repeated ScalarFields repeated_message_field = 4;
   map<string, EnumType> map_field = 5;
   oneof oneof_field {
-    string first_oneof_value = 6;
-    ScalarFields second_oneof_value = 7;
+    string first = 6;
+    ScalarFields second = 7;
   }
   Empty empty_field = 8;
 }

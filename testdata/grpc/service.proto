@@ -4,29 +4,29 @@ package protoc_gen_graphql.test.grpc;
 
 import "grpc/data.proto";
 
-service ServiceA {
-  rpc MethodA(RequestA) returns (ResponseA);
+service Service {
+  rpc Method(Request) returns (Response);
   rpc MethodB(RequestB) returns (ResponseB);
 }
 
-message RequestA {
-  message RequestAA {
-    message RequestAAA {
-      string aaa = 1;
+message Request {
+  message Foo {
+    message Bar {
+      string bar = 1;
     }
   }
 
   string string_field = 1;
-  RequestAA request_aa = 2;
-  repeated RequestAA.RequestAAA request_aaa = 3;
+  Foo foo = 2;
+  repeated Foo.Bar bar = 3;
   map<string, EnumType> map_field = 4;
   oneof oneof_field {
-    string first_oneof_value = 5;
-    RequestAA second_oneof_value = 6;
+    string first = 5;
+    Foo second = 6;
   }
 }
 
-message ResponseA {
+message Response {
   string string_field = 1;
 }
 

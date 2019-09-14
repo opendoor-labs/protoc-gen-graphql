@@ -21,24 +21,24 @@ type ProtocGenGraphqlTestBasic_ComplexFields {
   enumField: ProtocGenGraphqlTestBasic_EnumType!
   repeatedScalarField: [String!]!
   repeatedMessageField: [ProtocGenGraphqlTestBasic_ScalarFields!]!
-  mapField: [ProtocGenGraphqlTestBasic_ComplexFields_MapFieldMap!]!
+  mapField: [ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry!]!
   oneofField: ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof
   emptyField: ProtocGenGraphqlTestBasic_Empty
 }
 
-union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_FirstOneofValue | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_SecondOneofValue
+union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second
 
-type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_FirstOneofValue {
+type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First {
   _typename: String
-  firstOneofValue: String!
+  first: String!
 }
 
-type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_SecondOneofValue {
+type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second {
   _typename: String
-  secondOneofValue: ProtocGenGraphqlTestBasic_ScalarFields
+  second: ProtocGenGraphqlTestBasic_ScalarFields
 }
 
-type ProtocGenGraphqlTestBasic_ComplexFields_MapFieldMap {
+type ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry {
   key: String!
   value: ProtocGenGraphqlTestBasic_EnumType!
 }

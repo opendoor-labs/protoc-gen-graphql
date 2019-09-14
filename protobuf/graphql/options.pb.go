@@ -33,7 +33,7 @@ func (m *ServiceOptions) Reset()         { *m = ServiceOptions{} }
 func (m *ServiceOptions) String() string { return proto.CompactTextString(m) }
 func (*ServiceOptions) ProtoMessage()    {}
 func (*ServiceOptions) Descriptor() ([]byte, []int) {
-	return fileDescriptor_271333f07818dee0, []int{0}
+	return fileDescriptor_options_5f6903acf13e9c45, []int{0}
 }
 func (m *ServiceOptions) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServiceOptions.Unmarshal(m, b)
@@ -41,8 +41,8 @@ func (m *ServiceOptions) XXX_Unmarshal(b []byte) error {
 func (m *ServiceOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ServiceOptions.Marshal(b, m, deterministic)
 }
-func (m *ServiceOptions) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ServiceOptions.Merge(m, src)
+func (dst *ServiceOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ServiceOptions.Merge(dst, src)
 }
 func (m *ServiceOptions) XXX_Size() int {
 	return xxx_messageInfo_ServiceOptions.Size(m)
@@ -73,7 +73,7 @@ func (m *MethodOptions) Reset()         { *m = MethodOptions{} }
 func (m *MethodOptions) String() string { return proto.CompactTextString(m) }
 func (*MethodOptions) ProtoMessage()    {}
 func (*MethodOptions) Descriptor() ([]byte, []int) {
-	return fileDescriptor_271333f07818dee0, []int{1}
+	return fileDescriptor_options_5f6903acf13e9c45, []int{1}
 }
 func (m *MethodOptions) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MethodOptions.Unmarshal(m, b)
@@ -81,8 +81,8 @@ func (m *MethodOptions) XXX_Unmarshal(b []byte) error {
 func (m *MethodOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MethodOptions.Marshal(b, m, deterministic)
 }
-func (m *MethodOptions) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MethodOptions.Merge(m, src)
+func (dst *MethodOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MethodOptions.Merge(dst, src)
 }
 func (m *MethodOptions) XXX_Size() int {
 	return xxx_messageInfo_MethodOptions.Size(m)
@@ -125,9 +125,9 @@ func init() {
 	proto.RegisterExtension(E_Method)
 }
 
-func init() { proto.RegisterFile("graphql/options.proto", fileDescriptor_271333f07818dee0) }
+func init() { proto.RegisterFile("graphql/options.proto", fileDescriptor_options_5f6903acf13e9c45) }
 
-var fileDescriptor_271333f07818dee0 = []byte{
+var fileDescriptor_options_5f6903acf13e9c45 = []byte{
 	// 256 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x90, 0xcd, 0x4a, 0xc4, 0x30,
 	0x14, 0x85, 0xe9, 0xc2, 0x19, 0x26, 0x32, 0xb3, 0x28, 0xa8, 0x83, 0x88, 0x96, 0x01, 0x61, 0x36,
