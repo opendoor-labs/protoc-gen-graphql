@@ -19,11 +19,247 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type FileOptions struct {
+	// Name used to prefix all types with. If unset, the default behaviour is
+	// to use the upper camel case of the Protobuf package name.
+	Namespace            *string  `protobuf:"bytes,1,opt,name=namespace" json:"namespace,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *FileOptions) Reset()         { *m = FileOptions{} }
+func (m *FileOptions) String() string { return proto.CompactTextString(m) }
+func (*FileOptions) ProtoMessage()    {}
+func (*FileOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_options_8c1879a71f36b25f, []int{0}
+}
+func (m *FileOptions) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FileOptions.Unmarshal(m, b)
+}
+func (m *FileOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FileOptions.Marshal(b, m, deterministic)
+}
+func (dst *FileOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FileOptions.Merge(dst, src)
+}
+func (m *FileOptions) XXX_Size() int {
+	return xxx_messageInfo_FileOptions.Size(m)
+}
+func (m *FileOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_FileOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FileOptions proto.InternalMessageInfo
+
+func (m *FileOptions) GetNamespace() string {
+	if m != nil && m.Namespace != nil {
+		return *m.Namespace
+	}
+	return ""
+}
+
+type MessageOptions struct {
+	// Name of the generated GraphQL type.
+	Type                 *string  `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *MessageOptions) Reset()         { *m = MessageOptions{} }
+func (m *MessageOptions) String() string { return proto.CompactTextString(m) }
+func (*MessageOptions) ProtoMessage()    {}
+func (*MessageOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_options_8c1879a71f36b25f, []int{1}
+}
+func (m *MessageOptions) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MessageOptions.Unmarshal(m, b)
+}
+func (m *MessageOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MessageOptions.Marshal(b, m, deterministic)
+}
+func (dst *MessageOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MessageOptions.Merge(dst, src)
+}
+func (m *MessageOptions) XXX_Size() int {
+	return xxx_messageInfo_MessageOptions.Size(m)
+}
+func (m *MessageOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_MessageOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MessageOptions proto.InternalMessageInfo
+
+func (m *MessageOptions) GetType() string {
+	if m != nil && m.Type != nil {
+		return *m.Type
+	}
+	return ""
+}
+
+type FieldOptions struct {
+	// Name of the field in the generated GraphQL object and input types.
+	Field *string `protobuf:"bytes,1,opt,name=field" json:"field,omitempty"`
+	// Name of GraphQL type to use for this field, including modifiers.
+	Type *string `protobuf:"bytes,2,opt,name=type" json:"type,omitempty"`
+	// Skip this field in the generated GraphQL type.
+	Skip *bool `protobuf:"varint,3,opt,name=skip" json:"skip,omitempty"`
+	// GraphQL directive to generate for the field. Do not include the @ sign,
+	// do include any arguments within parentheses.
+	Directive []string `protobuf:"bytes,4,rep,name=directive" json:"directive,omitempty"`
+	// Mark the field as a foreign key to another Protobuf message. The value
+	// should be the name of the Protobuf type, following the same type name
+	// resolution rules, like when using types imported from other packages.
+	ForeignKey           *string  `protobuf:"bytes,5,opt,name=foreign_key,json=foreignKey" json:"foreign_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *FieldOptions) Reset()         { *m = FieldOptions{} }
+func (m *FieldOptions) String() string { return proto.CompactTextString(m) }
+func (*FieldOptions) ProtoMessage()    {}
+func (*FieldOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_options_8c1879a71f36b25f, []int{2}
+}
+func (m *FieldOptions) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FieldOptions.Unmarshal(m, b)
+}
+func (m *FieldOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FieldOptions.Marshal(b, m, deterministic)
+}
+func (dst *FieldOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FieldOptions.Merge(dst, src)
+}
+func (m *FieldOptions) XXX_Size() int {
+	return xxx_messageInfo_FieldOptions.Size(m)
+}
+func (m *FieldOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_FieldOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FieldOptions proto.InternalMessageInfo
+
+func (m *FieldOptions) GetField() string {
+	if m != nil && m.Field != nil {
+		return *m.Field
+	}
+	return ""
+}
+
+func (m *FieldOptions) GetType() string {
+	if m != nil && m.Type != nil {
+		return *m.Type
+	}
+	return ""
+}
+
+func (m *FieldOptions) GetSkip() bool {
+	if m != nil && m.Skip != nil {
+		return *m.Skip
+	}
+	return false
+}
+
+func (m *FieldOptions) GetDirective() []string {
+	if m != nil {
+		return m.Directive
+	}
+	return nil
+}
+
+func (m *FieldOptions) GetForeignKey() string {
+	if m != nil && m.ForeignKey != nil {
+		return *m.ForeignKey
+	}
+	return ""
+}
+
+type EnumOptions struct {
+	// Name of the generated GraphQL type.
+	Type                 *string  `protobuf:"bytes,1,opt,name=type" json:"type,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *EnumOptions) Reset()         { *m = EnumOptions{} }
+func (m *EnumOptions) String() string { return proto.CompactTextString(m) }
+func (*EnumOptions) ProtoMessage()    {}
+func (*EnumOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_options_8c1879a71f36b25f, []int{3}
+}
+func (m *EnumOptions) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EnumOptions.Unmarshal(m, b)
+}
+func (m *EnumOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EnumOptions.Marshal(b, m, deterministic)
+}
+func (dst *EnumOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EnumOptions.Merge(dst, src)
+}
+func (m *EnumOptions) XXX_Size() int {
+	return xxx_messageInfo_EnumOptions.Size(m)
+}
+func (m *EnumOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_EnumOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EnumOptions proto.InternalMessageInfo
+
+func (m *EnumOptions) GetType() string {
+	if m != nil && m.Type != nil {
+		return *m.Type
+	}
+	return ""
+}
+
+type EnumValueOptions struct {
+	// Name of the enum value in the generated GraphQL enum type.
+	Value                *string  `protobuf:"bytes,1,opt,name=value" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *EnumValueOptions) Reset()         { *m = EnumValueOptions{} }
+func (m *EnumValueOptions) String() string { return proto.CompactTextString(m) }
+func (*EnumValueOptions) ProtoMessage()    {}
+func (*EnumValueOptions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_options_8c1879a71f36b25f, []int{4}
+}
+func (m *EnumValueOptions) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_EnumValueOptions.Unmarshal(m, b)
+}
+func (m *EnumValueOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_EnumValueOptions.Marshal(b, m, deterministic)
+}
+func (dst *EnumValueOptions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EnumValueOptions.Merge(dst, src)
+}
+func (m *EnumValueOptions) XXX_Size() int {
+	return xxx_messageInfo_EnumValueOptions.Size(m)
+}
+func (m *EnumValueOptions) XXX_DiscardUnknown() {
+	xxx_messageInfo_EnumValueOptions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EnumValueOptions proto.InternalMessageInfo
+
+func (m *EnumValueOptions) GetValue() string {
+	if m != nil && m.Value != nil {
+		return *m.Value
+	}
+	return ""
+}
+
 type ServiceOptions struct {
 	// A variable-like name to reference the service with, in lieu of the
 	// name generated from the service's package and service name. The name
-	// should be short, snake cased, and unique across all services.
-	ReferenceName        string   `protobuf:"bytes,1,opt,name=reference_name,json=referenceName,proto3" json:"reference_name,omitempty"`
+	// should be unique across all gRPC services.
+	// Note: This will not be the name of the generated GraphQL type.
+	ReferenceName        *string  `protobuf:"bytes,1,opt,name=reference_name,json=referenceName" json:"reference_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -33,7 +269,7 @@ func (m *ServiceOptions) Reset()         { *m = ServiceOptions{} }
 func (m *ServiceOptions) String() string { return proto.CompactTextString(m) }
 func (*ServiceOptions) ProtoMessage()    {}
 func (*ServiceOptions) Descriptor() ([]byte, []int) {
-	return fileDescriptor_options_5f6903acf13e9c45, []int{0}
+	return fileDescriptor_options_8c1879a71f36b25f, []int{5}
 }
 func (m *ServiceOptions) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServiceOptions.Unmarshal(m, b)
@@ -54,16 +290,19 @@ func (m *ServiceOptions) XXX_DiscardUnknown() {
 var xxx_messageInfo_ServiceOptions proto.InternalMessageInfo
 
 func (m *ServiceOptions) GetReferenceName() string {
-	if m != nil {
-		return m.ReferenceName
+	if m != nil && m.ReferenceName != nil {
+		return *m.ReferenceName
 	}
 	return ""
 }
 
 type MethodOptions struct {
+	// Name of the field in the GraphQL type generated for the service.
+	Field *string `protobuf:"bytes,1,opt,name=field" json:"field,omitempty"`
 	// Type of GraphQL operation. Valid values are: "query", "mutation",
 	// or "subscription". Defaults to "query".
-	Operation            string   `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	Operation            *string  `protobuf:"bytes,2,opt,name=operation" json:"operation,omitempty"`
+	Dataloader           *string  `protobuf:"bytes,3,opt,name=dataloader" json:"dataloader,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -73,7 +312,7 @@ func (m *MethodOptions) Reset()         { *m = MethodOptions{} }
 func (m *MethodOptions) String() string { return proto.CompactTextString(m) }
 func (*MethodOptions) ProtoMessage()    {}
 func (*MethodOptions) Descriptor() ([]byte, []int) {
-	return fileDescriptor_options_5f6903acf13e9c45, []int{1}
+	return fileDescriptor_options_8c1879a71f36b25f, []int{6}
 }
 func (m *MethodOptions) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MethodOptions.Unmarshal(m, b)
@@ -93,11 +332,70 @@ func (m *MethodOptions) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MethodOptions proto.InternalMessageInfo
 
-func (m *MethodOptions) GetOperation() string {
-	if m != nil {
-		return m.Operation
+func (m *MethodOptions) GetField() string {
+	if m != nil && m.Field != nil {
+		return *m.Field
 	}
 	return ""
+}
+
+func (m *MethodOptions) GetOperation() string {
+	if m != nil && m.Operation != nil {
+		return *m.Operation
+	}
+	return ""
+}
+
+func (m *MethodOptions) GetDataloader() string {
+	if m != nil && m.Dataloader != nil {
+		return *m.Dataloader
+	}
+	return ""
+}
+
+var E_File = &proto.ExtensionDesc{
+	ExtendedType:  (*descriptor.FileOptions)(nil),
+	ExtensionType: (*FileOptions)(nil),
+	Field:         82731,
+	Name:          "graphql.file",
+	Tag:           "bytes,82731,opt,name=file",
+	Filename:      "graphql/options.proto",
+}
+
+var E_Message = &proto.ExtensionDesc{
+	ExtendedType:  (*descriptor.MessageOptions)(nil),
+	ExtensionType: (*MessageOptions)(nil),
+	Field:         82731,
+	Name:          "graphql.message",
+	Tag:           "bytes,82731,opt,name=message",
+	Filename:      "graphql/options.proto",
+}
+
+var E_Field = &proto.ExtensionDesc{
+	ExtendedType:  (*descriptor.FieldOptions)(nil),
+	ExtensionType: (*FieldOptions)(nil),
+	Field:         82731,
+	Name:          "graphql.field",
+	Tag:           "bytes,82731,opt,name=field",
+	Filename:      "graphql/options.proto",
+}
+
+var E_Enum = &proto.ExtensionDesc{
+	ExtendedType:  (*descriptor.EnumOptions)(nil),
+	ExtensionType: (*EnumOptions)(nil),
+	Field:         82731,
+	Name:          "graphql.enum",
+	Tag:           "bytes,82731,opt,name=enum",
+	Filename:      "graphql/options.proto",
+}
+
+var E_EnumValue = &proto.ExtensionDesc{
+	ExtendedType:  (*descriptor.EnumValueOptions)(nil),
+	ExtensionType: (*EnumValueOptions)(nil),
+	Field:         82731,
+	Name:          "graphql.enum_value",
+	Tag:           "bytes,82731,opt,name=enum_value,json=enumValue",
+	Filename:      "graphql/options.proto",
 }
 
 var E_Service = &proto.ExtensionDesc{
@@ -119,30 +417,56 @@ var E_Method = &proto.ExtensionDesc{
 }
 
 func init() {
+	proto.RegisterType((*FileOptions)(nil), "graphql.FileOptions")
+	proto.RegisterType((*MessageOptions)(nil), "graphql.MessageOptions")
+	proto.RegisterType((*FieldOptions)(nil), "graphql.FieldOptions")
+	proto.RegisterType((*EnumOptions)(nil), "graphql.EnumOptions")
+	proto.RegisterType((*EnumValueOptions)(nil), "graphql.EnumValueOptions")
 	proto.RegisterType((*ServiceOptions)(nil), "graphql.ServiceOptions")
 	proto.RegisterType((*MethodOptions)(nil), "graphql.MethodOptions")
+	proto.RegisterExtension(E_File)
+	proto.RegisterExtension(E_Message)
+	proto.RegisterExtension(E_Field)
+	proto.RegisterExtension(E_Enum)
+	proto.RegisterExtension(E_EnumValue)
 	proto.RegisterExtension(E_Service)
 	proto.RegisterExtension(E_Method)
 }
 
-func init() { proto.RegisterFile("graphql/options.proto", fileDescriptor_options_5f6903acf13e9c45) }
+func init() { proto.RegisterFile("graphql/options.proto", fileDescriptor_options_8c1879a71f36b25f) }
 
-var fileDescriptor_options_5f6903acf13e9c45 = []byte{
-	// 256 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x90, 0xcd, 0x4a, 0xc4, 0x30,
-	0x14, 0x85, 0xe9, 0xc2, 0x19, 0x26, 0x32, 0xb3, 0x28, 0xa8, 0x83, 0x88, 0x96, 0x01, 0x61, 0x36,
-	0x4d, 0x41, 0x17, 0x42, 0x71, 0xe5, 0xde, 0x1f, 0xaa, 0x2b, 0x37, 0x92, 0x66, 0x6e, 0xd3, 0x40,
-	0x93, 0x1b, 0xd3, 0x54, 0x7c, 0x02, 0x5f, 0xc6, 0x97, 0x14, 0x9b, 0xb4, 0x52, 0x67, 0x99, 0x2f,
-	0xf7, 0x7e, 0x39, 0x39, 0xe4, 0x48, 0x58, 0x66, 0xea, 0xf7, 0x26, 0x43, 0xe3, 0x24, 0xea, 0x96,
-	0x1a, 0x8b, 0x0e, 0xe3, 0x79, 0xc0, 0xa7, 0x89, 0x40, 0x14, 0x0d, 0x64, 0x3d, 0x2e, 0xbb, 0x2a,
-	0xdb, 0x41, 0xcb, 0xad, 0x34, 0x0e, 0xad, 0x1f, 0xdd, 0xdc, 0x90, 0xd5, 0x33, 0xd8, 0x0f, 0xc9,
-	0xe1, 0xd1, 0x2b, 0xe2, 0x4b, 0xb2, 0xb2, 0x50, 0x81, 0x05, 0xcd, 0xe1, 0x4d, 0x33, 0x05, 0xeb,
-	0x28, 0x89, 0xb6, 0x8b, 0x62, 0x39, 0xd2, 0x07, 0xa6, 0x60, 0x93, 0x92, 0xe5, 0x3d, 0xb8, 0x1a,
-	0x77, 0xc3, 0xde, 0x19, 0x59, 0xa0, 0x01, 0xcb, 0x7e, 0x4f, 0x61, 0xe5, 0x0f, 0xe4, 0x2f, 0x64,
-	0xde, 0xfa, 0x77, 0xe2, 0x0b, 0xea, 0x53, 0xd1, 0x21, 0x15, 0x9d, 0x26, 0x58, 0x7f, 0x7f, 0x1d,
-	0x24, 0xd1, 0xf6, 0xf0, 0xea, 0x84, 0x86, 0x7f, 0xfc, 0x1b, 0x28, 0x06, 0x55, 0xfe, 0x44, 0x66,
-	0xaa, 0x0f, 0x11, 0x9f, 0xef, 0x49, 0x27, 0xe9, 0x46, 0xe7, 0xf1, 0xe8, 0x9c, 0xdc, 0x17, 0xc1,
-	0x73, 0x77, 0xfb, 0x9a, 0x0b, 0xe9, 0xea, 0xae, 0xa4, 0x1c, 0x55, 0xa6, 0x98, 0x75, 0x52, 0x7f,
-	0xb6, 0x8d, 0xec, 0x7c, 0x87, 0x3c, 0x15, 0xa0, 0xd3, 0xa1, 0xf5, 0xb1, 0xd6, 0x00, 0xca, 0x59,
-	0x4f, 0xae, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0x64, 0xdb, 0xc4, 0x66, 0x98, 0x01, 0x00, 0x00,
+var fileDescriptor_options_8c1879a71f36b25f = []byte{
+	// 506 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x54, 0x51, 0x6b, 0xd4, 0x40,
+	0x18, 0xe4, 0x6c, 0x6b, 0xcd, 0x77, 0xf6, 0x90, 0xa5, 0xd5, 0x28, 0x67, 0x7b, 0x0d, 0x0a, 0x07,
+	0xd2, 0x1c, 0xf8, 0x22, 0x04, 0x9f, 0x04, 0x8b, 0xa0, 0x55, 0x89, 0xe2, 0x83, 0x20, 0xc7, 0x36,
+	0xf9, 0x92, 0x5b, 0x9a, 0x64, 0xe3, 0x26, 0x39, 0xbc, 0x3f, 0xe0, 0x8b, 0x3f, 0xc5, 0x3f, 0x29,
+	0xbb, 0xd9, 0x6c, 0x36, 0x18, 0xf4, 0x29, 0xd9, 0xd9, 0xd9, 0xe1, 0xdb, 0x99, 0x61, 0xe1, 0x24,
+	0x15, 0xb4, 0xdc, 0x7c, 0xcf, 0x56, 0xbc, 0xac, 0x19, 0x2f, 0x2a, 0xbf, 0x14, 0xbc, 0xe6, 0xe4,
+	0x50, 0xc3, 0x8f, 0x16, 0x29, 0xe7, 0x69, 0x86, 0x2b, 0x05, 0x5f, 0x37, 0xc9, 0x2a, 0xc6, 0x2a,
+	0x12, 0xac, 0xac, 0xb9, 0x68, 0xa9, 0xde, 0x33, 0x98, 0x5e, 0xb2, 0x0c, 0x3f, 0xb4, 0xe7, 0xc9,
+	0x1c, 0x9c, 0x82, 0xe6, 0x58, 0x95, 0x34, 0x42, 0x77, 0xb2, 0x98, 0x2c, 0x9d, 0xb0, 0x07, 0xbc,
+	0x27, 0x30, 0xbb, 0xc2, 0xaa, 0xa2, 0xa9, 0xe1, 0x13, 0xd8, 0xaf, 0x77, 0x65, 0x47, 0x55, 0xff,
+	0xde, 0xaf, 0x09, 0xdc, 0xbd, 0x64, 0x98, 0xc5, 0x1d, 0xe9, 0x18, 0x0e, 0x12, 0xb9, 0xd6, 0xac,
+	0x76, 0x61, 0x8e, 0xde, 0xea, 0x8f, 0x4a, 0xac, 0xba, 0x61, 0xa5, 0xbb, 0xb7, 0x98, 0x2c, 0xef,
+	0x84, 0xea, 0x5f, 0x8e, 0x14, 0x33, 0x81, 0x51, 0xcd, 0xb6, 0xe8, 0xee, 0x2f, 0xf6, 0xe4, 0x48,
+	0x06, 0x20, 0x67, 0x30, 0x4d, 0xb8, 0x40, 0x96, 0x16, 0xeb, 0x1b, 0xdc, 0xb9, 0x07, 0x4a, 0x0c,
+	0x34, 0xf4, 0x16, 0x77, 0xde, 0x39, 0x4c, 0x5f, 0x17, 0x4d, 0xfe, 0xaf, 0x81, 0x97, 0x70, 0x4f,
+	0x52, 0xbe, 0xd0, 0xac, 0x41, 0x6b, 0xe6, 0xad, 0x5c, 0x77, 0x33, 0xab, 0x85, 0xf7, 0x02, 0x66,
+	0x9f, 0x50, 0x6c, 0x59, 0x64, 0x78, 0x4f, 0x61, 0x26, 0x30, 0x41, 0x81, 0x45, 0x84, 0x6b, 0xe9,
+	0x94, 0x3e, 0x70, 0x64, 0xd0, 0xf7, 0x34, 0x47, 0x2f, 0x82, 0xa3, 0x2b, 0xac, 0x37, 0xfc, 0x3f,
+	0x9e, 0xcc, 0xc1, 0xe1, 0x25, 0x0a, 0x2a, 0x39, 0xda, 0x98, 0x1e, 0x20, 0xa7, 0x00, 0x31, 0xad,
+	0x69, 0xc6, 0x69, 0x8c, 0x42, 0x79, 0xe4, 0x84, 0x16, 0x12, 0xbc, 0x81, 0xfd, 0x84, 0x65, 0x48,
+	0xe6, 0x7e, 0x1b, 0xbb, 0xdf, 0xc5, 0xee, 0x5b, 0x11, 0xbb, 0xbf, 0x7f, 0x4a, 0x93, 0xa6, 0xcf,
+	0x8f, 0x7d, 0xdd, 0x12, 0x7b, 0x37, 0x54, 0x0a, 0xc1, 0x67, 0x38, 0xcc, 0xdb, 0xa0, 0xc9, 0xd9,
+	0x5f, 0x62, 0xc3, 0x0a, 0x18, 0xbd, 0x07, 0x46, 0x6f, 0x48, 0x08, 0x3b, 0xa9, 0xe0, 0x9d, 0xbe,
+	0x33, 0x79, 0x3c, 0x32, 0x60, 0xdf, 0x17, 0xa3, 0x78, 0x62, 0x4d, 0xd8, 0x6f, 0x6b, 0xaf, 0xe4,
+	0x6d, 0xb1, 0x68, 0xf2, 0x91, 0xdb, 0x5a, 0x79, 0x8f, 0xdc, 0xd6, 0xda, 0x0d, 0x95, 0x42, 0xf0,
+	0x0d, 0x40, 0x7e, 0xd7, 0x2a, 0x63, 0x72, 0x3e, 0xaa, 0x67, 0x97, 0xc3, 0x88, 0x3e, 0x1c, 0x88,
+	0xda, 0x94, 0xd0, 0xc1, 0x0e, 0x91, 0x66, 0x56, 0x6d, 0x69, 0x46, 0xcc, 0x1c, 0xd6, 0x69, 0xc4,
+	0xcc, 0x21, 0x21, 0xec, 0xa4, 0x82, 0x8f, 0x70, 0x3b, 0x57, 0x8d, 0x22, 0xa7, 0x23, 0x09, 0x59,
+	0x55, 0x33, 0x9a, 0xf7, 0xad, 0x80, 0xac, 0xfd, 0x50, 0xeb, 0xbc, 0x7a, 0xf9, 0x35, 0x48, 0x59,
+	0xbd, 0x69, 0xae, 0xfd, 0x88, 0xe7, 0xab, 0x9c, 0x8a, 0x9a, 0x15, 0x3f, 0xaa, 0x8c, 0x35, 0xed,
+	0xf3, 0x11, 0x5d, 0xa4, 0x58, 0x5c, 0x74, 0x0f, 0x8e, 0x79, 0x51, 0x34, 0xf0, 0x27, 0x00, 0x00,
+	0xff, 0xff, 0x34, 0xe6, 0x22, 0xf5, 0x8b, 0x04, 0x00, 0x00,
 }

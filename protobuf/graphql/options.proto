@@ -1,4 +1,4 @@
-syntax = "proto3";
+syntax = "proto2";
 
 package graphql;
 
@@ -6,23 +6,90 @@ option go_package = "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 
 import "google/protobuf/descriptor.proto";
 
+extend google.protobuf.FileOptions {
+  optional FileOptions file = 82731;
+}
+
+extend google.protobuf.MessageOptions {
+  optional MessageOptions message = 82731;
+}
+
+extend google.protobuf.FieldOptions {
+  optional FieldOptions field = 82731;
+}
+
+extend google.protobuf.EnumOptions {
+  optional EnumOptions enum = 82731;
+}
+
+extend google.protobuf.EnumValueOptions {
+  optional EnumValueOptions enum_value = 82731;
+}
+
 extend google.protobuf.ServiceOptions {
-  ServiceOptions service = 82731;
+  optional ServiceOptions service = 82731;
 }
 
 extend google.protobuf.MethodOptions {
-  MethodOptions method = 82731;
+  optional MethodOptions method = 82731;
+}
+
+message FileOptions {
+  // Name used to prefix all types with. If unset, the default behaviour is
+  // to use the upper camel case of the Protobuf package name.
+  optional string namespace = 1;
+}
+
+message MessageOptions {
+  // Name of the generated GraphQL type.
+  optional string type = 1;
+}
+
+message FieldOptions {
+  // Name of the field in the generated GraphQL object and input types.
+  optional string field = 1;
+
+  // Name of GraphQL type to use for this field, including modifiers.
+  optional string type = 2;
+
+  // Skip this field in the generated GraphQL type.
+  optional bool skip = 3;
+
+  // GraphQL directive to generate for the field. Do not include the @ sign,
+  // do include any arguments within parentheses.
+  repeated string directive = 4;
+
+  // Mark the field as a foreign key to another Protobuf message. The value
+  // should be the name of the Protobuf type, following the same type name
+  // resolution rules, like when using types imported from other packages.
+  optional string foreign_key = 5;
+}
+
+message EnumOptions {
+  // Name of the generated GraphQL type.
+  optional string type = 1;
+}
+
+message EnumValueOptions {
+  // Name of the enum value in the generated GraphQL enum type.
+  optional string value = 1;
 }
 
 message ServiceOptions {
   // A variable-like name to reference the service with, in lieu of the
   // name generated from the service's package and service name. The name
-  // should be short, snake cased, and unique across all services.
-  string reference_name = 1;
+  // should be unique across all gRPC services.
+  // Note: This will not be the name of the generated GraphQL type.
+  optional string reference_name = 1;
 }
 
 message MethodOptions {
+  // Name of the field in the GraphQL type generated for the service.
+  optional string field = 1;
+
   // Type of GraphQL operation. Valid values are: "query", "mutation",
   // or "subscription". Defaults to "query".
-  string operation = 1;
+  optional string operation = 2;
+
+  optional string dataloader = 3;
 }

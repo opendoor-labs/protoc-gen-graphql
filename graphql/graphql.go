@@ -69,6 +69,7 @@ type Field struct {
 	TypeName    string
 	Arguments   []*Argument
 	Modifiers   TypeModifier
+	Directives  []string
 }
 
 type Argument struct {

@@ -62,7 +62,7 @@ type ServiceMapper struct {
 }
 
 type MethodsMapper struct {
-	Methods          []*pb.MethodDescriptorProto
+	Methods          []*descriptor.Method
 	ExtendRootObject *graphql.ExtendObject
 	Object           *graphql.Object
 }
@@ -118,10 +118,7 @@ func (m *Mapper) buildTypeMaps() {
 	for _, filePb := range m.FilePbs {
 		file := m.Files[filePb.GetName()]
 		for _, enum := range file.Enums {
-			m.ObjectNames[enum.FullName] = BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:  enum.Package,
-				TypeName: enum.TypeName,
-			})
+			m.ObjectNames[enum.FullName] = m.enumName(enum)
 		}
 
 		for _, message := range file.Messages {
@@ -141,12 +138,7 @@ func (m *Mapper) buildMessageTypeMaps(message *descriptor.Message, input bool) {
 		return
 	}
 
-	nameMap[message.FullName] = BuildGraphqlTypeName(&GraphqlTypeNameParts{
-		Package:    message.Package,
-		TypeName:   message.TypeName,
-		Input:      input,
-		IsProtoMap: message.IsMap,
-	})
+	nameMap[message.FullName] = m.messageName(message, input)
 
 	for _, field := range message.Proto.GetField() {
 		if field.GetType() == pb.FieldDescriptorProto_TYPE_MESSAGE {
@@ -244,20 +236,38 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 	}
 
 	for _, field := range message.Fields {
+		if field.Options.GetSkip() {
+			continue
+		}
+
 		if field.IsOneof {
 			oneofObjectName := field.Name + "Oneof"
 			fields = append(fields, &graphql.Field{
-				Name: m.FieldNameTransformer(field.Name),
-				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-					Package:  message.Package,
-					TypeName: append(message.TypeName, oneofObjectName),
-					Input:    input,
+				Name: m.fieldName(field),
+				TypeName: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+					Namespace: message.File.Options.GetNamespace(),
+					Package:   message.Package,
+					TypeName:  append(message.TypeName, oneofObjectName),
+					Input:     input,
 				}),
 			})
 			continue
 		}
 
-		fields = append(fields, m.graphqlField(field.Proto, fieldOptions{Input: input}))
+		fields = append(fields, m.graphqlField(field, fieldOptions{Input: input}))
+
+		if field.Options.GetForeignKey() != "" {
+			fieldName, key := getForeignKey(field.Options.GetForeignKey())
+			referencedObjectName, ok := m.ObjectNames[key]
+			if !ok {
+				panic(fmt.Sprintf("unknown message for foreign key: %s", field.Options.GetForeignKey()))
+			}
+
+			fields = append(fields, &graphql.Field{
+				Name:     fieldName,
+				TypeName: referencedObjectName,
+			})
+		}
 	}
 	return fields
 }
@@ -267,9 +277,16 @@ type fieldOptions struct {
 	NullableScalars bool
 }
 
-func (m *Mapper) graphqlField(proto *pb.FieldDescriptorProto, options fieldOptions) *graphql.Field {
+func (m *Mapper) graphqlField(f *descriptor.Field, options fieldOptions) *graphql.Field {
 	field := &graphql.Field{
-		Name: m.FieldNameTransformer(proto.GetName()),
+		Name:       m.fieldName(f),
+		Directives: f.Options.GetDirective(),
+	}
+	proto := f.Proto
+
+	if f.Options.GetType() != "" {
+		field.TypeName = f.Options.GetType()
+		return field
 	}
 
 	switch proto.GetType() {
@@ -375,17 +392,19 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 	mapper := &OneofMapper{
 		Descriptor: oneof,
 		Union: &graphql.Union{
-			Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-				Package:  oneof.Parent.Package,
-				TypeName: append(oneof.Parent.TypeName, oneofObjectName),
+			Name: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+				Namespace: oneof.Parent.File.Options.GetNamespace(),
+				Package:   oneof.Parent.Package,
+				TypeName:  append(oneof.Parent.TypeName, oneofObjectName),
 			}),
 		},
 	}
 
-	for _, fieldProto := range oneof.FieldProtos {
-		typeName := BuildGraphqlTypeName(&GraphqlTypeNameParts{
-			Package:  oneof.Parent.Package,
-			TypeName: append(oneof.Parent.TypeName, oneofObjectName, fieldProto.GetName()),
+	for _, field := range oneof.Fields {
+		typeName := m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+			Namespace: oneof.Parent.File.Options.GetNamespace(),
+			Package:   oneof.Parent.Package,
+			TypeName:  append(oneof.Parent.TypeName, oneofObjectName, field.Name),
 		})
 
 		mapper.Union.TypeNames = append(mapper.Union.TypeNames, typeName)
@@ -397,7 +416,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 					Name:     "_typename",
 					TypeName: graphql.ScalarString.TypeName(),
 				},
-				m.graphqlField(fieldProto, fieldOptions{}),
+				m.graphqlField(field, fieldOptions{}),
 			},
 		})
 	}
@@ -407,15 +426,16 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 	}
 
 	var inputFields []*graphql.Field
-	for _, fieldProto := range oneof.FieldProtos {
-		inputFields = append(inputFields, m.graphqlField(fieldProto, fieldOptions{Input: true, NullableScalars: true}))
+	for _, field := range oneof.Fields {
+		inputFields = append(inputFields, m.graphqlField(field, fieldOptions{Input: true, NullableScalars: true}))
 	}
 
 	mapper.Input = &graphql.Input{
-		Name: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-			Package:  oneof.Parent.Package,
-			TypeName: append(oneof.Parent.TypeName, oneofObjectName),
-			Input:    true,
+		Name: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+			Namespace: oneof.Parent.File.Options.GetNamespace(),
+			Package:   oneof.Parent.Package,
+			TypeName:  append(oneof.Parent.TypeName, oneofObjectName),
+			Input:     true,
 		}),
 		Fields: inputFields,
 	}
@@ -425,8 +445,12 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 
 func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 	var values []string
-	for _, protoValue := range enum.Proto.GetValue() {
-		values = append(values, protoValue.GetName())
+	for _, value := range enum.Values {
+		valueName := value.Proto.GetName()
+		if value.Options.GetValue() != "" {
+			valueName = value.Options.GetValue()
+		}
+		values = append(values, valueName)
 	}
 
 	m.EnumMappers[enum.FullName] = &EnumMapper{
@@ -445,20 +469,19 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		subscriptions = m.buildMethodsMapper(service, "Subscription")
 	)
 
-	for _, method := range service.Proto.GetMethod() {
+	for _, method := range service.Methods {
 		// Ignore streaming RPC methods.
-		if method.GetClientStreaming() || method.GetServerStreaming() {
+		if method.Proto.GetClientStreaming() || method.Proto.GetServerStreaming() {
 			continue
 		}
 
-		methodOptions := getMessageOptions(method)
-		if methodOptions.Operation == "none" {
+		if method.Options.GetOperation() == "none" {
 			return
 		}
 
 		field := m.graphqlFieldFromMethod(method)
 
-		switch methodOptions.Operation {
+		switch method.Options.GetOperation() {
 		case "mutation":
 			mutations.Object.Fields = append(mutations.Object.Fields, field)
 			mutations.Methods = append(mutations.Methods, method)
@@ -476,23 +499,26 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		ReferenceName: m.referenceName(service),
 	}
 	if len(queries.Methods) > 0 {
-		queries.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
-			Package:  service.Package,
-			TypeName: append(service.TypeName, "Query"),
+		queries.Object.Name = m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+			Namespace: service.File.Options.GetNamespace(),
+			Package:   service.Package,
+			TypeName:  append(service.TypeName, "Query"),
 		})
 		mapper.Queries = queries
 	}
 	if len(mutations.Methods) > 0 {
-		mutations.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
-			Package:  service.Package,
-			TypeName: append(service.TypeName, "Mutation"),
+		mutations.Object.Name = m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+			Namespace: service.File.Options.GetNamespace(),
+			Package:   service.Package,
+			TypeName:  append(service.TypeName, "Mutation"),
 		})
 		mapper.Mutations = mutations
 	}
 	if len(subscriptions.Methods) > 0 {
-		subscriptions.Object.Name = BuildGraphqlTypeName(&GraphqlTypeNameParts{
-			Package:  service.Package,
-			TypeName: append(service.TypeName, "Subscription"),
+		subscriptions.Object.Name = m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+			Namespace: service.File.Options.GetNamespace(),
+			Package:   service.Package,
+			TypeName:  append(service.TypeName, "Subscription"),
 		})
 		mapper.Subscriptions = subscriptions
 	}
@@ -507,9 +533,10 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 			Name: fmt.Sprintf("%s%s", *m.Params.RootTypePrefix, rootType),
 			Fields: []*graphql.Field{{
 				Name: m.referenceName(service),
-				TypeName: BuildGraphqlTypeName(&GraphqlTypeNameParts{
-					Package:  service.Package,
-					TypeName: append(service.TypeName, rootType),
+				TypeName: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+					Namespace: service.File.Options.GetNamespace(),
+					Package:   service.Package,
+					TypeName:  append(service.TypeName, rootType),
 				}),
 			}},
 		}
@@ -521,36 +548,48 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 	}
 }
 
-func (m *Mapper) graphqlFieldFromMethod(method *pb.MethodDescriptorProto) *graphql.Field {
+func (m *Mapper) graphqlFieldFromMethod(method *descriptor.Method) *graphql.Field {
 	// Only add an argument if there are fields in the gRPC request message.
 	var arguments []*graphql.Argument
-	inputType := m.Messages[method.GetInputType()]
+	inputType := m.Messages[method.Proto.GetInputType()]
 	if len(inputType.Fields) != 0 {
 		arguments = append(arguments, &graphql.Argument{
 			Name:      "input",
-			TypeName:  m.MessageMappers[method.GetInputType()].Input.Name,
+			TypeName:  m.MessageMappers[method.Proto.GetInputType()].Input.Name,
 			Modifiers: graphql.TypeModifierNonNull,
 		})
 	}
 
+	methodName := method.Options.GetField()
+	if methodName == "" {
+		methodName = m.MethodNameTransformer(method.Proto.GetName())
+	}
+
 	return &graphql.Field{
-		Name:      m.MethodNameTransformer(method.GetName()),
-		TypeName:  m.MessageMappers[method.GetOutputType()].Object.Name,
+		Name:      methodName,
+		TypeName:  m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
 		Arguments: arguments,
 		Modifiers: graphql.TypeModifierNonNull,
 	}
 }
 
 type GraphqlTypeNameParts struct {
+	Namespace  string
 	Package    string
 	TypeName   []string
 	IsProtoMap bool
 	Input      bool
 }
 
-func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
+func (m *Mapper) buildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 	var b strings.Builder
-	b.WriteString(generator.CamelCaseSlice(strings.Split(parts.Package, ".")))
+
+	if parts.Namespace != "" {
+		b.WriteString(parts.Namespace)
+	} else {
+		b.WriteString(generator.CamelCaseSlice(strings.Split(parts.Package, ".")))
+	}
+
 	for i, name := range parts.TypeName {
 		if parts.IsProtoMap && i == len(parts.TypeName)-1 {
 			name = strings.TrimSuffix(name, "Entry")
@@ -569,15 +608,66 @@ func BuildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 	return b.String()
 }
 
-func (m *Mapper) referenceName(s *descriptor.Service) string {
-	serviceOptions := getServiceOptions(s.Proto)
-	if serviceOptions.ReferenceName != "" {
-		return serviceOptions.ReferenceName
+func (m *Mapper) referenceName(service *descriptor.Service) string {
+	if service.Options.GetReferenceName() != "" {
+		return service.Options.GetReferenceName()
 	}
 
 	// e.g. .foo.bar.Baz -> foo_bar_baz
-	name := s.FullName
+	name := service.FullName
 	name = strings.TrimPrefix(name, ".")
 	name = strings.Replace(name, ".", "_", -1)
 	return m.MethodNameTransformer(name)
+}
+
+func (m *Mapper) messageName(message *descriptor.Message, input bool) string {
+	if message.Options.GetType() != "" {
+		name := message.Options.GetType()
+		if input {
+			name += "Input"
+		}
+		return name
+	}
+
+	return m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+		Namespace:  message.File.Options.GetNamespace(),
+		Package:    message.Package,
+		TypeName:   message.TypeName,
+		Input:      input,
+		IsProtoMap: message.IsMap,
+	})
+}
+
+func (m *Mapper) fieldName(field *descriptor.Field) string {
+	if field.Options.GetField() != "" {
+		return field.Options.GetField()
+	}
+	return m.FieldNameTransformer(field.Name)
+}
+
+func (m *Mapper) enumName(enum *descriptor.Enum) string {
+	if enum.Options.GetType() != "" {
+		return enum.Options.GetType()
+	}
+
+	return m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+		Namespace: enum.File.Options.GetNamespace(),
+		Package:   enum.Package,
+		TypeName:  enum.TypeName,
+	})
+}
+
+func getForeignKey(v string) (string, string) {
+	parts := strings.SplitN(v, ":", 2)
+	if len(parts) != 2 {
+		panic(fmt.Sprintf("Foreign key expected to have format 'field_name:message_type', got %s", v))
+	}
+
+	key := parts[1]
+	if !strings.HasPrefix(key, ".") {
+		// Ensure that the type name is fully qualified with a preceding '.'.
+		key = "." + key
+	}
+
+	return parts[0], key
 }

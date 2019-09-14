@@ -4,13 +4,23 @@ package protoc_gen_graphql.test.extensions;
 
 import "graphql/options.proto";
 
+option (graphql.file).namespace = "MyPackage";
+
 service Foo {
   option (graphql.service).reference_name = "foo";
 
   rpc QueryMethod(Request) returns (Response) {
-    option (graphql.method).operation = "query";
+    option (graphql.method) = { field: "getFoo" operation: "query" };
+  }
+  rpc BatchMethod(BatchRequest) returns (BatchResponse) {
+    option (graphql.method) = {
+      field: "getFoos"
+      operation: "query"
+      dataloader: "protoc_gen_graphql.test.extensions.User"
+    };
   }
   rpc MutationMethod(Request) returns (Response) {
+    option (graphql.method).field = "setFoo";
     option (graphql.method).operation = "mutation";
   }
   rpc SubscriptionMethod(Request) returns (Response) {
@@ -22,9 +32,41 @@ service Foo {
 }
 
 message Request {
-  string id = 1;
+  option (graphql.message).type = "MyRequest";
+
+  string id = 1 [(graphql.field).field = "userId"];
 }
 
 message Response {
-  string name = 1;
+  option (graphql.message).type = "MyResponse";
+
+  string user_id = 1 [(graphql.field).foreign_key = "user:protoc_gen_graphql.test.extensions.User"];
+  // The following should error as 'Address' is not resolvable to a type.
+  // string address_id = 999 [(graphql.field).foreign_key = "Address"];
+}
+
+message BatchRequest {
+  repeated string ids = 1 [(graphql.field).field = "userIds"];
+}
+
+message BatchResponse {
+  repeated User users = 1;
+}
+
+message User {
+  option (graphql.message).type = "MyUser";
+
+  string name = 1 [(graphql.field).field = "title"];
+  string ages = 2 [(graphql.field).type = "[Int!]!"];
+  string password = 3 [(graphql.field).skip = true];
+  string directives = 4 [(graphql.field).directive = "foo", (graphql.field).directive = "bar(arg: \"baz\")"];
+  Role role = 5;
+}
+
+enum Role {
+  option (graphql.enum).type = "MyRole";
+
+  UNKNOWN = 0;
+  USER = 1 [(graphql.enum_value).value = "CUSTOMER"];
+  ADMIN = 2;
 }

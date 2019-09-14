@@ -73,6 +73,11 @@ func typeDefField(field *Field) string {
 	b.WriteString(": ")
 	b.WriteString(typeName)
 
+	for _, directive := range field.Directives {
+		b.WriteString(" @")
+		b.WriteString(directive)
+	}
+
 	return b.String()
 }
 
