@@ -5,7 +5,7 @@ type GoogleProtobuf_Type {
   fields: [GoogleProtobuf_Field!]!
   oneofs: [String!]!
   options: [GoogleProtobuf_Option!]!
-  source_context: GoogleProtobuf_SourceContext
+  sourceContext: GoogleProtobuf_SourceContext
   syntax: GoogleProtobuf_Syntax!
 }
 
@@ -14,7 +14,7 @@ input GoogleProtobuf_TypeInput {
   fields: [GoogleProtobuf_FieldInput!]!
   oneofs: [String!]!
   options: [GoogleProtobuf_OptionInput!]!
-  source_context: GoogleProtobuf_SourceContextInput
+  sourceContext: GoogleProtobuf_SourceContextInput
   syntax: GoogleProtobuf_Syntax!
 }
 
@@ -23,12 +23,12 @@ type GoogleProtobuf_Field {
   cardinality: GoogleProtobuf_Field_Cardinality!
   number: Float!
   name: String!
-  type_url: String!
-  oneof_index: Float!
+  typeUrl: String!
+  oneofIndex: Float!
   packed: Boolean!
   options: [GoogleProtobuf_Option!]!
-  json_name: String!
-  default_value: String!
+  jsonName: String!
+  defaultValue: String!
 }
 
 input GoogleProtobuf_FieldInput {
@@ -36,19 +36,19 @@ input GoogleProtobuf_FieldInput {
   cardinality: GoogleProtobuf_Field_Cardinality!
   number: Float!
   name: String!
-  type_url: String!
-  oneof_index: Float!
+  typeUrl: String!
+  oneofIndex: Float!
   packed: Boolean!
   options: [GoogleProtobuf_OptionInput!]!
-  json_name: String!
-  default_value: String!
+  jsonName: String!
+  defaultValue: String!
 }
 
 type GoogleProtobuf_Enum {
   name: String!
   enumvalue: [GoogleProtobuf_EnumValue!]!
   options: [GoogleProtobuf_Option!]!
-  source_context: GoogleProtobuf_SourceContext
+  sourceContext: GoogleProtobuf_SourceContext
   syntax: GoogleProtobuf_Syntax!
 }
 
@@ -56,7 +56,7 @@ input GoogleProtobuf_EnumInput {
   name: String!
   enumvalue: [GoogleProtobuf_EnumValueInput!]!
   options: [GoogleProtobuf_OptionInput!]!
-  source_context: GoogleProtobuf_SourceContextInput
+  sourceContext: GoogleProtobuf_SourceContextInput
   syntax: GoogleProtobuf_Syntax!
 }
 
