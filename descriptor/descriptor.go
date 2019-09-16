@@ -88,6 +88,7 @@ type Service struct {
 type Method struct {
 	Proto   *descriptor.MethodDescriptorProto
 	Options *graphqlpb.MethodOptions
+	Service *Service
 }
 
 func WrapFile(proto *descriptor.FileDescriptorProto) *File {
@@ -127,6 +128,7 @@ func wrapMethods(service *Service) {
 		service.Methods = append(service.Methods, &Method{
 			Proto:   proto,
 			Options: getMethodOptions(proto),
+			Service: service,
 		})
 	}
 }
