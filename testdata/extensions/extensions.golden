@@ -31,7 +31,7 @@ type MyRequest {
 }
 
 input MyRequestInput {
-  userId: String!
+  userId: String
 }
 
 type MyResponse {

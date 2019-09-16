@@ -254,7 +254,7 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 			continue
 		}
 
-		fields = append(fields, m.graphqlField(field, fieldOptions{Input: input}))
+		fields = append(fields, m.graphqlField(field, input))
 
 		if field.Options.GetForeignKey() != "" {
 			fieldName, key := getForeignKey(field.Options.GetForeignKey())
@@ -272,27 +272,24 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 	return fields
 }
 
-type fieldOptions struct {
-	Input           bool
-	NullableScalars bool
-}
-
-func (m *Mapper) graphqlField(f *descriptor.Field, options fieldOptions) *graphql.Field {
+func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 	field := &graphql.Field{
 		Name:       m.fieldName(f),
 		Directives: f.Options.GetDirective(),
 	}
-	proto := f.Proto
 
 	if f.Options.GetType() != "" {
 		field.TypeName = f.Options.GetType()
 		return field
 	}
 
+	proto := f.Proto
+	nullableScalars := m.nullableScalars(f, input)
+
 	switch proto.GetType() {
 	case pb.FieldDescriptorProto_TYPE_STRING, pb.FieldDescriptorProto_TYPE_BYTES:
 		field.TypeName = graphql.ScalarString.TypeName()
-		if !options.NullableScalars {
+		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
@@ -301,7 +298,7 @@ func (m *Mapper) graphqlField(f *descriptor.Field, options fieldOptions) *graphq
 		pb.FieldDescriptorProto_TYPE_FIXED32, pb.FieldDescriptorProto_TYPE_SFIXED32:
 
 		field.TypeName = graphql.ScalarFloat.TypeName()
-		if !options.NullableScalars {
+		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
@@ -313,24 +310,24 @@ func (m *Mapper) graphqlField(f *descriptor.Field, options fieldOptions) *graphq
 		} else {
 			field.TypeName = graphql.ScalarFloat.TypeName()
 		}
-		if !options.NullableScalars {
+		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
 	case pb.FieldDescriptorProto_TYPE_BOOL:
 		field.TypeName = graphql.ScalarBoolean.TypeName()
-		if !options.NullableScalars {
+		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
 	case pb.FieldDescriptorProto_TYPE_ENUM:
 		field.TypeName = m.EnumMappers[proto.GetTypeName()].Enum.Name
-		if !options.NullableScalars {
+		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
 	case pb.FieldDescriptorProto_TYPE_MESSAGE:
-		if options.Input {
+		if input {
 			field.TypeName = m.InputNames[proto.GetTypeName()]
 		} else {
 			field.TypeName = m.ObjectNames[proto.GetTypeName()]
@@ -416,7 +413,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 					Name:     "_typename",
 					TypeName: graphql.ScalarString.TypeName(),
 				},
-				m.graphqlField(field, fieldOptions{}),
+				m.graphqlField(field, false),
 			},
 		})
 	}
@@ -427,7 +424,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 
 	var inputFields []*graphql.Field
 	for _, field := range oneof.Fields {
-		inputFields = append(inputFields, m.graphqlField(field, fieldOptions{Input: true, NullableScalars: true}))
+		inputFields = append(inputFields, m.graphqlField(field, true))
 	}
 
 	mapper.Input = &graphql.Input{
@@ -655,6 +652,17 @@ func (m *Mapper) enumName(enum *descriptor.Enum) string {
 		Package:   enum.Package,
 		TypeName:  enum.TypeName,
 	})
+}
+
+func (m *Mapper) nullableScalars(field *descriptor.Field, input bool) bool {
+	if input {
+		return true
+	}
+	switch field.Parent.File.Proto.GetSyntax() {
+	case "proto2", "":
+		return field.Proto.GetLabel() == pb.FieldDescriptorProto_LABEL_OPTIONAL
+	}
+	return false
 }
 
 func getForeignKey(v string) (string, string) {

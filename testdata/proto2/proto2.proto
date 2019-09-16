@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package protoc_gen_graphql.test.proto2;
+
+message Test {
+  optional string optional_field = 1;
+  required string required_field = 2;
+  repeated string repeated_field = 3;
+}

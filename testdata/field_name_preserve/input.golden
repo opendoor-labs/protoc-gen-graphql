@@ -22,19 +22,19 @@ type ProtocGenGraphqlTestBasic_ScalarFields {
 }
 
 input ProtocGenGraphqlTestBasic_ScalarFieldsInput {
-  string_field: String!
-  bytes_field: String!
-  int32_field: Float!
-  uint32_field: Float!
-  sint32_field: Float!
-  fixed32_field: Float!
-  int64_field: Float!
-  uint64_field: Float!
-  sint64_field: Float!
-  fixed64_field: Float!
-  float_field: Float!
-  double_field: Float!
-  bool_field: Boolean!
+  string_field: String
+  bytes_field: String
+  int32_field: Float
+  uint32_field: Float
+  sint32_field: Float
+  fixed32_field: Float
+  int64_field: Float
+  uint64_field: Float
+  sint64_field: Float
+  fixed64_field: Float
+  float_field: Float
+  double_field: Float
+  bool_field: Boolean
 }
 
 type ProtocGenGraphqlTestBasic_ComplexFields {

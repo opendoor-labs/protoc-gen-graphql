@@ -72,3 +72,7 @@ func TestProtobufExtensions(t *testing.T) {
 func TestFieldNamePreserve(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "field_name_preserve", "field_name=preserve")
 }
+
+func TestProto2(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "proto2", "")
+}
