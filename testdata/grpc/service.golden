@@ -28,8 +28,8 @@ type ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_Second {
 input ProtocGenGraphqlTestGrpc_RequestInput {
   stringField: String
   foo: ProtocGenGraphqlTestGrpc_Request_FooInput
-  bar: [ProtocGenGraphqlTestGrpc_Request_Foo_BarInput!]!
-  mapField: [ProtocGenGraphqlTestGrpc_Request_MapFieldEntryInput!]!
+  bar: [ProtocGenGraphqlTestGrpc_Request_Foo_BarInput!]
+  mapField: [ProtocGenGraphqlTestGrpc_Request_MapFieldEntryInput!]
   oneofField: ProtocGenGraphqlTestGrpc_Request_OneofFieldOneofInput
 }
 

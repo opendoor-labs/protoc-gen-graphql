@@ -19,10 +19,11 @@ type TypeModifier uint32
 
 const (
 	// When combining non-null and list modifiers, the non-null modifier only
-	// refers to the items inside the list. The list itself should always be
-	// non-null since protobuf repeated fields are not optional.
+	// refers to the items inside the list, while the non-null list modifier
+	// refers to the nullity of the list itself.
 	TypeModifierNonNull = 1 << iota
 	TypeModifierList
+	TypeModifierNonNullList
 )
 
 type Scalar struct {

@@ -344,6 +344,9 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 
 	if proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
 		field.Modifiers = field.Modifiers | graphql.TypeModifierNonNull | graphql.TypeModifierList
+		if !input {
+			field.Modifiers = field.Modifiers | graphql.TypeModifierNonNullList
+		}
 	}
 
 	return m.graphqlSpecialTypes(field, proto.GetTypeName())

@@ -44,7 +44,7 @@ type MyPackage_BatchRequest {
 }
 
 input MyPackage_BatchRequestInput {
-  userIds: [String!]!
+  userIds: [String!]
 }
 
 type MyPackage_BatchResponse {

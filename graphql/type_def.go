@@ -53,7 +53,10 @@ func typeDefField(field *Field) string {
 	}
 	if field.Modifiers&TypeModifierList > 0 {
 		// Protobuf repeated values are always non-null, but can have length 0.
-		typeName = "[" + typeName + "]!"
+		typeName = "[" + typeName + "]"
+		if field.Modifiers&TypeModifierNonNullList > 0 {
+			typeName = typeName + "!"
+		}
 	}
 
 	var b strings.Builder
