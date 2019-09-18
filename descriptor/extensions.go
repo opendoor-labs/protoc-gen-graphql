@@ -2,6 +2,7 @@ package descriptor
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/golang/protobuf/proto"
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
@@ -91,4 +92,49 @@ func getMethodOptions(method *pb.MethodDescriptorProto) *graphqlpb.MethodOptions
 		return ext.(*graphqlpb.MethodOptions)
 	}
 	return &graphqlpb.MethodOptions{}
+}
+
+func getForeignKeyOption(value string) *ForeignKey {
+	if value == "" {
+		return nil
+	}
+
+	parts := strings.Split(value, ":")
+	if len(parts) != 2 {
+		panic(fmt.Sprintf("Foreign key expected to have format 'protobuf_type:field_name', got %s", value))
+	}
+
+	fullName := parts[0]
+	if !strings.HasPrefix(fullName, ".") {
+		// Ensure that the type name is fully qualified with a preceding '.'.
+		fullName = "." + fullName
+	}
+
+	return &ForeignKey{
+		FullName:  fullName,
+		FieldName: parts[1],
+	}
+}
+
+func getLoaderOption(value string) *Loader {
+	if value == "" {
+		return nil
+	}
+
+	parts := strings.Split(value, ":")
+	if len(parts) != 3 {
+		panic(fmt.Sprintf("Loader expected to have format 'protobuf_type:request_field_path:response_field_path', got %s", value))
+	}
+
+	fullName := parts[0]
+	if !strings.HasPrefix(fullName, ".") {
+		// Ensure that the type name is fully qualified with a preceding '.'.
+		fullName = "." + fullName
+	}
+
+	return &Loader{
+		FullName:          fullName,
+		RequestFieldPath:  strings.Split(parts[1], "."),
+		ResponseFieldPath: strings.Split(parts[2], "."),
+	}
 }

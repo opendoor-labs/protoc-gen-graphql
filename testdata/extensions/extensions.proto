@@ -16,7 +16,7 @@ service Foo {
     option (graphql.method) = {
       field: "getFoos"
       operation: "query"
-      dataloader: "protoc_gen_graphql.test.extensions.User"
+      load_many: "protoc_gen_graphql.test.extensions.User:ids:users"
     };
   }
   rpc MutationMethod(Request) returns (Response) {
@@ -40,7 +40,7 @@ message Request {
 message Response {
   option (graphql.message).type = "MyResponse";
 
-  string user_id = 1 [(graphql.field).foreign_key = "user:protoc_gen_graphql.test.extensions.User"];
+  string user_id = 1 [(graphql.field).foreign_key = "protoc_gen_graphql.test.extensions.User:user"];
   // The following should error as 'Address' is not resolvable to a type.
   // string address_id = 999 [(graphql.field).foreign_key = "Address"];
 }

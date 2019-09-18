@@ -59,9 +59,28 @@ message FieldOptions {
   // do include any arguments within parentheses.
   repeated string directive = 4;
 
-  // Mark the field as a foreign key to another Protobuf message. The value
-  // should be the name of the Protobuf type, following the same type name
-  // resolution rules, like when using types imported from other packages.
+  // Mark the field as a foreign key to another Protobuf message, and include
+  // the referenced message as a field of the generated GraphQL type.
+  //
+  // The value is expected to have the form:
+  //
+  //   "<protobuf_type>:<field_name>",
+  //
+  // * 'protobuf_type' is the fully qualified name of the Protobuf type.
+  // * 'field_name' is the name of the field in the generated GraphQL type.
+  //
+  // For example:
+  //
+  // message User {
+  //   string address_id = 1 [(graphql.field).foreign_key = "my.package.Address:address"];
+  // }
+  //
+  // will generate the GraphQL type:
+  //
+  // type MyPackage_User {
+  //   addressId: String!
+  //   address: MyPackage_Address
+  // }
   optional string foreign_key = 5;
 }
 
@@ -91,5 +110,55 @@ message MethodOptions {
   // or "subscription". Defaults to "query".
   optional string operation = 2;
 
-  optional string dataloader = 3;
+  // Mark the gRPC method as one that can load a single instance of a Protobuf
+  // message from a key identifier.
+  //
+  // The value is expected to have the form:
+  //
+  //   "<protobuf_type>:<request_field_path>:<response_field_path>"
+  //
+  // * 'protobuf_type' is the fully qualified name of the Protobuf type.
+  // * 'request_field_path' is the dot separated field path in the gRPC method's
+  //   request message to the field representing the key. The key field must be
+  //   a scalar field.
+  // * 'response_field_path' is the dot separated field path in the gRPC
+  //   method's response message to the field representing the loaded Protobuf
+  //   message. The loaded message must have the same type as the type
+  //   specified by 'protobuf_type'.
+  // Field paths have the same semantics as the well known FieldMask type.
+  //
+  // For example:
+  //
+  // service Users {
+  //   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+  //     option (graphql.method) = { load_one = "my.package.User:identifier.value:user" };
+  //   };
+  // }
+  //
+  // message GetUserRequest {
+  //   message Identifier {
+  //     string value = 1;
+  //   }
+  //   message Email {
+  //     string value = 1;
+  //   }
+  //
+  //   oneof input {
+  //     Identifier identifier = 1;
+  //     Email email = 2;
+  //   }
+  // }
+  //
+  // message GetUserResponse {
+  //   User user = 1;
+  // }
+  //
+  optional string load_one = 3;
+
+  // Mark the gRPC method as one that can load multiple instances of a Protobuf
+  // message from a set of key identifiers. The value is expected to have the
+  // same form as the 'load_one' option, except that the key field specified
+  // by the 'request_field_path' and the loaded field specified by the
+  // 'response_field_path' must both be repeated fields.
+  optional string load_many = 4;
 }

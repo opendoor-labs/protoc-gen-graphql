@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package protoc_gen_graphql.test.trim_prefix;
 
-import "google/protobuf/wrappers.proto";
-
 service Service {
   rpc Method(Message) returns (Message);
 }

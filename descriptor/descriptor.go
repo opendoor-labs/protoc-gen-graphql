@@ -48,6 +48,13 @@ type Field struct {
 	Parent     *Message
 	IsOneof    bool
 	OneofIndex int32
+	ForeignKey *ForeignKey
+}
+
+type ForeignKey struct {
+	// Fully qualified name starting with a '.' including the package name.
+	FullName  string
+	FieldName string
 }
 
 type Oneof struct {
@@ -86,9 +93,18 @@ type Service struct {
 }
 
 type Method struct {
-	Proto   *descriptor.MethodDescriptorProto
-	Options *graphqlpb.MethodOptions
-	Service *Service
+	Proto    *descriptor.MethodDescriptorProto
+	Options  *graphqlpb.MethodOptions
+	Service  *Service
+	LoadOne  *Loader
+	LoadMany *Loader
+}
+
+type Loader struct {
+	// Fully qualified name starting with a '.' including the package name.
+	FullName          string
+	RequestFieldPath  []string
+	ResponseFieldPath []string
 }
 
 func WrapFile(proto *descriptor.FileDescriptorProto) *File {
@@ -125,10 +141,13 @@ func wrapService(file *File, proto *descriptor.ServiceDescriptorProto) {
 
 func wrapMethods(service *Service) {
 	for _, proto := range service.Proto.GetMethod() {
+		options := getMethodOptions(proto)
 		service.Methods = append(service.Methods, &Method{
-			Proto:   proto,
-			Options: getMethodOptions(proto),
-			Service: service,
+			Proto:    proto,
+			Options:  options,
+			Service:  service,
+			LoadOne:  getLoaderOption(options.GetLoadOne()),
+			LoadMany: getLoaderOption(options.GetLoadMany()),
 		})
 	}
 }
@@ -167,11 +186,13 @@ func wrapFields(parent *Message) {
 	for _, fieldProto := range parent.Proto.GetField() {
 		// Handle normal field.
 		if fieldProto.OneofIndex == nil {
+			options := getFieldOptions(fieldProto)
 			parent.Fields = append(parent.Fields, &Field{
-				Name:    fieldProto.GetName(),
-				Proto:   fieldProto,
-				Options: getFieldOptions(fieldProto),
-				Parent:  parent,
+				Name:       fieldProto.GetName(),
+				Proto:      fieldProto,
+				Options:    options,
+				Parent:     parent,
+				ForeignKey: getForeignKeyOption(options.GetForeignKey()),
 			})
 			continue
 		}

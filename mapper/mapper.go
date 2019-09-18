@@ -31,6 +31,9 @@ type Mapper struct {
 	MessageMappers map[string]*MessageMapper
 	EnumMappers    map[string]*EnumMapper
 	ServiceMappers map[string]*ServiceMapper
+
+	// Set of protobuf types with registered loaders.
+	LoadedMessages map[string]bool
 }
 
 type MessageMapper struct {
@@ -84,6 +87,8 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		MessageMappers: make(map[string]*MessageMapper),
 		EnumMappers:    make(map[string]*EnumMapper),
 		ServiceMappers: make(map[string]*ServiceMapper),
+
+		LoadedMessages: make(map[string]bool),
 	}
 
 	switch params.FieldName {
@@ -97,6 +102,7 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 
 	m.buildDescriptorMaps()
 	m.buildTypeMaps()
+	m.buildTypeLoader()
 	m.buildMappers()
 	return m
 }
@@ -126,6 +132,31 @@ func (m *Mapper) buildTypeMaps() {
 			m.buildMessageTypeMaps(message, true)
 		}
 	}
+}
+
+func (m *Mapper) buildTypeLoader() {
+	for _, file := range m.Files {
+		for _, service := range file.Services {
+			for _, method := range service.Methods {
+				if method.LoadOne != nil {
+					m.checkLoader(method.LoadOne.FullName)
+				}
+				if method.LoadMany != nil {
+					m.checkLoader(method.LoadMany.FullName)
+				}
+			}
+		}
+	}
+}
+
+func (m *Mapper) checkLoader(fullName string) {
+	if m.Messages[fullName] == nil {
+		panic(fmt.Sprintf("unknown type for loader: %s", fullName))
+	}
+	if m.LoadedMessages[fullName] {
+		panic(fmt.Sprintf("multiple loaders specified for Protobuf type: %s", fullName))
+	}
+	m.LoadedMessages[fullName] = true
 }
 
 func (m *Mapper) buildMessageTypeMaps(message *descriptor.Message, input bool) {
@@ -256,15 +287,14 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 
 		fields = append(fields, m.graphqlField(field, input))
 
-		if field.Options.GetForeignKey() != "" {
-			fieldName, key := getForeignKey(field.Options.GetForeignKey())
-			referencedObjectName, ok := m.ObjectNames[key]
+		if field.ForeignKey != nil {
+			referencedObjectName, ok := m.ObjectNames[field.ForeignKey.FullName]
 			if !ok {
-				panic(fmt.Sprintf("unknown message for foreign key: %s", field.Options.GetForeignKey()))
+				panic(fmt.Sprintf("unknown type for foreign key: %s", field.Options.GetForeignKey()))
 			}
 
 			fields = append(fields, &graphql.Field{
-				Name:     fieldName,
+				Name:     field.ForeignKey.FieldName,
 				TypeName: referencedObjectName,
 			})
 		}
@@ -666,19 +696,4 @@ func (m *Mapper) nullableScalars(field *descriptor.Field, input bool) bool {
 		return field.Proto.GetLabel() == pb.FieldDescriptorProto_LABEL_OPTIONAL
 	}
 	return false
-}
-
-func getForeignKey(v string) (string, string) {
-	parts := strings.SplitN(v, ":", 2)
-	if len(parts) != 2 {
-		panic(fmt.Sprintf("Foreign key expected to have format 'field_name:message_type', got %s", v))
-	}
-
-	key := parts[1]
-	if !strings.HasPrefix(key, ".") {
-		// Ensure that the type name is fully qualified with a preceding '.'.
-		key = "." + key
-	}
-
-	return parts[0], key
 }
