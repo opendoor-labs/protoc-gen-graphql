@@ -605,7 +605,7 @@ func (m *Mapper) buildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 		b.WriteString("Input")
 	}
 
-	return b.String()
+	return strings.TrimPrefix(b.String(), m.Params.TrimPrefix)
 }
 
 func (m *Mapper) referenceName(service *descriptor.Service) string {

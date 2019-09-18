@@ -76,3 +76,7 @@ func TestFieldNamePreserve(t *testing.T) {
 func TestProto2(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "proto2", "")
 }
+
+func TestTrimPrefix(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "trim_prefix", "trim_prefix=ProtocGenGraphql")
+}

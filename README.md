@@ -13,3 +13,5 @@
 * `service_only`
 
 * `field_name`
+
+* `trim-prefix`

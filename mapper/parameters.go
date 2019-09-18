@@ -24,6 +24,7 @@ type Parameters struct {
 	String64Bit       bool
 	RootTypePrefix    *string
 	FieldName         string
+	TrimPrefix        string
 }
 
 func NewParameters(parameter string) (*Parameters, error) {
@@ -66,6 +67,8 @@ func NewParameters(parameter string) (*Parameters, error) {
 				value = FieldNameDefault
 			}
 			params.FieldName = value
+		case "trim_prefix":
+			params.TrimPrefix = value
 		}
 	}
 
