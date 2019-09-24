@@ -70,6 +70,7 @@ type ProtocGenGraphqlTestBasic_Comment {
   """
   This is a leading comment attached to the foo field.
   This is its second line.
+    - This is its third line.
 
   And this is its second paragraph.
   """
@@ -89,6 +90,7 @@ type ProtocGenGraphqlTestBasic_Comment {
   """
   This is an a block comment attached to the baz field.
   This is its second line.
+  - This is its third line.
 
   And this is its second paragraph.
   """

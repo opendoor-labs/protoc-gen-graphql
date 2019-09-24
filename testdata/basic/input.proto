@@ -71,6 +71,7 @@ message Empty {}
 message Comment {
   // This is a leading comment attached to the foo field.
   // This is its second line.
+  //   - This is its third line.
   //
   // And this is its second paragraph.
   string foo = 1;
@@ -88,6 +89,7 @@ message Comment {
   /*
   This is an a block comment attached to the baz field.
   This is its second line.
+    - This is its third line.
 
   And this is its second paragraph.
   */
@@ -95,6 +97,6 @@ message Comment {
 
   // This is a detached comment for qux.
 
-  // This is a one line comment attached to the qux field.
+  /* This is a one line comment attached to the qux field. */
   string qux = 4;
 }

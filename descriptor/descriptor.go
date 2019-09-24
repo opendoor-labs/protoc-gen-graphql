@@ -303,7 +303,13 @@ func setComments(file *File) {
 			case 2: // Field
 				var field *Field
 				fieldProto := message.Proto.Field[location.Path[3]]
-				for _, f := range message.Fields {
+
+				fields := message.Fields
+				if fieldProto.OneofIndex != nil {
+					oneof := message.Oneofs[fieldProto.GetOneofIndex()]
+					fields = oneof.Fields
+				}
+				for _, f := range fields {
 					if f.Proto == fieldProto {
 						field = f
 					}
@@ -407,7 +413,20 @@ func combineComments(location *descriptor.SourceCodeInfo_Location) string {
 func formatComments(comment string) string {
 	lines := strings.Split(comment, "\n")
 	for i, line := range lines {
-		lines[i] = strings.TrimSpace(line)
+		// For block comments enclosed between /* and */, the Protobuf compiler
+		// will strip away all leading whitespaces for each line, and formatting
+		// is not preserved. There is nothing we can do about that.
+		//
+		// For line comments beginning with //, the Protobuf compiler will
+		// preserve all whitespaces immediately following the double slashes,
+		// including the first space that is usually placed between the slashes
+		// and the first word of the line (e.g this comment). To account for this,
+		// we will heuristically remove the first space character if it is
+		// present so that the generated descriptions are properly formatted.
+		if strings.HasPrefix(line, " ") {
+			line = line[1:]
+		}
+		lines[i] = line
 	}
 	return strings.Join(lines, "\n")
 }

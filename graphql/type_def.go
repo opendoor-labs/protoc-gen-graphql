@@ -205,8 +205,8 @@ func writeDescription(b *strings.Builder, description string, indent int) {
 	b.WriteString(prefix)
 	b.WriteString("\"\"\"\n")
 	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line != "" {
+		// Don't output the whitespaces if the line is only comprised of whitespaces.
+		if strings.TrimSpace(line) != "" {
 			b.WriteString(prefix)
 			b.WriteString(line)
 		}
