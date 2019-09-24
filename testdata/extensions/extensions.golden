@@ -37,6 +37,8 @@ input MyRequestInput {
 type MyResponse {
   userId: String!
   user: MyUser
+  userIds: [String!]!
+  users: [MyUser]!
 }
 
 type MyPackage_BatchRequest {

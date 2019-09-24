@@ -293,9 +293,15 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 				panic(fmt.Sprintf("unknown type for foreign key: %s", field.Options.GetForeignKey()))
 			}
 
+			var modifiers graphql.TypeModifier
+			if field.Proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
+				modifiers = graphql.TypeModifierList | graphql.TypeModifierNonNullList
+			}
+
 			fields = append(fields, &graphql.Field{
-				Name:     field.ForeignKey.FieldName,
-				TypeName: referencedObjectName,
+				Name:      field.ForeignKey.FieldName,
+				TypeName:  referencedObjectName,
+				Modifiers: modifiers,
 			})
 		}
 	}
