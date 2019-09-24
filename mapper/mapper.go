@@ -505,14 +505,17 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		subscriptions = m.buildMethodsMapper(service, "Subscription")
 	)
 
+	if service.Options.GetSkip() {
+		return
+	}
+
 	for _, method := range service.Methods {
 		// Ignore streaming RPC methods.
 		if method.Proto.GetClientStreaming() || method.Proto.GetServerStreaming() {
 			continue
 		}
-
-		if method.Options.GetOperation() == "none" {
-			return
+		if method.Options.GetSkip() {
+			continue
 		}
 
 		field := m.graphqlFieldFromMethod(method)

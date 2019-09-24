@@ -52,7 +52,7 @@ message FieldOptions {
   // Name of GraphQL type to use for this field, including modifiers.
   optional string type = 2;
 
-  // Skip this field in the generated GraphQL type.
+  // Skip this field from being generated.
   optional bool skip = 3;
 
   // GraphQL directive to generate for the field. Do not include the @ sign,
@@ -100,6 +100,9 @@ message ServiceOptions {
   // should be unique across all gRPC services.
   // Note: This will not be the name of the generated GraphQL type.
   optional string reference_name = 1;
+
+  // Skip this service from being generated.
+  optional bool skip = 2;
 }
 
 message MethodOptions {
@@ -161,4 +164,7 @@ message MethodOptions {
   // by the 'request_field_path' and the loaded field specified by the
   // 'response_field_path' must both be repeated fields.
   optional string load_many = 4;
+
+  // Skip this method from being generated.
+  optional bool skip = 5;
 }

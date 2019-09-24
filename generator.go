@@ -52,7 +52,11 @@ func (g *Generator) generateFiles() {
 		file := g.mapper.Files[fileName]
 
 		for _, service := range file.Services {
-			m := g.mapper.ServiceMappers[service.FullName]
+			m, ok := g.mapper.ServiceMappers[service.FullName]
+			if !ok {
+				continue // Service was skipped
+			}
+
 			if m.Queries != nil {
 				if m.Queries.ExtendRootObject != nil {
 					gqlTypes = append(gqlTypes, m.Queries.ExtendRootObject)

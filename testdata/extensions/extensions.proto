@@ -29,6 +29,15 @@ service Foo {
   rpc UnknownMethod(Request) returns (Response) {
     option (graphql.method).operation = "unknown";
   }
+  rpc SkippedMethod(Request) returns (Response) {
+    option (graphql.method).skip = true;
+  }
+}
+
+service SkippedService {
+  option (graphql.service).skip = true;
+
+  rpc QueryMethod(Request) returns (Response);
 }
 
 message Request {
