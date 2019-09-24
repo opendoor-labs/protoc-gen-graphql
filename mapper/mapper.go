@@ -486,6 +486,10 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 	var values []*graphql.EnumValue
 	for _, value := range enum.Values {
+		if value.Options.GetSkip() {
+			continue
+		}
+
 		valueName := value.Proto.GetName()
 		if value.Options.GetValue() != "" {
 			valueName = value.Options.GetValue()
@@ -493,7 +497,7 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 		values = append(values, &graphql.EnumValue{
 			Name:        valueName,
 			Description: value.Comments,
-			Directives:  nil,
+			Directives:  value.Options.GetDirective(),
 		})
 	}
 

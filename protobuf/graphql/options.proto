@@ -92,6 +92,13 @@ message EnumOptions {
 message EnumValueOptions {
   // Name of the enum value in the generated GraphQL enum type.
   optional string value = 1;
+
+  // Skip this enum value from being generated.
+  optional bool skip = 2;
+
+  // GraphQL directive to generate for the value. Do not include the @ sign,
+  // do include any arguments within parentheses.
+  repeated string directive = 3;
 }
 
 message ServiceOptions {

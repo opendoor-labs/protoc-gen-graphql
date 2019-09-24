@@ -84,5 +84,6 @@ enum Role {
 
   UNKNOWN = 0;
   USER = 1 [(graphql.enum_value).value = "CUSTOMER"];
-  ADMIN = 2;
+  ADMIN = 2 [(graphql.enum_value).skip = true];
+  DIRECTIVES = 3 [(graphql.enum_value).directive = "foo", (graphql.enum_value).directive = "bar(arg: \"baz\")"];
 }

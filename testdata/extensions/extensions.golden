@@ -63,5 +63,5 @@ type MyUser {
 enum MyRole {
   UNKNOWN
   CUSTOMER
-  ADMIN
+  DIRECTIVES @foo @bar(arg: "baz")
 }
