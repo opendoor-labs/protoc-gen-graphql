@@ -84,12 +84,18 @@ type Argument struct {
 type Enum struct {
 	Name        string
 	Description string
-	Values      []string
+	Values      []*EnumValue
 }
 
 func (g *Enum) Kind() Kind       { return KindEnum }
 func (g *Enum) TypeName() string { return g.Name }
 func (g *Enum) String() string   { return g.Name }
+
+type EnumValue struct {
+	Name        string
+	Description string
+	Directives  []string
+}
 
 type Union struct {
 	Name        string

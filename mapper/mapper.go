@@ -232,13 +232,15 @@ func (m *Mapper) buildMessageMapper(message *descriptor.Message, input bool) {
 	}
 
 	mapper.Object = &graphql.Object{
-		Name:   m.ObjectNames[message.FullName],
-		Fields: m.graphqlFields(message, false),
+		Name:        m.ObjectNames[message.FullName],
+		Description: message.Comments,
+		Fields:      m.graphqlFields(message, false),
 	}
 	if input {
 		mapper.Input = &graphql.Input{
-			Name:   m.InputNames[message.FullName],
-			Fields: m.graphqlFields(message, true),
+			Name:        m.InputNames[message.FullName],
+			Description: message.Comments,
+			Fields:      m.graphqlFields(message, true),
 		}
 	}
 
@@ -274,7 +276,8 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 		if field.IsOneof {
 			oneofObjectName := field.Name + "Oneof"
 			fields = append(fields, &graphql.Field{
-				Name: m.fieldName(field),
+				Name:        m.fieldName(field),
+				Description: field.Comments,
 				TypeName: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
 					Namespace: message.File.Options.GetNamespace(),
 					Package:   message.Package,
@@ -310,8 +313,9 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 
 func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 	field := &graphql.Field{
-		Name:       m.fieldName(f),
-		Directives: f.Options.GetDirective(),
+		Name:        m.fieldName(f),
+		Description: f.Comments,
+		Directives:  f.Options.GetDirective(),
 	}
 
 	if f.Options.GetType() != "" {
@@ -480,20 +484,25 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 }
 
 func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
-	var values []string
+	var values []*graphql.EnumValue
 	for _, value := range enum.Values {
 		valueName := value.Proto.GetName()
 		if value.Options.GetValue() != "" {
 			valueName = value.Options.GetValue()
 		}
-		values = append(values, valueName)
+		values = append(values, &graphql.EnumValue{
+			Name:        valueName,
+			Description: value.Comments,
+			Directives:  nil,
+		})
 	}
 
 	m.EnumMappers[enum.FullName] = &EnumMapper{
 		Descriptor: enum,
 		Enum: &graphql.Enum{
-			Name:   m.ObjectNames[enum.FullName],
-			Values: values,
+			Name:        m.ObjectNames[enum.FullName],
+			Description: enum.Comments,
+			Values:      values,
 		},
 	}
 }
@@ -583,7 +592,9 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 
 	return &MethodsMapper{
 		ExtendRootObject: extends,
-		Object:           &graphql.Object{},
+		Object: &graphql.Object{
+			Description: service.Comments,
+		},
 	}
 }
 
@@ -605,11 +616,12 @@ func (m *Mapper) graphqlFieldFromMethod(method *descriptor.Method) *graphql.Fiel
 	}
 
 	return &graphql.Field{
-		Name:       methodName,
-		TypeName:   m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
-		Arguments:  arguments,
-		Modifiers:  graphql.TypeModifierNonNull,
-		Directives: method.Options.GetDirective(),
+		Name:        methodName,
+		Description: method.Comments,
+		TypeName:    m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
+		Arguments:   arguments,
+		Modifiers:   graphql.TypeModifierNonNull,
+		Directives:  method.Options.GetDirective(),
 	}
 }
 

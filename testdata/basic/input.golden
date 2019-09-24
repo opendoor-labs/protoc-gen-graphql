@@ -60,8 +60,62 @@ type ProtocGenGraphqlTestBasic_Empty {
   _empty: Boolean
 }
 
+"""
+This is a comment attached to the Comment message.
+This is its second line.
+
+And this is its second paragraph.
+"""
+type ProtocGenGraphqlTestBasic_Comment {
+  """
+  This is a leading comment attached to the foo field.
+  This is its second line.
+
+  And this is its second paragraph.
+  """
+  foo: String!
+  """
+  This is a leading comment attached to the bar field.
+  This is its second line.
+
+  And this is its second paragraph.
+
+  This is a trailing comment attached to the bar field.
+  This is its second line.
+
+  And this is its second paragraph.
+  """
+  bar: String!
+  """
+  This is an a block comment attached to the baz field.
+  This is its second line.
+
+  And this is its second paragraph.
+  """
+  baz: String!
+  """
+  This is a one line comment attached to the qux field.
+  """
+  qux: String!
+}
+
+"""
+This is a comment attached to the EnumType message.
+This is its second line.
+
+And this is its second paragraph.
+"""
 enum ProtocGenGraphqlTestBasic_EnumType {
+  """
+  This is a leading comment attached to the UNKNOWN value.
+  This is its second line.
+
+  And this is its second paragraph.
+  """
   UNKNOWN
+  """
+  This is a comment attached to the FIRST value.
+  """
   FIRST
   SECOND
 }

@@ -37,6 +37,7 @@ type Message struct {
 	TypeName []string
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
+	Comments string
 }
 
 // Field represents a protobuf field.
@@ -49,6 +50,7 @@ type Field struct {
 	IsOneof    bool
 	OneofIndex int32
 	ForeignKey *ForeignKey
+	Comments   string
 }
 
 type ForeignKey struct {
@@ -74,11 +76,13 @@ type Enum struct {
 	TypeName []string
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
+	Comments string
 }
 
 type EnumValue struct {
-	Proto   *descriptor.EnumValueDescriptorProto
-	Options *graphqlpb.EnumValueOptions
+	Proto    *descriptor.EnumValueDescriptorProto
+	Options  *graphqlpb.EnumValueOptions
+	Comments string
 }
 
 type Service struct {
@@ -90,6 +94,7 @@ type Service struct {
 	// Fully qualified name starting with a '.' including the package name.
 	FullName string
 	Methods  []*Method
+	Comments string
 }
 
 type Method struct {
@@ -98,6 +103,7 @@ type Method struct {
 	Service  *Service
 	LoadOne  *Loader
 	LoadMany *Loader
+	Comments string
 }
 
 type Loader struct {
@@ -122,6 +128,7 @@ func WrapFile(proto *descriptor.FileDescriptorProto) *File {
 	for _, enumProto := range file.Proto.GetEnumType() {
 		wrapEnum(file, enumProto, nil)
 	}
+	setComments(file)
 
 	return file
 }
@@ -263,6 +270,114 @@ func wrapEnum(file *File, proto *descriptor.EnumDescriptorProto, parent *Message
 	}
 }
 
+func setComments(file *File) {
+	for _, location := range file.Proto.GetSourceCodeInfo().GetLocation() {
+		if location.GetLeadingComments() == "" && location.GetTrailingComments() == "" {
+			continue
+		}
+
+		// We need at least 2 elements in the path to describe a definition.
+		// The first identifies the file's field number, and the second identifies
+		// the index within the field.
+		if len(location.Path) < 2 {
+			continue
+		}
+
+		switch location.Path[0] {
+		case 4: // Message
+			var message *Message
+			messageProto := file.Proto.MessageType[location.Path[1]]
+			for _, m := range file.Messages {
+				if m.Proto == messageProto {
+					message = m
+				}
+			}
+
+			if len(location.Path) == 2 {
+				// This is a comment for the message.
+				message.Comments = combineComments(location)
+				continue
+			}
+
+			switch location.Path[2] {
+			case 2: // Field
+				var field *Field
+				fieldProto := message.Proto.Field[location.Path[3]]
+				for _, f := range message.Fields {
+					if f.Proto == fieldProto {
+						field = f
+					}
+				}
+
+				if len(location.Path) == 4 {
+					// This is a comment for the field.
+					field.Comments = combineComments(location)
+				}
+			}
+		case 5: // Enum
+			var enum *Enum
+			enumProto := file.Proto.EnumType[location.Path[1]]
+			for _, e := range file.Enums {
+				if e.Proto == enumProto {
+					enum = e
+				}
+			}
+
+			if len(location.Path) == 2 {
+				// This is a comment for the enum.
+				enum.Comments = combineComments(location)
+				continue
+			}
+
+			switch location.Path[2] {
+			case 2: // Enum value
+				var enumValue *EnumValue
+				enumValueProto := enum.Proto.Value[location.Path[3]]
+				for _, v := range enum.Values {
+					if v.Proto == enumValueProto {
+						enumValue = v
+					}
+				}
+
+				if len(location.Path) == 4 {
+					// This is a comment for the field.
+					enumValue.Comments = combineComments(location)
+				}
+			}
+		case 6: // Service
+			var service *Service
+			serviceProto := file.Proto.Service[location.Path[1]]
+			for _, s := range file.Services {
+				if s.Proto == serviceProto {
+					service = s
+				}
+			}
+
+			if len(location.Path) == 2 {
+				// This is a comment for the service.
+				service.Comments = combineComments(location)
+				continue
+			}
+
+			switch location.Path[2] {
+			case 2: // Method
+				var method *Method
+				enumValueProto := service.Proto.Method[location.Path[3]]
+				for _, m := range service.Methods {
+					if m.Proto == enumValueProto {
+						method = m
+					}
+				}
+
+				if len(location.Path) == 4 {
+					// This is a comment for the method.
+					method.Comments = combineComments(location)
+				}
+			}
+		}
+	}
+}
+
 func calculateTypeName(name string, parent *Message) []string {
 	parts := []string{name}
 	for ; parent != nil; parent = parent.Parent {
@@ -273,4 +388,26 @@ func calculateTypeName(name string, parent *Message) []string {
 		parts[i], parts[j] = parts[j], parts[i]
 	}
 	return parts
+}
+
+func combineComments(location *descriptor.SourceCodeInfo_Location) string {
+	// Ignore leading detached comments because it is likely that the comment
+	// does not relate directly to the definition.
+	leading := formatComments(location.GetLeadingComments())
+	trailing := formatComments(location.GetTrailingComments())
+
+	var sep string
+	if leading != "" && trailing != "" {
+		sep = "\n"
+	}
+
+	return strings.TrimSpace(leading + sep + trailing)
+}
+
+func formatComments(comment string) string {
+	lines := strings.Split(comment, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimSpace(line)
+	}
+	return strings.Join(lines, "\n")
 }

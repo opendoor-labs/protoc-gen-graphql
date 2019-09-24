@@ -55,10 +55,10 @@ message Response {
   option (graphql.message).type = "MyResponse";
 
   string user_id = 1 [(graphql.field).foreign_key = "protoc_gen_graphql.test.extensions.User:user"];
+  repeated string user_ids = 2 [(graphql.field).foreign_key = "protoc_gen_graphql.test.extensions.User:users"];
+
   // The following should error as 'Address' is not resolvable to a type.
   // string address_id = 999 [(graphql.field).foreign_key = "Address"];
-
-  repeated string user_ids = 2 [(graphql.field).foreign_key = "protoc_gen_graphql.test.extensions.User:users"];
 }
 
 message BatchRequest {

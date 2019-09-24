@@ -18,9 +18,17 @@ message ScalarFields {
   bool bool_field = 13;
 }
 
+// This is a comment attached to the EnumType message.
+// This is its second line.
+//
+// And this is its second paragraph.
 enum EnumType {
+  // This is a leading comment attached to the UNKNOWN value.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
   UNKNOWN = 0;
-  FIRST = 1;
+  FIRST = 1; // This is a comment attached to the FIRST value.
   SECOND = 2;
 }
 
@@ -53,3 +61,40 @@ message Outer {
 }
 
 message Empty {}
+
+// This is a detached comment for Comment.
+
+// This is a comment attached to the Comment message.
+// This is its second line.
+//
+// And this is its second paragraph.
+message Comment {
+  // This is a leading comment attached to the foo field.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
+  string foo = 1;
+
+  // This is a leading comment attached to the bar field.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
+  string bar = 2;
+  // This is a trailing comment attached to the bar field.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
+
+  /*
+  This is an a block comment attached to the baz field.
+  This is its second line.
+
+  And this is its second paragraph.
+  */
+  string baz = 3;
+
+  // This is a detached comment for qux.
+
+  // This is a one line comment attached to the qux field.
+  string qux = 4;
+}

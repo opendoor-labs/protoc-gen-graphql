@@ -4,7 +4,15 @@ package protoc_gen_graphql.test.grpc;
 
 import "grpc/data.proto";
 
+// This is a comment attached to the Service service.
+// This is its second line.
+//
+// And this is its second paragraph.
 service Service {
+  // This is a comment attached to the Method method.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
   rpc Method(Request) returns (Response);
   rpc MethodB(RequestB) returns (ResponseB);
 }

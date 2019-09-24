@@ -28,7 +28,12 @@ func typeDefScalar(scalar *Scalar) string {
 }
 
 func typeDefObject(object *Object) string {
-	var b strings.Builder
+	b := &strings.Builder{}
+
+	if object.Description != "" {
+		writeDescription(b, object.Description, 0)
+	}
+
 	b.WriteString("type ")
 	b.WriteString(object.Name)
 
@@ -36,8 +41,7 @@ func typeDefObject(object *Object) string {
 	if len(object.Fields) > 0 {
 		b.WriteString(" {\n")
 		for _, field := range object.Fields {
-			b.WriteString("  ")
-			b.WriteString(typeDefField(field))
+			typeDefField(b, field)
 			b.WriteString("\n")
 		}
 		b.WriteString("}")
@@ -46,7 +50,7 @@ func typeDefObject(object *Object) string {
 	return b.String()
 }
 
-func typeDefField(field *Field) string {
+func typeDefField(b *strings.Builder, field *Field) {
 	typeName := field.TypeName
 	if field.Modifiers&TypeModifierNonNull > 0 {
 		typeName = typeName + "!"
@@ -59,7 +63,11 @@ func typeDefField(field *Field) string {
 		}
 	}
 
-	var b strings.Builder
+	if field.Description != "" {
+		writeDescription(b, field.Description, 2)
+	}
+
+	b.WriteString("  ")
 	b.WriteString(field.Name)
 
 	if len(field.Arguments) != 0 {
@@ -68,7 +76,7 @@ func typeDefField(field *Field) string {
 			if i != 0 {
 				b.WriteString(", ")
 			}
-			b.WriteString(typeDefArgument(arg))
+			typeDefArgument(b, arg)
 		}
 		b.WriteString(")")
 	}
@@ -80,17 +88,14 @@ func typeDefField(field *Field) string {
 		b.WriteString(" @")
 		b.WriteString(directive)
 	}
-
-	return b.String()
 }
 
-func typeDefArgument(argument *Argument) string {
+func typeDefArgument(b *strings.Builder, argument *Argument) string {
 	typeName := argument.TypeName
 	if argument.Modifiers&TypeModifierNonNull > 0 {
 		typeName = typeName + "!"
 	}
 
-	var b strings.Builder
 	b.WriteString(argument.Name)
 	b.WriteString(": ")
 	b.WriteString(typeName)
@@ -104,7 +109,7 @@ func typeDefArgument(argument *Argument) string {
 }
 
 func typeDefExtendObject(object *ExtendObject) string {
-	var b strings.Builder
+	b := &strings.Builder{}
 	b.WriteString("extend type ")
 	b.WriteString(object.Name)
 
@@ -112,8 +117,7 @@ func typeDefExtendObject(object *ExtendObject) string {
 	if len(object.Fields) > 0 {
 		b.WriteString(" {\n")
 		for _, field := range object.Fields {
-			b.WriteString("  ")
-			b.WriteString(typeDefField(field))
+			typeDefField(b, field)
 			b.WriteString("\n")
 		}
 		b.WriteString("}")
@@ -123,7 +127,12 @@ func typeDefExtendObject(object *ExtendObject) string {
 }
 
 func typeDefInput(input *Input) string {
-	var b strings.Builder
+	b := &strings.Builder{}
+
+	if input.Description != "" {
+		writeDescription(b, input.Description, 0)
+	}
+
 	b.WriteString("input ")
 	b.WriteString(input.Name)
 
@@ -131,8 +140,7 @@ func typeDefInput(input *Input) string {
 	if len(input.Fields) > 0 {
 		b.WriteString(" {\n")
 		for _, field := range input.Fields {
-			b.WriteString("  ")
-			b.WriteString(typeDefField(field))
+			typeDefField(b, field)
 			b.WriteString("\n")
 		}
 		b.WriteString("}")
@@ -142,21 +150,43 @@ func typeDefInput(input *Input) string {
 }
 
 func typeDefEnum(enum *Enum) string {
-	var b strings.Builder
+	b := &strings.Builder{}
+
+	if enum.Description != "" {
+		writeDescription(b, enum.Description, 0)
+	}
+
 	b.WriteString("enum ")
 	b.WriteString(enum.Name)
 	b.WriteString(" {\n")
 	for _, value := range enum.Values {
-		b.WriteString("  ")
-		b.WriteString(value)
+		typeDefEnumValue(b, value)
 		b.WriteString("\n")
 	}
 	b.WriteString("}")
 	return b.String()
 }
 
+func typeDefEnumValue(b *strings.Builder, value *EnumValue) {
+	if value.Description != "" {
+		writeDescription(b, value.Description, 2)
+	}
+
+	b.WriteString("  ")
+	b.WriteString(value.Name)
+	for _, directive := range value.Directives {
+		b.WriteString(" @")
+		b.WriteString(directive)
+	}
+}
+
 func typeDefUnion(union *Union) string {
-	var b strings.Builder
+	b := &strings.Builder{}
+
+	if union.Description != "" {
+		writeDescription(b, union.Description, 0)
+	}
+
 	b.WriteString("union ")
 	b.WriteString(union.Name)
 	b.WriteString(" = ")
@@ -167,4 +197,21 @@ func typeDefUnion(union *Union) string {
 		b.WriteString(name)
 	}
 	return b.String()
+}
+
+func writeDescription(b *strings.Builder, description string, indent int) {
+	lines := strings.Split(description, "\n")
+	prefix := strings.Repeat(" ", indent)
+	b.WriteString(prefix)
+	b.WriteString("\"\"\"\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			b.WriteString(prefix)
+			b.WriteString(line)
+		}
+		b.WriteString("\n")
+	}
+	b.WriteString(prefix)
+	b.WriteString("\"\"\"\n")
 }
