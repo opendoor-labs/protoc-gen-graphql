@@ -10,7 +10,12 @@ service Foo {
   option (graphql.service).reference_name = "foo";
 
   rpc QueryMethod(Request) returns (Response) {
-    option (graphql.method) = { field: "getFoo" operation: "query" };
+    option (graphql.method) = {
+      field: "getFoo"
+      operation: "query"
+      directive: "foo"
+      directive: "bar(arg: \"baz\")"
+    };
   }
   rpc BatchMethod(BatchRequest) returns (BatchResponse) {
     option (graphql.method) = {

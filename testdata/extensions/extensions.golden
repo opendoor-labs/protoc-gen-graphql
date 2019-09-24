@@ -5,7 +5,7 @@ extend type Query {
 }
 
 type MyPackage_Foo_Query {
-  getFoo(input: MyRequestInput!): MyResponse!
+  getFoo(input: MyRequestInput!): MyResponse! @foo @bar(arg: "baz")
   getFoos(input: MyPackage_BatchRequestInput!): MyPackage_BatchResponse!
   unknownMethod(input: MyRequestInput!): MyResponse!
 }

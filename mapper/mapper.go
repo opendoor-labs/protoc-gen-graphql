@@ -605,10 +605,11 @@ func (m *Mapper) graphqlFieldFromMethod(method *descriptor.Method) *graphql.Fiel
 	}
 
 	return &graphql.Field{
-		Name:      methodName,
-		TypeName:  m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
-		Arguments: arguments,
-		Modifiers: graphql.TypeModifierNonNull,
+		Name:       methodName,
+		TypeName:   m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
+		Arguments:  arguments,
+		Modifiers:  graphql.TypeModifierNonNull,
+		Directives: method.Options.GetDirective(),
 	}
 }
 

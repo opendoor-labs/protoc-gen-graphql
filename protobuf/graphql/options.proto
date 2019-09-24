@@ -167,4 +167,8 @@ message MethodOptions {
 
   // Skip this method from being generated.
   optional bool skip = 5;
+
+  // GraphQL directive to generate for the field. Do not include the @ sign,
+  // do include any arguments within parentheses.
+  repeated string directive = 6;
 }
