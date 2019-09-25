@@ -31,7 +31,6 @@ type Parameters struct {
 
 func NewParameters(parameter string) (*Parameters, error) {
 	params := &Parameters{}
-	strings.TrimPrefix()
 
 	parts := strings.Split(parameter, ",")
 	for _, part := range parts {
