@@ -334,7 +334,9 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 		Description: f.Comments,
 		Directives:  f.Options.GetDirective(),
 	}
-	if f.Proto.Options.GetDeprecated() {
+	// @deprecated directive is not supported for input types yet.
+	// See: https://github.com/graphql/graphql-spec/pull/525
+	if !input && f.Proto.Options.GetDeprecated() {
 		field.Directives = append(field.Directives, "deprecated")
 	}
 

@@ -35,6 +35,8 @@ message Request {
     string first = 5;
     Foo second = 6;
   }
+
+  string deprecated_field = 7 [deprecated = true];
 }
 
 message Response {

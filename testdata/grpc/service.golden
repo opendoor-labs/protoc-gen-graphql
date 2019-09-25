@@ -24,6 +24,7 @@ type ProtocGenGraphqlTestGrpc_Request {
   bar: [ProtocGenGraphqlTestGrpc_Request_Foo_Bar!]!
   mapField: [ProtocGenGraphqlTestGrpc_Request_MapFieldEntry!]!
   oneofField: ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof
+  deprecatedField: String! @deprecated
 }
 
 """
@@ -53,6 +54,7 @@ input ProtocGenGraphqlTestGrpc_RequestInput {
   bar: [ProtocGenGraphqlTestGrpc_Request_Foo_BarInput!]
   mapField: [ProtocGenGraphqlTestGrpc_Request_MapFieldEntryInput!]
   oneofField: ProtocGenGraphqlTestGrpc_Request_OneofFieldOneofInput
+  deprecatedField: String
 }
 
 input ProtocGenGraphqlTestGrpc_Request_OneofFieldOneofInput {
