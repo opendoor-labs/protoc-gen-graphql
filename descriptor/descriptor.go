@@ -159,8 +159,6 @@ func wrapMethods(service *Service) {
 	}
 }
 
-// wrapMessage returns a slice containing the wrapped message and all
-// of its nested messages.
 func wrapMessage(file *File, proto *descriptor.DescriptorProto, parent *Message) {
 	typeName := calculateTypeName(proto.GetName(), parent)
 	msg := &Message{

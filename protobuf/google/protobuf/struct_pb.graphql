@@ -34,11 +34,17 @@ input GoogleProtobuf_StructInput {
   fields: [GoogleProtobuf_Struct_FieldsEntryInput!]
 }
 
+"""
+`GoogleProtobuf_Struct_FieldsEntry` represents the `fields` map in `google.protobuf.Struct`.
+"""
 type GoogleProtobuf_Struct_FieldsEntry {
   key: String!
   value: GoogleProtobuf_Value
 }
 
+"""
+`GoogleProtobuf_Struct_FieldsEntryInput` represents the `fields` map in `google.protobuf.Struct`.
+"""
 input GoogleProtobuf_Struct_FieldsEntryInput {
   key: String
   value: GoogleProtobuf_ValueInput

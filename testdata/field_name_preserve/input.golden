@@ -68,6 +68,9 @@ type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second {
   second: ProtocGenGraphqlTestBasic_ScalarFields
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry` represents the `map_field` map in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry {
   key: String!
   value: ProtocGenGraphqlTestBasic_EnumType!

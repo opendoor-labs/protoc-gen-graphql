@@ -76,11 +76,17 @@ input ProtocGenGraphqlTestGrpc_Request_Foo_BarInput {
   bar: String
 }
 
+"""
+`ProtocGenGraphqlTestGrpc_Request_MapFieldEntry` represents the `map_field` map in `protoc_gen_graphql.test.grpc.Request`.
+"""
 type ProtocGenGraphqlTestGrpc_Request_MapFieldEntry {
   key: String!
   value: ProtocGenGraphqlTestGrpc_EnumType!
 }
 
+"""
+`ProtocGenGraphqlTestGrpc_Request_MapFieldEntryInput` represents the `map_field` map in `protoc_gen_graphql.test.grpc.Request`.
+"""
 input ProtocGenGraphqlTestGrpc_Request_MapFieldEntryInput {
   key: String
   value: ProtocGenGraphqlTestGrpc_EnumType

@@ -231,15 +231,32 @@ func (m *Mapper) buildMessageMapper(message *descriptor.Message, input bool) {
 		mapper.Empty = true
 	}
 
+	// Closure to generate custom description for map types.
+	getComments := func(typeName string) string {
+		if !message.IsMap {
+			return message.Comments
+		}
+		var fieldName string
+		for _, field := range message.Parent.Fields {
+			if field.Proto.GetTypeName() == message.FullName {
+				fieldName = field.Name
+			}
+		}
+		parentTypeName := strings.TrimPrefix(message.Parent.FullName, ".")
+		return fmt.Sprintf("`%s` represents the `%s` map in `%s`.", typeName, fieldName, parentTypeName)
+	}
+
+	typeName := m.ObjectNames[message.FullName]
 	mapper.Object = &graphql.Object{
-		Name:        m.ObjectNames[message.FullName],
-		Description: message.Comments,
+		Name:        typeName,
+		Description: getComments(typeName),
 		Fields:      m.graphqlFields(message, false),
 	}
 	if input {
+		typeName = m.InputNames[message.FullName]
 		mapper.Input = &graphql.Input{
-			Name:        m.InputNames[message.FullName],
-			Description: message.Comments,
+			Name:        typeName,
+			Description: getComments(typeName),
 			Fields:      m.graphqlFields(message, true),
 		}
 	}

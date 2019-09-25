@@ -56,6 +56,9 @@ type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Deprecated {
   deprecated: String! @deprecated
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry` represents the `map_field` map in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry {
   key: String!
   value: ProtocGenGraphqlTestBasic_EnumType!
