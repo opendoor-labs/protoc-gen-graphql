@@ -9,13 +9,22 @@ type TestTrimPrefix_Message {
   oneofField: TestTrimPrefix_Message_OneofFieldOneof
 }
 
+"""
+`TestTrimPrefix_Message_OneofFieldOneof` represents the `oneof_field` oneof in `protoc_gen_graphql.test.trim_prefix.Message`.
+"""
 union TestTrimPrefix_Message_OneofFieldOneof = TestTrimPrefix_Message_OneofFieldOneof_First | TestTrimPrefix_Message_OneofFieldOneof_Second
 
+"""
+`TestTrimPrefix_Message_OneofFieldOneof_First` represents the `first` oneof field in `protoc_gen_graphql.test.trim_prefix.Message`.
+"""
 type TestTrimPrefix_Message_OneofFieldOneof_First {
   _typename: String
   first: String!
 }
 
+"""
+`TestTrimPrefix_Message_OneofFieldOneof_Second` represents the `second` oneof field in `protoc_gen_graphql.test.trim_prefix.Message`.
+"""
 type TestTrimPrefix_Message_OneofFieldOneof_Second {
   _typename: String
   second: String!

@@ -432,14 +432,17 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 
 func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMapper {
 	oneofObjectName := oneof.Proto.GetName() + "Oneof"
+	unionTypeName := m.buildGraphqlTypeName(&GraphqlTypeNameParts{
+		Namespace: oneof.Parent.File.Options.GetNamespace(),
+		Package:   oneof.Parent.Package,
+		TypeName:  append(oneof.Parent.TypeName, oneofObjectName),
+	})
+	parentProtoName := strings.TrimPrefix(oneof.Parent.FullName, ".")
 	mapper := &OneofMapper{
 		Descriptor: oneof,
 		Union: &graphql.Union{
-			Name: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
-				Namespace: oneof.Parent.File.Options.GetNamespace(),
-				Package:   oneof.Parent.Package,
-				TypeName:  append(oneof.Parent.TypeName, oneofObjectName),
-			}),
+			Name:        unionTypeName,
+			Description: fmt.Sprintf("`%s` represents the `%s` oneof in `%s`.", unionTypeName, oneof.Proto.GetName(), parentProtoName),
 		},
 	}
 
@@ -452,7 +455,8 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 
 		mapper.Union.TypeNames = append(mapper.Union.TypeNames, typeName)
 		mapper.Objects = append(mapper.Objects, &graphql.Object{
-			Name: typeName,
+			Name:        typeName,
+			Description: fmt.Sprintf("`%s` represents the `%s` oneof field in `%s`.", typeName, field.Name, parentProtoName),
 			Fields: []*graphql.Field{
 				// Include _typename field so we can differentiate between messages in a oneof.
 				{

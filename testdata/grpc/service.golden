@@ -26,13 +26,22 @@ type ProtocGenGraphqlTestGrpc_Request {
   oneofField: ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof
 }
 
+"""
+`ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof` represents the `oneof_field` oneof in `protoc_gen_graphql.test.grpc.Request`.
+"""
 union ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof = ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_First | ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_Second
 
+"""
+`ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_First` represents the `first` oneof field in `protoc_gen_graphql.test.grpc.Request`.
+"""
 type ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_First {
   _typename: String
   first: String!
 }
 
+"""
+`ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_Second` represents the `second` oneof field in `protoc_gen_graphql.test.grpc.Request`.
+"""
 type ProtocGenGraphqlTestGrpc_Request_OneofFieldOneof_Second {
   _typename: String
   second: ProtocGenGraphqlTestGrpc_Request_Foo

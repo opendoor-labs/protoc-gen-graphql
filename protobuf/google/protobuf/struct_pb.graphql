@@ -59,8 +59,14 @@ type GoogleProtobuf_Value {
   kind: GoogleProtobuf_Value_KindOneof
 }
 
+"""
+`GoogleProtobuf_Value_KindOneof` represents the `kind` oneof in `google.protobuf.Value`.
+"""
 union GoogleProtobuf_Value_KindOneof = GoogleProtobuf_Value_KindOneof_NullValue | GoogleProtobuf_Value_KindOneof_NumberValue | GoogleProtobuf_Value_KindOneof_StringValue | GoogleProtobuf_Value_KindOneof_BoolValue | GoogleProtobuf_Value_KindOneof_StructValue | GoogleProtobuf_Value_KindOneof_ListValue
 
+"""
+`GoogleProtobuf_Value_KindOneof_NullValue` represents the `null_value` oneof field in `google.protobuf.Value`.
+"""
 type GoogleProtobuf_Value_KindOneof_NullValue {
   _typename: String
   """
@@ -69,6 +75,9 @@ type GoogleProtobuf_Value_KindOneof_NullValue {
   nullValue: GoogleProtobuf_NullValue!
 }
 
+"""
+`GoogleProtobuf_Value_KindOneof_NumberValue` represents the `number_value` oneof field in `google.protobuf.Value`.
+"""
 type GoogleProtobuf_Value_KindOneof_NumberValue {
   _typename: String
   """
@@ -77,6 +86,9 @@ type GoogleProtobuf_Value_KindOneof_NumberValue {
   numberValue: Float!
 }
 
+"""
+`GoogleProtobuf_Value_KindOneof_StringValue` represents the `string_value` oneof field in `google.protobuf.Value`.
+"""
 type GoogleProtobuf_Value_KindOneof_StringValue {
   _typename: String
   """
@@ -85,6 +97,9 @@ type GoogleProtobuf_Value_KindOneof_StringValue {
   stringValue: String!
 }
 
+"""
+`GoogleProtobuf_Value_KindOneof_BoolValue` represents the `bool_value` oneof field in `google.protobuf.Value`.
+"""
 type GoogleProtobuf_Value_KindOneof_BoolValue {
   _typename: String
   """
@@ -93,6 +108,9 @@ type GoogleProtobuf_Value_KindOneof_BoolValue {
   boolValue: Boolean!
 }
 
+"""
+`GoogleProtobuf_Value_KindOneof_StructValue` represents the `struct_value` oneof field in `google.protobuf.Value`.
+"""
 type GoogleProtobuf_Value_KindOneof_StructValue {
   _typename: String
   """
@@ -101,6 +119,9 @@ type GoogleProtobuf_Value_KindOneof_StructValue {
   structValue: GoogleProtobuf_Struct
 }
 
+"""
+`GoogleProtobuf_Value_KindOneof_ListValue` represents the `list_value` oneof field in `google.protobuf.Value`.
+"""
 type GoogleProtobuf_Value_KindOneof_ListValue {
   _typename: String
   """

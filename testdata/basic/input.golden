@@ -27,18 +27,30 @@ type ProtocGenGraphqlTestBasic_ComplexFields {
   emptyField: ProtocGenGraphqlTestBasic_Empty
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof` represents the `oneof_field` oneof in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Deprecated
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First` represents the `first` oneof field in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First {
   _typename: String
   first: String!
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second` represents the `second` oneof field in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second {
   _typename: String
   second: ProtocGenGraphqlTestBasic_ScalarFields
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Deprecated` represents the `deprecated` oneof field in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Deprecated {
   _typename: String
   deprecated: String! @deprecated
@@ -111,8 +123,14 @@ type ProtocGenGraphqlTestBasic_Comment {
   oneof: ProtocGenGraphqlTestBasic_Comment_OneofOneof
 }
 
+"""
+`ProtocGenGraphqlTestBasic_Comment_OneofOneof` represents the `oneof` oneof in `protoc_gen_graphql.test.basic.Comment`.
+"""
 union ProtocGenGraphqlTestBasic_Comment_OneofOneof = ProtocGenGraphqlTestBasic_Comment_OneofOneof_First
 
+"""
+`ProtocGenGraphqlTestBasic_Comment_OneofOneof_First` represents the `first` oneof field in `protoc_gen_graphql.test.basic.Comment`.
+"""
 type ProtocGenGraphqlTestBasic_Comment_OneofOneof_First {
   _typename: String
   """

@@ -47,13 +47,22 @@ type ProtocGenGraphqlTestBasic_ComplexFields {
   empty_field: ProtocGenGraphqlTestBasic_Empty
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof` represents the `oneof_field` oneof in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First` represents the `first` oneof field in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First {
   _typename: String
   first: String!
 }
 
+"""
+`ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second` represents the `second` oneof field in `protoc_gen_graphql.test.basic.ComplexFields`.
+"""
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second {
   _typename: String
   second: ProtocGenGraphqlTestBasic_ScalarFields
