@@ -16,6 +16,7 @@ message ScalarFields {
   float float_field = 11;
   double double_field = 12;
   bool bool_field = 13;
+  string deprecated_field = 14 [deprecated = true];
 }
 
 // This is a comment attached to the EnumType message.
@@ -30,6 +31,7 @@ enum EnumType {
   UNKNOWN = 0;
   FIRST = 1; // This is a comment attached to the FIRST value.
   SECOND = 2;
+  DEPRECATED = 3 [deprecated = true];
 }
 
 enum UnusedEnum {
@@ -45,8 +47,9 @@ message ComplexFields {
   oneof oneof_field {
     string first = 6;
     ScalarFields second = 7;
+    string deprecated = 8 [deprecated = true];
   }
-  Empty empty_field = 8;
+  Empty empty_field = 9;
 }
 
 message Outer {

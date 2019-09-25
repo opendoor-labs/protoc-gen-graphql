@@ -15,6 +15,7 @@ type ProtocGenGraphqlTestGrpc_Service_Query {
   """
   method(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response!
   methodB(input: ProtocGenGraphqlTestGrpc_RequestBInput!): ProtocGenGraphqlTestGrpc_ResponseB!
+  deprecatedMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response! @deprecated
 }
 
 type ProtocGenGraphqlTestGrpc_Request {

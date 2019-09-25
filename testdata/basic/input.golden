@@ -14,6 +14,7 @@ type ProtocGenGraphqlTestBasic_ScalarFields {
   floatField: Float!
   doubleField: Float!
   boolField: Boolean!
+  deprecatedField: String! @deprecated
 }
 
 type ProtocGenGraphqlTestBasic_ComplexFields {
@@ -26,7 +27,7 @@ type ProtocGenGraphqlTestBasic_ComplexFields {
   emptyField: ProtocGenGraphqlTestBasic_Empty
 }
 
-union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second
+union ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof = ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second | ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Deprecated
 
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First {
   _typename: String
@@ -36,6 +37,11 @@ type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_First {
 type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Second {
   _typename: String
   second: ProtocGenGraphqlTestBasic_ScalarFields
+}
+
+type ProtocGenGraphqlTestBasic_ComplexFields_OneofFieldOneof_Deprecated {
+  _typename: String
+  deprecated: String! @deprecated
 }
 
 type ProtocGenGraphqlTestBasic_ComplexFields_MapFieldEntry {
@@ -120,6 +126,7 @@ enum ProtocGenGraphqlTestBasic_EnumType {
   """
   FIRST
   SECOND
+  DEPRECATED @deprecated
 }
 
 enum ProtocGenGraphqlTestBasic_UnusedEnum {

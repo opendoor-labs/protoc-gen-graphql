@@ -317,6 +317,9 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 		Description: f.Comments,
 		Directives:  f.Options.GetDirective(),
 	}
+	if f.Proto.Options.GetDeprecated() {
+		field.Directives = append(field.Directives, "deprecated")
+	}
 
 	if f.Options.GetType() != "" {
 		field.TypeName = f.Options.GetType()
@@ -484,7 +487,7 @@ func (m *Mapper) buildOneofMapper(oneof *descriptor.Oneof, input bool) *OneofMap
 }
 
 func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
-	var values []*graphql.EnumValue
+	var enumValues []*graphql.EnumValue
 	for _, value := range enum.Values {
 		if value.Options.GetSkip() {
 			continue
@@ -494,11 +497,16 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 		if value.Options.GetValue() != "" {
 			valueName = value.Options.GetValue()
 		}
-		values = append(values, &graphql.EnumValue{
+
+		enumValue := &graphql.EnumValue{
 			Name:        valueName,
 			Description: value.Comments,
 			Directives:  value.Options.GetDirective(),
-		})
+		}
+		if value.Proto.Options.GetDeprecated() {
+			enumValue.Directives = append(enumValue.Directives, "deprecated")
+		}
+		enumValues = append(enumValues, enumValue)
 	}
 
 	m.EnumMappers[enum.FullName] = &EnumMapper{
@@ -506,7 +514,7 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 		Enum: &graphql.Enum{
 			Name:        m.ObjectNames[enum.FullName],
 			Description: enum.Comments,
-			Values:      values,
+			Values:      enumValues,
 		},
 	}
 }
@@ -619,7 +627,7 @@ func (m *Mapper) graphqlFieldFromMethod(method *descriptor.Method) *graphql.Fiel
 		methodName = m.MethodNameTransformer(method.Proto.GetName())
 	}
 
-	return &graphql.Field{
+	field := &graphql.Field{
 		Name:        methodName,
 		Description: method.Comments,
 		TypeName:    m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
@@ -627,6 +635,10 @@ func (m *Mapper) graphqlFieldFromMethod(method *descriptor.Method) *graphql.Fiel
 		Modifiers:   graphql.TypeModifierNonNull,
 		Directives:  method.Options.GetDirective(),
 	}
+	if method.Proto.Options.GetDeprecated() {
+		field.Directives = append(field.Directives, "deprecated")
+	}
+	return field
 }
 
 type GraphqlTypeNameParts struct {

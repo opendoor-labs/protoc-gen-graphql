@@ -456,7 +456,7 @@ type GoogleProtobuf_FileOptions {
   """
   This option does nothing.
   """
-  javaGenerateEqualsAndHash: Boolean
+  javaGenerateEqualsAndHash: Boolean @deprecated
   """
   If set true, then the Java2 code generator will generate code that
   throws an exception whenever an attempt is made to assign a non-UTF-8
@@ -577,7 +577,7 @@ input GoogleProtobuf_FileOptionsInput {
   """
   This option does nothing.
   """
-  javaGenerateEqualsAndHash: Boolean
+  javaGenerateEqualsAndHash: Boolean @deprecated
   """
   If set true, then the Java2 code generator will generate code that
   throws an exception whenever an attempt is made to assign a non-UTF-8

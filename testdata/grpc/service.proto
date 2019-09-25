@@ -15,6 +15,9 @@ service Service {
   // And this is its second paragraph.
   rpc Method(Request) returns (Response);
   rpc MethodB(RequestB) returns (ResponseB);
+  rpc DeprecatedMethod(Request) returns (Response) {
+    option deprecated = true;
+  }
 }
 
 message Request {
