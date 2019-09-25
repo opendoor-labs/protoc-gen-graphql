@@ -9,11 +9,12 @@ const (
 	InputModeNone    = "none"
 	InputModeService = "service"
 	InputModeAll     = "all"
-)
 
-const (
 	FieldNameDefault  = "lower_camel_case"
 	FieldNamePreserve = "preserve"
+
+	JS64BitTypeString = "string"
+	JS64BitTypeNumber = "number"
 )
 
 type Parameters struct {
@@ -21,7 +22,7 @@ type Parameters struct {
 	DurationTypeName  string
 	WrappersAsNull    bool
 	InputMode         string
-	String64Bit       bool
+	JS64BitType       string
 	RootTypePrefix    *string
 	FieldName         string
 	TrimPrefix        string
@@ -29,6 +30,7 @@ type Parameters struct {
 
 func NewParameters(parameter string) (*Parameters, error) {
 	params := &Parameters{}
+	strings.TrimPrefix()
 
 	parts := strings.Split(parameter, ",")
 	for _, part := range parts {
@@ -58,8 +60,8 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.WrappersAsNull = true
 		case "input_mode":
 			params.InputMode = value
-		case "string_64bit":
-			params.String64Bit = true
+		case "js_64bit_type":
+			params.JS64BitType = value
 		case "root_type_prefix":
 			params.RootTypePrefix = &value
 		case "field_name":

@@ -365,7 +365,7 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 	case pb.FieldDescriptorProto_TYPE_INT64, pb.FieldDescriptorProto_TYPE_UINT64, pb.FieldDescriptorProto_TYPE_SINT64,
 		pb.FieldDescriptorProto_TYPE_FIXED64, pb.FieldDescriptorProto_TYPE_SFIXED64:
 
-		if m.Params.String64Bit {
+		if m.Params.JS64BitType == JS64BitTypeString {
 			field.TypeName = graphql.ScalarString.TypeName()
 		} else {
 			field.TypeName = graphql.ScalarFloat.TypeName()
