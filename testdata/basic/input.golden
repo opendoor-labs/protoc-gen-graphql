@@ -105,6 +105,52 @@ type ProtocGenGraphqlTestBasic_Comment {
   This is a one line comment attached to the qux field.
   """
   qux: String!
+  """
+  This is a leading comment attached to the oneof.
+  """
+  oneof: ProtocGenGraphqlTestBasic_Comment_OneofOneof
+}
+
+union ProtocGenGraphqlTestBasic_Comment_OneofOneof = ProtocGenGraphqlTestBasic_Comment_OneofOneof_First
+
+type ProtocGenGraphqlTestBasic_Comment_OneofOneof_First {
+  _typename: String
+  """
+  This is a leading comment attached to the first oneof value.
+  """
+  first: String!
+}
+
+"""
+This is a comment attached to the NestedComment message.
+This is its second line.
+
+And this is its second paragraph.
+"""
+type ProtocGenGraphqlTestBasic_Comment_NestedComment {
+  """
+  This is a leading comment attached to the nested_foo field.
+  This is its second line.
+
+  And this is its second paragraph.
+  """
+  nestedFoo: String!
+}
+
+"""
+This is a leading comment attached to the NestedEnum enum.
+This is its second line.
+
+And this is its second paragraph.
+"""
+enum ProtocGenGraphqlTestBasic_Comment_NestedEnum {
+  """
+  This is a leading comment attached to the ZERO value.
+  This is its second line.
+
+  And this is its second paragraph.
+  """
+  ZERO
 }
 
 """

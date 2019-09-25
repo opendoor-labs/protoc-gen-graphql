@@ -72,6 +72,30 @@ message Empty {}
 //
 // And this is its second paragraph.
 message Comment {
+  // This is a comment attached to the NestedComment message.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
+  message NestedComment {
+    // This is a leading comment attached to the nested_foo field.
+    // This is its second line.
+    //
+    // And this is its second paragraph.
+    string nested_foo = 1;
+  }
+
+  // This is a leading comment attached to the NestedEnum enum.
+  // This is its second line.
+  //
+  // And this is its second paragraph.
+  enum NestedEnum {
+    // This is a leading comment attached to the ZERO value.
+    // This is its second line.
+    //
+    // And this is its second paragraph.
+    ZERO = 0;
+  }
+
   // This is a leading comment attached to the foo field.
   // This is its second line.
   //   - This is its third line.
@@ -102,4 +126,10 @@ message Comment {
 
   /* This is a one line comment attached to the qux field. */
   string qux = 4;
+
+  // This is a leading comment attached to the oneof.
+  oneof oneof {
+    // This is a leading comment attached to the first oneof value.
+    string first = 5;
+  }
 }

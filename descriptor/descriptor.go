@@ -285,71 +285,11 @@ func setComments(file *File) {
 
 		switch location.Path[0] {
 		case 4: // Message
-			var message *Message
 			messageProto := file.Proto.MessageType[location.Path[1]]
-			for _, m := range file.Messages {
-				if m.Proto == messageProto {
-					message = m
-				}
-			}
-
-			if len(location.Path) == 2 {
-				// This is a comment for the message.
-				message.Comments = combineComments(location)
-				continue
-			}
-
-			switch location.Path[2] {
-			case 2: // Field
-				var field *Field
-				fieldProto := message.Proto.Field[location.Path[3]]
-
-				fields := message.Fields
-				if fieldProto.OneofIndex != nil {
-					oneof := message.Oneofs[fieldProto.GetOneofIndex()]
-					fields = oneof.Fields
-				}
-				for _, f := range fields {
-					if f.Proto == fieldProto {
-						field = f
-					}
-				}
-
-				if len(location.Path) == 4 {
-					// This is a comment for the field.
-					field.Comments = combineComments(location)
-				}
-			}
+			setMessageComments(file, messageProto, location, location.Path[2:])
 		case 5: // Enum
-			var enum *Enum
 			enumProto := file.Proto.EnumType[location.Path[1]]
-			for _, e := range file.Enums {
-				if e.Proto == enumProto {
-					enum = e
-				}
-			}
-
-			if len(location.Path) == 2 {
-				// This is a comment for the enum.
-				enum.Comments = combineComments(location)
-				continue
-			}
-
-			switch location.Path[2] {
-			case 2: // Enum value
-				var enumValue *EnumValue
-				enumValueProto := enum.Proto.Value[location.Path[3]]
-				for _, v := range enum.Values {
-					if v.Proto == enumValueProto {
-						enumValue = v
-					}
-				}
-
-				if len(location.Path) == 4 {
-					// This is a comment for the field.
-					enumValue.Comments = combineComments(location)
-				}
-			}
+			setEnumComments(file, enumProto, location, location.Path[2:])
 		case 6: // Service
 			var service *Service
 			serviceProto := file.Proto.Service[location.Path[1]]
@@ -380,6 +320,86 @@ func setComments(file *File) {
 					method.Comments = combineComments(location)
 				}
 			}
+		}
+	}
+}
+
+func setMessageComments(file *File, proto *descriptor.DescriptorProto, location *descriptor.SourceCodeInfo_Location, relativePath []int32) {
+	var message *Message
+	for _, m := range file.Messages {
+		if m.Proto == proto {
+			message = m
+		}
+	}
+
+	if len(relativePath) == 0 {
+		// This is a comment for the message.
+		message.Comments = combineComments(location)
+		return
+	}
+
+	switch relativePath[0] {
+	case 2: // Field
+		var field *Field
+		fieldProto := message.Proto.Field[relativePath[1]]
+
+		fields := message.Fields
+		if fieldProto.OneofIndex != nil {
+			oneof := message.Oneofs[fieldProto.GetOneofIndex()]
+			fields = oneof.Fields
+		}
+		for _, f := range fields {
+			if f.Proto == fieldProto {
+				field = f
+			}
+		}
+
+		if len(relativePath) == 2 {
+			// This is a comment for the field.
+			field.Comments = combineComments(location)
+		}
+	case 3: // Nested message
+		messageProto := message.Proto.NestedType[relativePath[1]]
+		setMessageComments(file, messageProto, location, relativePath[2:])
+	case 4: // Nested enum
+		enumProto := message.Proto.EnumType[relativePath[1]]
+		setEnumComments(file, enumProto, location, relativePath[2:])
+	case 8: // Oneof
+		for _, f := range message.Fields {
+			if f.IsOneof && f.OneofIndex == relativePath[1] {
+				f.Comments = combineComments(location)
+			}
+		}
+	}
+}
+
+func setEnumComments(file *File, proto *descriptor.EnumDescriptorProto, location *descriptor.SourceCodeInfo_Location, relativePath []int32) {
+	var enum *Enum
+	for _, e := range file.Enums {
+		if e.Proto == proto {
+			enum = e
+		}
+	}
+
+	if len(relativePath) == 0 {
+		// This is a comment for the enum.
+		enum.Comments = combineComments(location)
+		return
+	}
+
+	switch relativePath[0] {
+	case 2: // Enum value
+		var enumValue *EnumValue
+		enumValueProto := enum.Proto.Value[relativePath[1]]
+		for _, v := range enum.Values {
+			if v.Proto == enumValueProto {
+				enumValue = v
+			}
+		}
+
+		if len(relativePath) == 2 {
+			// This is a comment for the enum value.
+			enumValue.Comments = combineComments(location)
 		}
 	}
 }

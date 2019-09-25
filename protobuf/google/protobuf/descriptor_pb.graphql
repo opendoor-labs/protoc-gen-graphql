@@ -162,13 +162,35 @@ input GoogleProtobuf_DescriptorProto_ExtensionRangeInput {
   options: GoogleProtobuf_ExtensionRangeOptionsInput
 }
 
+"""
+Range of reserved tag numbers. Reserved tag numbers may not be used by
+fields or extension ranges in the same message. Reserved ranges may
+not overlap.
+"""
 type GoogleProtobuf_DescriptorProto_ReservedRange {
+  """
+  Inclusive.
+  """
   start: Float
+  """
+  Exclusive.
+  """
   end: Float
 }
 
+"""
+Range of reserved tag numbers. Reserved tag numbers may not be used by
+fields or extension ranges in the same message. Reserved ranges may
+not overlap.
+"""
 input GoogleProtobuf_DescriptorProto_ReservedRangeInput {
+  """
+  Inclusive.
+  """
   start: Float
+  """
+  Exclusive.
+  """
   end: Float
 }
 
@@ -338,13 +360,41 @@ input GoogleProtobuf_EnumDescriptorProtoInput {
   reservedName: [String!]
 }
 
+"""
+Range of reserved numeric values. Reserved values may not be used by
+entries in the same enum. Reserved ranges may not overlap.
+
+Note that this is distinct from DescriptorProto.ReservedRange in that it
+is inclusive such that it can appropriately represent the entire int32
+domain.
+"""
 type GoogleProtobuf_EnumDescriptorProto_EnumReservedRange {
+  """
+  Inclusive.
+  """
   start: Float
+  """
+  Inclusive.
+  """
   end: Float
 }
 
+"""
+Range of reserved numeric values. Reserved values may not be used by
+entries in the same enum. Reserved ranges may not overlap.
+
+Note that this is distinct from DescriptorProto.ReservedRange in that it
+is inclusive such that it can appropriately represent the entire int32
+domain.
+"""
 input GoogleProtobuf_EnumDescriptorProto_EnumReservedRangeInput {
+  """
+  Inclusive.
+  """
   start: Float
+  """
+  Inclusive.
+  """
   end: Float
 }
 
@@ -1138,11 +1188,25 @@ input GoogleProtobuf_UninterpretedOptionInput {
   aggregateValue: String
 }
 
+"""
+The name of the uninterpreted option.  Each string represents a segment in
+a dot-separated name.  is_extension is true iff a segment represents an
+extension (denoted with parentheses in options specs in .proto files).
+E.g.,{ ["foo", false], ["bar.baz", true], ["qux", false] } represents
+"foo.(bar.baz).qux".
+"""
 type GoogleProtobuf_UninterpretedOption_NamePart {
   namePart: String!
   isExtension: Boolean!
 }
 
+"""
+The name of the uninterpreted option.  Each string represents a segment in
+a dot-separated name.  is_extension is true iff a segment represents an
+extension (denoted with parentheses in options specs in .proto files).
+E.g.,{ ["foo", false], ["bar.baz", true], ["qux", false] } represents
+"foo.(bar.baz).qux".
+"""
 input GoogleProtobuf_UninterpretedOption_NamePartInput {
   namePart: String
   isExtension: Boolean
@@ -1255,16 +1319,178 @@ input GoogleProtobuf_SourceCodeInfoInput {
 }
 
 type GoogleProtobuf_SourceCodeInfo_Location {
+  """
+  Identifies which part of the FileDescriptorProto was defined at this
+  location.
+
+  Each element is a field number or an index.  They form a path from
+  the root FileDescriptorProto to the place where the definition.  For
+  example, this path:
+    [ 4, 3, 2, 7, 1 ]
+  refers to:
+    file.message_type(3)  // 4, 3
+        .field(7)         // 2, 7
+        .name()           // 1
+  This is because FileDescriptorProto.message_type has field number 4:
+    repeated DescriptorProto message_type = 4;
+  and DescriptorProto.field has field number 2:
+    repeated FieldDescriptorProto field = 2;
+  and FieldDescriptorProto.name has field number 1:
+    optional string name = 1;
+
+  Thus, the above path gives the location of a field name.  If we removed
+  the last element:
+    [ 4, 3, 2, 7 ]
+  this path refers to the whole field declaration (from the beginning
+  of the label to the terminating semicolon).
+  """
   path: [Float!]!
+  """
+  Always has exactly three or four elements: start line, start column,
+  end line (optional, otherwise assumed same as start line), end column.
+  These are packed into a single field for efficiency.  Note that line
+  and column numbers are zero-based -- typically you will want to add
+  1 to each before displaying to a user.
+  """
   span: [Float!]!
+  """
+  If this SourceCodeInfo represents a complete declaration, these are any
+  comments appearing before and after the declaration which appear to be
+  attached to the declaration.
+
+  A series of line comments appearing on consecutive lines, with no other
+  tokens appearing on those lines, will be treated as a single comment.
+
+  leading_detached_comments will keep paragraphs of comments that appear
+  before (but not connected to) the current element. Each paragraph,
+  separated by empty lines, will be one comment element in the repeated
+  field.
+
+  Only the comment content is provided; comment markers (e.g. //) are
+  stripped out.  For block comments, leading whitespace and an asterisk
+  will be stripped from the beginning of each line other than the first.
+  Newlines are included in the output.
+
+  Examples:
+
+    optional int32 foo = 1;  // Comment attached to foo.
+    // Comment attached to bar.
+    optional int32 bar = 2;
+
+    optional string baz = 3;
+    // Comment attached to baz.
+    // Another line attached to baz.
+
+    // Comment attached to qux.
+    //
+    // Another line attached to qux.
+    optional double qux = 4;
+
+    // Detached comment for corge. This is not leading or trailing comments
+    // to qux or corge because there are blank lines separating it from
+    // both.
+
+    // Detached comment for corge paragraph 2.
+
+    optional string corge = 5;
+    /* Block comment attached
+     * to corge.  Leading asterisks
+     * will be removed. */
+    /* Block comment attached to
+     * grault. */
+    optional int32 grault = 6;
+
+    // ignored detached comments.
+  """
   leadingComments: String
   trailingComments: String
   leadingDetachedComments: [String!]!
 }
 
 input GoogleProtobuf_SourceCodeInfo_LocationInput {
+  """
+  Identifies which part of the FileDescriptorProto was defined at this
+  location.
+
+  Each element is a field number or an index.  They form a path from
+  the root FileDescriptorProto to the place where the definition.  For
+  example, this path:
+    [ 4, 3, 2, 7, 1 ]
+  refers to:
+    file.message_type(3)  // 4, 3
+        .field(7)         // 2, 7
+        .name()           // 1
+  This is because FileDescriptorProto.message_type has field number 4:
+    repeated DescriptorProto message_type = 4;
+  and DescriptorProto.field has field number 2:
+    repeated FieldDescriptorProto field = 2;
+  and FieldDescriptorProto.name has field number 1:
+    optional string name = 1;
+
+  Thus, the above path gives the location of a field name.  If we removed
+  the last element:
+    [ 4, 3, 2, 7 ]
+  this path refers to the whole field declaration (from the beginning
+  of the label to the terminating semicolon).
+  """
   path: [Float!]
+  """
+  Always has exactly three or four elements: start line, start column,
+  end line (optional, otherwise assumed same as start line), end column.
+  These are packed into a single field for efficiency.  Note that line
+  and column numbers are zero-based -- typically you will want to add
+  1 to each before displaying to a user.
+  """
   span: [Float!]
+  """
+  If this SourceCodeInfo represents a complete declaration, these are any
+  comments appearing before and after the declaration which appear to be
+  attached to the declaration.
+
+  A series of line comments appearing on consecutive lines, with no other
+  tokens appearing on those lines, will be treated as a single comment.
+
+  leading_detached_comments will keep paragraphs of comments that appear
+  before (but not connected to) the current element. Each paragraph,
+  separated by empty lines, will be one comment element in the repeated
+  field.
+
+  Only the comment content is provided; comment markers (e.g. //) are
+  stripped out.  For block comments, leading whitespace and an asterisk
+  will be stripped from the beginning of each line other than the first.
+  Newlines are included in the output.
+
+  Examples:
+
+    optional int32 foo = 1;  // Comment attached to foo.
+    // Comment attached to bar.
+    optional int32 bar = 2;
+
+    optional string baz = 3;
+    // Comment attached to baz.
+    // Another line attached to baz.
+
+    // Comment attached to qux.
+    //
+    // Another line attached to qux.
+    optional double qux = 4;
+
+    // Detached comment for corge. This is not leading or trailing comments
+    // to qux or corge because there are blank lines separating it from
+    // both.
+
+    // Detached comment for corge paragraph 2.
+
+    optional string corge = 5;
+    /* Block comment attached
+     * to corge.  Leading asterisks
+     * will be removed. */
+    /* Block comment attached to
+     * grault. */
+    optional int32 grault = 6;
+
+    // ignored detached comments.
+  """
   leadingComments: String
   trailingComments: String
   leadingDetachedComments: [String!]
@@ -1297,66 +1523,168 @@ input GoogleProtobuf_GeneratedCodeInfoInput {
 }
 
 type GoogleProtobuf_GeneratedCodeInfo_Annotation {
+  """
+  Identifies the element in the original source .proto file. This field
+  is formatted the same as SourceCodeInfo.Location.path.
+  """
   path: [Float!]!
+  """
+  Identifies the filesystem path to the original source .proto.
+  """
   sourceFile: String
+  """
+  Identifies the starting offset in bytes in the generated code
+  that relates to the identified object.
+  """
   begin: Float
+  """
+  Identifies the ending offset in bytes in the generated code that
+  relates to the identified offset. The end offset should be one past
+  the last relevant byte (so the length of the text = end - begin).
+  """
   end: Float
 }
 
 input GoogleProtobuf_GeneratedCodeInfo_AnnotationInput {
+  """
+  Identifies the element in the original source .proto file. This field
+  is formatted the same as SourceCodeInfo.Location.path.
+  """
   path: [Float!]
+  """
+  Identifies the filesystem path to the original source .proto.
+  """
   sourceFile: String
+  """
+  Identifies the starting offset in bytes in the generated code
+  that relates to the identified object.
+  """
   begin: Float
+  """
+  Identifies the ending offset in bytes in the generated code that
+  relates to the identified offset. The end offset should be one past
+  the last relevant byte (so the length of the text = end - begin).
+  """
   end: Float
 }
 
 enum GoogleProtobuf_FieldDescriptorProto_Type {
+  """
+  0 is reserved for errors.
+  Order is weird for historical reasons.
+  """
   TYPE_DOUBLE
   TYPE_FLOAT
+  """
+  Not ZigZag encoded.  Negative numbers take 10 bytes.  Use TYPE_SINT64 if
+  negative values are likely.
+  """
   TYPE_INT64
   TYPE_UINT64
+  """
+  Not ZigZag encoded.  Negative numbers take 10 bytes.  Use TYPE_SINT32 if
+  negative values are likely.
+  """
   TYPE_INT32
   TYPE_FIXED64
   TYPE_FIXED32
   TYPE_BOOL
   TYPE_STRING
+  """
+  Tag-delimited aggregate.
+  Group type is deprecated and not supported in proto3. However, Proto3
+  implementations should still be able to parse the group wire format and
+  treat group fields as unknown fields.
+  """
   TYPE_GROUP
+  """
+  Length-delimited aggregate.
+  """
   TYPE_MESSAGE
+  """
+  New in version 2.
+  """
   TYPE_BYTES
   TYPE_UINT32
   TYPE_ENUM
   TYPE_SFIXED32
   TYPE_SFIXED64
+  """
+  Uses ZigZag encoding.
+  """
   TYPE_SINT32
+  """
+  Uses ZigZag encoding.
+  """
   TYPE_SINT64
 }
 
 enum GoogleProtobuf_FieldDescriptorProto_Label {
+  """
+  0 is reserved for errors
+  """
   LABEL_OPTIONAL
   LABEL_REQUIRED
   LABEL_REPEATED
 }
 
+"""
+Generated classes can be optimized for speed or code size.
+"""
 enum GoogleProtobuf_FileOptions_OptimizeMode {
+  """
+  Generate complete code for parsing, serialization,
+  """
   SPEED
+  """
+  etc.
+
+  Use ReflectionOps to implement these methods.
+  """
   CODE_SIZE
+  """
+  Generate code using MessageLite and the lite runtime.
+  """
   LITE_RUNTIME
 }
 
 enum GoogleProtobuf_FieldOptions_CType {
+  """
+  Default mode.
+  """
   STRING
   CORD
   STRING_PIECE
 }
 
 enum GoogleProtobuf_FieldOptions_JSType {
+  """
+  Use the default type.
+  """
   JS_NORMAL
+  """
+  Use JavaScript strings.
+  """
   JS_STRING
+  """
+  Use JavaScript numbers.
+  """
   JS_NUMBER
 }
 
+"""
+Is this method side-effect-free (or safe in HTTP parlance), or idempotent,
+or neither? HTTP based RPC implementation may choose GET verb for safe
+methods, and PUT verb for idempotent methods instead of the default POST.
+"""
 enum GoogleProtobuf_MethodOptions_IdempotencyLevel {
   IDEMPOTENCY_UNKNOWN
+  """
+  implies idempotent
+  """
   NO_SIDE_EFFECTS
+  """
+  idempotent, but may have side effects
+  """
   IDEMPOTENT
 }

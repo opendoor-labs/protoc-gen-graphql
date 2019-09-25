@@ -53,6 +53,9 @@ variants, absence of any variant indicates an error.
 The JSON representation for `Value` is JSON value.
 """
 type GoogleProtobuf_Value {
+  """
+  The kind of value.
+  """
   kind: GoogleProtobuf_Value_KindOneof
 }
 
@@ -115,6 +118,9 @@ variants, absence of any variant indicates an error.
 The JSON representation for `Value` is JSON value.
 """
 input GoogleProtobuf_ValueInput {
+  """
+  The kind of value.
+  """
   kind: GoogleProtobuf_Value_KindOneofInput
 }
 
