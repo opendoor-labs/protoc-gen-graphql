@@ -419,6 +419,9 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 	if protoTypeName == ".google.protobuf.Duration" && m.Params.DurationTypeName != "" {
 		field.TypeName = m.Params.DurationTypeName
 	}
+	if protoTypeName == ".google.protobuf.Struct" && m.Params.StructTypeName != "" {
+		field.TypeName = m.Params.StructTypeName
+	}
 
 	if m.Params.WrappersAsNull {
 		switch protoTypeName {
@@ -429,7 +432,7 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 			field.TypeName = graphql.ScalarString.TypeName()
 			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.Int64Value", ".google.protobuf.UInt64Value":
-			if m.Params.String64Bit {
+			if m.Params.JS64BitType == JS64BitTypeString {
 				field.TypeName = graphql.ScalarString.TypeName()
 			} else {
 				field.TypeName = graphql.ScalarFloat.TypeName()

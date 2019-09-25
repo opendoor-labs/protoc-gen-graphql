@@ -32,11 +32,12 @@ Available parameters are:
 | `field_name` | `lower_camel_case`, `preserve` | `lower_camel_case` | Transformation from Protobuf field names to GraphQL field names. Default is lowerCamelCase. Use `preserve` to use the Protobuf name as-is. |
 | `trim_prefix` | string | | Trims the provided prefix from all generated GraphQL type names. Useful if your Protobuf package names have a common prefix you want to omit. |
 | `root_type_prefix` | string | | If set, a gRPC service's mapped query and mutation types will extend some custom root type with name given by the provided prefix plus `Query` or `Mutation`. Set to empty string to extend the root `Query` and `Mutation` types. |
-| `input_mode` | `all`, `service`, `none` | `none` | The input mode determines what GraphQL input objects will be generated. `all` will generate an input object for each Protobuf message. `service` will only generate inputs for messages that are transitively used in each gRPC methods' request messages. `none` will not generate any input objects. |
+| `input_mode` | `all`, `service`, `none` | `service` | The input mode determines what GraphQL input objects will be generated. `all` will generate an input object for each Protobuf message. `service` will only generate inputs for messages that are transitively used in each gRPC methods' request messages. `none` will not generate any input objects. |
 | `null_wrappers` | bool | `false` | If true, well known wrapper types (e.g. `google.protobuf.StringValue`) will be mapped to nullable GraphQL scalar types instead of the corresponding object type. |
 | `js_64bit_type` | `string`, `number` | `number` | Whether to use a `String` or `Float` scalar type when mapping 64bit Protobuf types (`int64`, `uint64`, `sint64`, `fixed64`, `sfixed64`). |
 | `timestamp` | string | | GraphQL type name to use for the well known `google.protobuf.Timestamp` type. |
 | `duration` | string | | GraphQL type name to use for the well known `google.protobuf.Duration` type. |
+| `struct` | string | | GraphQL type name to use for the well known `google.protobuf.Struct` type. |
 
 ### Protobuf options
 

@@ -20,6 +20,7 @@ const (
 type Parameters struct {
 	TimestampTypeName string
 	DurationTypeName  string
+	StructTypeName    string
 	WrappersAsNull    bool
 	InputMode         string
 	JS64BitType       string
@@ -56,6 +57,11 @@ func NewParameters(parameter string) (*Parameters, error) {
 				return nil, fmt.Errorf("missing type for duration")
 			}
 			params.DurationTypeName = value
+		case "struct":
+			if value == "" {
+				return nil, fmt.Errorf("missing type for struct")
+			}
+			params.StructTypeName = value
 		case "null_wrappers":
 			params.WrappersAsNull = true
 		case "input_mode":
