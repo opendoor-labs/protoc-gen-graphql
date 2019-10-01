@@ -62,7 +62,7 @@ func TestInputTypesForGrpcServices(t *testing.T) {
 }
 
 func TestWrappersParameter(t *testing.T) {
-	itGeneratesTheCorrectOutput(t, "wrappers", "null_wrappers")
+	itGeneratesTheCorrectOutput(t, "wrappers", "null_wrappers,input_mode=all")
 }
 
 func TestProtobufExtensions(t *testing.T) {

@@ -10,5 +10,18 @@ type ProtocGenGraphqlTestWrappers_Wrappers {
   stringValue: String
   uint32Value: Float
   uint64Value: Float
-  boolValues: [Boolean]!
+  boolValues: [Boolean!]!
+}
+
+input ProtocGenGraphqlTestWrappers_WrappersInput {
+  boolValue: Boolean
+  bytesValue: String
+  doubleValue: Float
+  floatValue: Float
+  int32Value: Int
+  int64Value: Float
+  stringValue: String
+  uint32Value: Float
+  uint64Value: Float
+  boolValues: [Boolean!]
 }

@@ -404,6 +404,8 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 		panic(fmt.Sprintf("unexpected protobuf descriptor type: %s", proto.GetType().String()))
 	}
 
+	field = m.graphqlSpecialTypes(field, proto.GetTypeName())
+
 	if proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
 		field.Modifiers = field.Modifiers | graphql.TypeModifierNonNull | graphql.TypeModifierList
 		if !input {
@@ -411,7 +413,7 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 		}
 	}
 
-	return m.graphqlSpecialTypes(field, proto.GetTypeName())
+	return field
 }
 
 func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string) *graphql.Field {
@@ -429,23 +431,18 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 		switch protoTypeName {
 		case ".google.protobuf.FloatValue", ".google.protobuf.DoubleValue", ".google.protobuf.UInt32Value":
 			field.TypeName = graphql.ScalarFloat.TypeName()
-			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.StringValue", ".google.protobuf.BytesValue":
 			field.TypeName = graphql.ScalarString.TypeName()
-			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.Int64Value", ".google.protobuf.UInt64Value":
 			if m.Params.JS64BitType == JS64BitTypeString {
 				field.TypeName = graphql.ScalarString.TypeName()
 			} else {
 				field.TypeName = graphql.ScalarFloat.TypeName()
 			}
-			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.Int32Value":
 			field.TypeName = graphql.ScalarInt.TypeName()
-			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		case ".google.protobuf.BoolValue":
 			field.TypeName = graphql.ScalarBoolean.TypeName()
-			field.Modifiers = field.Modifiers &^ graphql.TypeModifierNonNull
 		}
 	}
 
