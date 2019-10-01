@@ -41,6 +41,11 @@ type MyResponse {
   users: [MyUser]!
 }
 
+input MyResponseInput {
+  userId: String
+  userIds: [String!]
+}
+
 type MyPackage_BatchRequest {
   userIds: [String!]!
 }
@@ -53,11 +58,22 @@ type MyPackage_BatchResponse {
   users: [MyUser!]!
 }
 
+input MyPackage_BatchResponseInput {
+  users: [MyUserInput!]
+}
+
 type MyUser {
   title: String!
   ages: [Int!]!
   directives: String! @foo @bar(arg: "baz")
   role: MyRole!
+}
+
+input MyUserInput {
+  title: String
+  ages: [Int!]!
+  directives: String @validate(min: 5)
+  role: MyRole
 }
 
 enum MyRole {

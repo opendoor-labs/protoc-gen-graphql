@@ -55,9 +55,13 @@ message FieldOptions {
   // Skip this field from being generated.
   optional bool skip = 3;
 
-  // GraphQL directive to generate for the field. Do not include the @ sign,
+  // GraphQL directive to generate for object fields. Do not include the @ sign,
   // do include any arguments within parentheses.
   repeated string directive = 4;
+
+  // GraphQL directive to generate for input fields. Do not include the @ sign,
+  // do include any arguments within parentheses.
+  repeated string input_directive = 6;
 
   // Mark the field as a foreign key to another Protobuf message, and include
   // the referenced message as a field of the generated GraphQL type.

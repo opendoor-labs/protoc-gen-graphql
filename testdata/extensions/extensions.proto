@@ -75,7 +75,11 @@ message User {
   string name = 1 [(graphql.field).field = "title"];
   string ages = 2 [(graphql.field).type = "[Int!]!"];
   string password = 3 [(graphql.field).skip = true];
-  string directives = 4 [(graphql.field).directive = "foo", (graphql.field).directive = "bar(arg: \"baz\")"];
+  string directives = 4 [
+    (graphql.field).directive = "foo",
+    (graphql.field).directive = "bar(arg: \"baz\")",
+    (graphql.field).input_directive = "validate(min: 5)"
+  ];
   Role role = 5;
 }
 

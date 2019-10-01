@@ -307,7 +307,7 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 
 		fields = append(fields, m.graphqlField(field, input))
 
-		if field.ForeignKey != nil {
+		if field.ForeignKey != nil && !input {
 			referencedObjectName, ok := m.ObjectNames[field.ForeignKey.FullName]
 			if !ok {
 				panic(fmt.Sprintf("unknown type for foreign key: %s", field.Options.GetForeignKey()))
@@ -332,7 +332,11 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 	field := &graphql.Field{
 		Name:        m.fieldName(f),
 		Description: f.Comments,
-		Directives:  f.Options.GetDirective(),
+	}
+	if input {
+		field.Directives = f.Options.GetInputDirective()
+	} else {
+		field.Directives = f.Options.GetDirective()
 	}
 	// @deprecated directive is not supported for input types yet.
 	// See: https://github.com/graphql/graphql-spec/pull/525
