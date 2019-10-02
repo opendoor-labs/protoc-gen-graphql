@@ -22,6 +22,8 @@ type Mapper struct {
 	// Maps protobuf types to descriptors.
 	Messages map[string]*descriptor.Message
 	Enums    map[string]*descriptor.Enum
+	// Maps protobuf types to its method loader.
+	Loaders map[string]*descriptor.Loader
 
 	// Maps protobuf messages and enums to graphql type names.
 	ObjectNames map[string]string
@@ -31,9 +33,6 @@ type Mapper struct {
 	MessageMappers map[string]*MessageMapper
 	EnumMappers    map[string]*EnumMapper
 	ServiceMappers map[string]*ServiceMapper
-
-	// Set of protobuf types with registered loaders.
-	LoadedMessages map[string]bool
 }
 
 type MessageMapper struct {
@@ -80,6 +79,7 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		Files:    make(map[string]*descriptor.File),
 		Messages: make(map[string]*descriptor.Message),
 		Enums:    make(map[string]*descriptor.Enum),
+		Loaders:  make(map[string]*descriptor.Loader),
 
 		ObjectNames: make(map[string]string),
 		InputNames:  make(map[string]string),
@@ -87,8 +87,6 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 		MessageMappers: make(map[string]*MessageMapper),
 		EnumMappers:    make(map[string]*EnumMapper),
 		ServiceMappers: make(map[string]*ServiceMapper),
-
-		LoadedMessages: make(map[string]bool),
 	}
 
 	switch params.FieldName {
@@ -138,25 +136,18 @@ func (m *Mapper) buildTypeLoader() {
 	for _, file := range m.Files {
 		for _, service := range file.Services {
 			for _, method := range service.Methods {
-				if method.LoadOne != nil {
-					m.checkLoader(method.LoadOne.FullName)
-				}
-				if method.LoadMany != nil {
-					m.checkLoader(method.LoadMany.FullName)
+				for _, loader := range method.Loaders {
+					if m.Messages[loader.FullName] == nil {
+						panic(fmt.Sprintf("unknown type for loader: %s", loader.FullName))
+					}
+					if _, ok := m.Loaders[loader.FullName]; ok {
+						panic(fmt.Sprintf("multiple loaders specified for Protobuf type: %s", loader.FullName))
+					}
+					m.Loaders[loader.FullName] = loader
 				}
 			}
 		}
 	}
-}
-
-func (m *Mapper) checkLoader(fullName string) {
-	if m.Messages[fullName] == nil {
-		panic(fmt.Sprintf("unknown type for loader: %s", fullName))
-	}
-	if m.LoadedMessages[fullName] {
-		panic(fmt.Sprintf("multiple loaders specified for Protobuf type: %s", fullName))
-	}
-	m.LoadedMessages[fullName] = true
 }
 
 func (m *Mapper) buildMessageTypeMaps(message *descriptor.Message, input bool) {

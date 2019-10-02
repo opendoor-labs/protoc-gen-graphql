@@ -116,7 +116,7 @@ func getForeignKeyOption(value string) *ForeignKey {
 	}
 }
 
-func getLoaderOption(value string) *Loader {
+func getLoaderOption(method *Method, value string, many bool) *Loader {
 	if value == "" {
 		return nil
 	}
@@ -134,7 +134,9 @@ func getLoaderOption(value string) *Loader {
 
 	return &Loader{
 		FullName:          fullName,
+		Many:              many,
 		RequestFieldPath:  strings.Split(parts[1], "."),
 		ResponseFieldPath: strings.Split(parts[2], "."),
+		Method:            method,
 	}
 }

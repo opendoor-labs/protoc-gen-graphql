@@ -101,16 +101,17 @@ type Method struct {
 	Proto    *descriptor.MethodDescriptorProto
 	Options  *graphqlpb.MethodOptions
 	Service  *Service
-	LoadOne  *Loader
-	LoadMany *Loader
+	Loaders  []*Loader
 	Comments string
 }
 
 type Loader struct {
-	// Fully qualified name starting with a '.' including the package name.
+	// Fully qualified name of the loaded message starting with a '.' including the package name.
 	FullName          string
+	Many              bool
 	RequestFieldPath  []string
 	ResponseFieldPath []string
+	Method            *Method
 }
 
 func WrapFile(proto *descriptor.FileDescriptorProto) *File {
@@ -149,13 +150,18 @@ func wrapService(file *File, proto *descriptor.ServiceDescriptorProto) {
 func wrapMethods(service *Service) {
 	for _, proto := range service.Proto.GetMethod() {
 		options := getMethodOptions(proto)
-		service.Methods = append(service.Methods, &Method{
-			Proto:    proto,
-			Options:  options,
-			Service:  service,
-			LoadOne:  getLoaderOption(options.GetLoadOne()),
-			LoadMany: getLoaderOption(options.GetLoadMany()),
-		})
+		method := &Method{
+			Proto:   proto,
+			Options: options,
+			Service: service,
+		}
+		if loader := getLoaderOption(method, options.GetLoadOne(), false); loader != nil {
+			method.Loaders = append(method.Loaders, loader)
+		}
+		if loader := getLoaderOption(method, options.GetLoadMany(), true); loader != nil {
+			method.Loaders = append(method.Loaders, loader)
+		}
+		service.Methods = append(service.Methods, method)
 	}
 }
 
