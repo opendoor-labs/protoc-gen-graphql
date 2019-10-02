@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package graphql;
 
@@ -7,53 +7,53 @@ option go_package = "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.FileOptions {
-  optional FileOptions file = 82731;
+  FileOptions file = 82731;
 }
 
 extend google.protobuf.MessageOptions {
-  optional MessageOptions message = 82731;
+  MessageOptions message = 82731;
 }
 
 extend google.protobuf.FieldOptions {
-  optional FieldOptions field = 82731;
+  FieldOptions field = 82731;
 }
 
 extend google.protobuf.EnumOptions {
-  optional EnumOptions enum = 82731;
+  EnumOptions enum = 82731;
 }
 
 extend google.protobuf.EnumValueOptions {
-  optional EnumValueOptions enum_value = 82731;
+  EnumValueOptions enum_value = 82731;
 }
 
 extend google.protobuf.ServiceOptions {
-  optional ServiceOptions service = 82731;
+  ServiceOptions service = 82731;
 }
 
 extend google.protobuf.MethodOptions {
-  optional MethodOptions method = 82731;
+  MethodOptions method = 82731;
 }
 
 message FileOptions {
   // Name used to prefix all types with. If unset, the default behaviour is
   // to use the upper camel case of the Protobuf package name.
-  optional string namespace = 1;
+  string namespace = 1;
 }
 
 message MessageOptions {
   // Name of the generated GraphQL type.
-  optional string type = 1;
+  string type = 1;
 }
 
 message FieldOptions {
   // Name of the field in the generated GraphQL object and input types.
-  optional string field = 1;
+  string field = 1;
 
   // Name of GraphQL type to use for this field, including modifiers.
-  optional string type = 2;
+  string type = 2;
 
   // Skip this field from being generated.
-  optional bool skip = 3;
+  bool skip = 3;
 
   // GraphQL directive to generate for object fields. Do not include the @ sign,
   // do include any arguments within parentheses.
@@ -85,20 +85,20 @@ message FieldOptions {
   //   addressId: String!
   //   address: MyPackage_Address
   // }
-  optional string foreign_key = 5;
+  string foreign_key = 5;
 }
 
 message EnumOptions {
   // Name of the generated GraphQL type.
-  optional string type = 1;
+  string type = 1;
 }
 
 message EnumValueOptions {
   // Name of the enum value in the generated GraphQL enum type.
-  optional string value = 1;
+  string value = 1;
 
   // Skip this enum value from being generated.
-  optional bool skip = 2;
+  bool skip = 2;
 
   // GraphQL directive to generate for the value. Do not include the @ sign,
   // do include any arguments within parentheses.
@@ -110,19 +110,19 @@ message ServiceOptions {
   // name generated from the service's package and service name. The name
   // should be unique across all gRPC services.
   // Note: This will not be the name of the generated GraphQL type.
-  optional string reference_name = 1;
+  string reference_name = 1;
 
   // Skip this service from being generated.
-  optional bool skip = 2;
+  bool skip = 2;
 }
 
 message MethodOptions {
   // Name of the field in the GraphQL type generated for the service.
-  optional string field = 1;
+  string field = 1;
 
   // Type of GraphQL operation. Valid values are: "query", "mutation",
   // or "subscription". Defaults to "query".
-  optional string operation = 2;
+  string operation = 2;
 
   // Mark the gRPC method as one that can load a single instance of a Protobuf
   // message from a key identifier.
@@ -167,17 +167,17 @@ message MethodOptions {
   //   User user = 1;
   // }
   //
-  optional string load_one = 3;
+  string load_one = 3;
 
   // Mark the gRPC method as one that can load multiple instances of a Protobuf
   // message from a set of key identifiers. The value is expected to have the
   // same form as the 'load_one' option, except that the key field specified
   // by the 'request_field_path' and the loaded field specified by the
   // 'response_field_path' must both be repeated fields.
-  optional string load_many = 4;
+  string load_many = 4;
 
   // Skip this method from being generated.
-  optional bool skip = 5;
+  bool skip = 5;
 
   // GraphQL directive to generate for the field. Do not include the @ sign,
   // do include any arguments within parentheses.
