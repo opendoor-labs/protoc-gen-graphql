@@ -48,8 +48,8 @@ func getFieldOptions(field *pb.FieldDescriptorProto) *graphqlpb.FieldOptions {
 
 func getEnumOptions(enum *pb.EnumDescriptorProto) *graphqlpb.EnumOptions {
 	options := enum.GetOptions()
-	if proto.HasExtension(options, graphqlpb.E_Enum) {
-		ext, err := proto.GetExtension(options, graphqlpb.E_Enum)
+	if proto.HasExtension(options, graphqlpb.E_PbEnum) {
+		ext, err := proto.GetExtension(options, graphqlpb.E_PbEnum)
 		if err != nil {
 			panic(fmt.Sprintf("error getting enum options: %s", err.Error()))
 		}

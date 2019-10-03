@@ -19,7 +19,7 @@ extend google.protobuf.FieldOptions {
 }
 
 extend google.protobuf.EnumOptions {
-  EnumOptions enum = 82731;
+  EnumOptions pb_enum = 82731;
 }
 
 extend google.protobuf.EnumValueOptions {

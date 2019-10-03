@@ -84,7 +84,7 @@ message User {
 }
 
 enum Role {
-  option (graphql.enum).type = "MyRole";
+  option (graphql.pb_enum).type = "MyRole";
 
   UNKNOWN = 0;
   USER = 1 [(graphql.enum_value).value = "CUSTOMER"];
