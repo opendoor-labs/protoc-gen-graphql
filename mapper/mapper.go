@@ -59,6 +59,9 @@ type EnumMapper struct {
 type ServiceMapper struct {
 	Descriptor    *descriptor.Service
 	ReferenceName string
+	// All methods in service.
+	Methods *MethodsMapper
+	// Methods that have opted into each operation.
 	Queries       *MethodsMapper
 	Mutations     *MethodsMapper
 	Subscriptions *MethodsMapper
@@ -540,6 +543,7 @@ func (m *Mapper) buildEnumMapper(enum *descriptor.Enum) {
 
 func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	var (
+		allMethods    = m.buildMethodsMapper(service, "")
 		queries       = m.buildMethodsMapper(service, "Query")
 		mutations     = m.buildMethodsMapper(service, "Mutation")
 		subscriptions = m.buildMethodsMapper(service, "Subscription")
@@ -554,6 +558,11 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 		if method.Proto.GetClientStreaming() || method.Proto.GetServerStreaming() {
 			continue
 		}
+
+		field := m.graphqlFieldFromMethod(method)
+		allMethods.Object.Fields = append(allMethods.Object.Fields, field)
+		allMethods.Methods = append(allMethods.Methods, method)
+
 		if method.Options.GetSkip() {
 			fmt.Fprintf(
 				os.Stderr,
@@ -564,8 +573,6 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 			)
 			continue
 		}
-
-		field := m.graphqlFieldFromMethod(method)
 
 		switch operation := method.Options.GetOperation(); operation {
 		case "":
@@ -588,7 +595,9 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 	mapper := &ServiceMapper{
 		Descriptor:    service,
 		ReferenceName: m.referenceName(service),
+		Methods:       allMethods,
 	}
+
 	if len(queries.Methods) > 0 {
 		queries.Object.Name = m.buildGraphqlTypeName(&GraphqlTypeNameParts{
 			Namespace: service.File.Options.GetNamespace(),
