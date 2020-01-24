@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package protoc_gen_graphql.test.trim_prefix;
 
+import "graphql/options.proto";
+
 service Service {
-  rpc Method(Message) returns (Message);
+  rpc Method(Message) returns (Message) {
+    option (graphql.method) = { operation: "query" };
+  }
 }
 
 message Message {

@@ -120,8 +120,9 @@ message MethodOptions {
   // Name of the field in the GraphQL type generated for the service.
   string field = 1;
 
-  // Type of GraphQL operation. Valid values are: "query", "mutation",
-  // or "subscription". Defaults to "query".
+  // Type of GraphQL operation. Valid values are "query", "mutation", or
+  // "subscription". A value must be specified for the method to be included
+  // in the generated type.
   string operation = 2;
 
   // Mark the gRPC method as one that can load a single instance of a Protobuf
@@ -176,10 +177,10 @@ message MethodOptions {
   // 'response_field_path' must both be repeated fields.
   string load_many = 4;
 
-  // Skip this method from being generated.
-  bool skip = 5;
-
   // GraphQL directive to generate for the field. Do not include the @ sign,
   // do include any arguments within parentheses.
   repeated string directive = 6;
+
+  // Deprecated: methods must opt into generation by specifying an 'operation'.
+  bool skip = 5 [deprecated = true];
 }

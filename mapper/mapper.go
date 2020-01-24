@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
@@ -554,12 +555,25 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 			continue
 		}
 		if method.Options.GetSkip() {
+			fmt.Fprintf(
+				os.Stderr,
+				"%s: option (method.skip) for %s.%s is deprecated, methods now opt in with the 'operation' option\n",
+				service.File.Proto.GetName(),
+				service.Proto.GetName(),
+				method.Proto.GetName(),
+			)
 			continue
 		}
 
 		field := m.graphqlFieldFromMethod(method)
 
-		switch method.Options.GetOperation() {
+		switch operation := method.Options.GetOperation(); operation {
+		case "":
+			// No operation specified, ignore method.
+			continue
+		case "query":
+			queries.Object.Fields = append(queries.Object.Fields, field)
+			queries.Methods = append(queries.Methods, method)
 		case "mutation":
 			mutations.Object.Fields = append(mutations.Object.Fields, field)
 			mutations.Methods = append(mutations.Methods, method)
@@ -567,8 +581,7 @@ func (m *Mapper) buildServiceMapper(service *descriptor.Service) {
 			subscriptions.Object.Fields = append(subscriptions.Object.Fields, field)
 			subscriptions.Methods = append(subscriptions.Methods, method)
 		default:
-			queries.Object.Fields = append(queries.Object.Fields, field)
-			queries.Methods = append(queries.Methods, method)
+			panic(fmt.Sprintf(`invalid operation: "%s" (expected "query", "mutation", or "subscription")`, operation))
 		}
 	}
 

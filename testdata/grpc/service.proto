@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package protoc_gen_graphql.test.grpc;
 
+import "graphql/options.proto";
 import "grpc/data.proto";
 
 // This is a comment attached to the Service service.
@@ -13,10 +14,17 @@ service Service {
   // This is its second line.
   //
   // And this is its second paragraph.
-  rpc Method(Request) returns (Response);
-  rpc MethodB(RequestB) returns (ResponseB);
+  rpc Method(Request) returns (Response) {
+    option (graphql.method) = { operation: "query" };
+  }
+
+  rpc MethodB(RequestB) returns (ResponseB) {
+    option (graphql.method) = { operation: "query" };
+  }
+
   rpc DeprecatedMethod(Request) returns (Response) {
     option deprecated = true;
+    option (graphql.method) = { operation: "query" };
   }
 }
 

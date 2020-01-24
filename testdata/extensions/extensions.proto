@@ -17,6 +17,7 @@ service Foo {
       directive: "bar(arg: \"baz\")"
     };
   }
+
   rpc BatchMethod(BatchRequest) returns (BatchResponse) {
     option (graphql.method) = {
       field: "getFoos"
@@ -24,19 +25,31 @@ service Foo {
       load_many: "protoc_gen_graphql.test.extensions.User:ids:users"
     };
   }
+
   rpc MutationMethod(Request) returns (Response) {
-    option (graphql.method).field = "setFoo";
-    option (graphql.method).operation = "mutation";
+    option (graphql.method) = {
+      field: "setFoo"
+      operation: "mutation"
+    };
   }
+
   rpc SubscriptionMethod(Request) returns (Response) {
-    option (graphql.method).operation = "subscription";
+    option (graphql.method) = { operation: "subscription" };
   }
-  rpc UnknownMethod(Request) returns (Response) {
-    option (graphql.method).operation = "unknown";
-  }
+
+  // Adding an invalid operation will cause protoc to error.
+  // rpc UnknownMethod(Request) returns (Response) {
+  //   option (graphql.method).operation = "unknown";
+  // }
+
   rpc SkippedMethod(Request) returns (Response) {
-    option (graphql.method).skip = true;
+    option (graphql.method) = {
+      operation: "query"
+      skip: true
+    };
   }
+
+  rpc UntaggedMethod(Request) returns (Response) {}
 }
 
 service SkippedService {

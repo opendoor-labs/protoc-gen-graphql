@@ -2,9 +2,16 @@ syntax = "proto3";
 
 package protoc_gen_graphql.test.basic;
 
+import "graphql/options.proto";
+
 service FooService {
-  rpc BarMethod(ScalarFields) returns (ScalarFields);
-  rpc BazMethod(ScalarFields) returns (ScalarFields);
+  rpc BarMethod(ScalarFields) returns (ScalarFields) {
+    option (graphql.method) = { operation: "query" };
+  }
+
+  rpc BazMethod(ScalarFields) returns (ScalarFields) {
+    option (graphql.method) = { operation: "query" };
+  }
 }
 
 message ScalarFields {
