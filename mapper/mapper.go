@@ -95,11 +95,11 @@ func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
 
 	switch params.FieldName {
 	case FieldNameDefault, "":
-		m.FieldNameTransformer = lowerUnderscoreToLowerCamelTransformer
-		m.MethodNameTransformer = upperCamelToLowerCamelTransformer
+		m.FieldNameTransformer = LowerUnderscoreToLowerCamelTransformer
+		m.MethodNameTransformer = UpperCamelToLowerCamelTransformer
 	case FieldNamePreserve:
-		m.FieldNameTransformer = preserveTransformer
-		m.MethodNameTransformer = preserveTransformer
+		m.FieldNameTransformer = PreserveTransformer
+		m.MethodNameTransformer = PreserveTransformer
 	}
 
 	m.buildDescriptorMaps()

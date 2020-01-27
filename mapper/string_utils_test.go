@@ -14,7 +14,7 @@ func TestLowerCaseFirstRune(t *testing.T) {
 		{"012Abc", "012Abc"},
 	}
 	for _, testCase := range testCases {
-		s := lowerCaseFirstRune(testCase.in)
+		s := LowerCaseFirstRune(testCase.in)
 		if s != testCase.out {
 			t.Errorf("got %s; want %s", s, testCase.out)
 		}
@@ -31,7 +31,7 @@ func TestUpperCaseFirstRune(t *testing.T) {
 		{"012abc", "012abc"},
 	}
 	for _, testCase := range testCases {
-		s := upperCaseFirstRune(testCase.in)
+		s := UpperCaseFirstRune(testCase.in)
 		if s != testCase.out {
 			t.Errorf("got %s; want %s", s, testCase.out)
 		}

@@ -18,7 +18,7 @@ install: protoc $(GO_SRC)
 .PHONY: test
 test: build
 	find testdata -name "*.graphql" -type f -delete
-	GO111MODULE=on go test -v ./...
+	GO111MODULE=on go test ./...
 
 .PHONY: protoc
 protoc: $(GRAPHQL_PROTOS_GO_SRC)
