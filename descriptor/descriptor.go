@@ -111,7 +111,7 @@ type Loader struct {
 	Many              bool
 	RequestFieldPath  []string
 	ResponseFieldPath []string
-	ObjectKeyPath []string
+	ObjectKeyPath     []string
 	Method            *Method
 }
 
