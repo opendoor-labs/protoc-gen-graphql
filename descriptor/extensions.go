@@ -137,6 +137,7 @@ func getLoaderOption(method *Method, value string, many bool) *Loader {
 		Many:              many,
 		RequestFieldPath:  strings.Split(parts[1], "."),
 		ResponseFieldPath: strings.Split(parts[2], "."),
+		ObjectKeyPath: strings.Split(parts[3], "."),
 		Method:            method,
 	}
 }

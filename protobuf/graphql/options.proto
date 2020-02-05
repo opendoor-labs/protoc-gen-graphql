@@ -175,6 +175,9 @@ message MethodOptions {
   // same form as the 'load_one' option, except that the key field specified
   // by the 'request_field_path' and the loaded field specified by the
   // 'response_field_path' must both be repeated fields.
+  // Additionally load_many has an extra field: object_key_path
+  // this field tells the dataloader how to map your input to your response object
+  // "<protobuf_type>:<request_field_path>:<response_field_path>:<object_key_path>"
   string load_many = 4;
 
   // GraphQL directive to generate for the field. Do not include the @ sign,
