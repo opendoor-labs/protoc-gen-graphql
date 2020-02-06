@@ -122,7 +122,7 @@ func getLoaderOption(method *Method, value string, many bool) *Loader {
 	}
 
 	parts := strings.Split(value, ":")
-	if len(parts) != 3 {
+	if len(parts) != 4 {
 		panic(fmt.Sprintf("Loader expected to have format 'protobuf_type:request_field_path:response_field_path', got %s", value))
 	}
 
