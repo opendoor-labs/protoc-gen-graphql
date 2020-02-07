@@ -123,7 +123,7 @@ func getLoaderOption(method *Method, value string, many bool) *Loader {
 
 	parts := strings.Split(value, ":")
 	if len(parts) != 4 {
-		panic(fmt.Sprintf("Loader expected to have format 'protobuf_type:request_field_path:response_field_path', got %s", value))
+		panic(fmt.Sprintf("Loader expected to have format 'protobuf_type:request_field_path:response_field_path:object_key_field_path', got %s", value))
 	}
 
 	fullName := parts[0]
@@ -133,11 +133,11 @@ func getLoaderOption(method *Method, value string, many bool) *Loader {
 	}
 
 	return &Loader{
-		FullName:          fullName,
-		Many:              many,
-		RequestFieldPath:  strings.Split(parts[1], "."),
-		ResponseFieldPath: strings.Split(parts[2], "."),
-		ObjectKeyPath:     strings.Split(parts[3], "."),
-		Method:            method,
+		FullName:           fullName,
+		Many:               many,
+		RequestFieldPath:   strings.Split(parts[1], "."),
+		ResponseFieldPath:  strings.Split(parts[2], "."),
+		ObjectKeyFieldPath: strings.Split(parts[3], "."),
+		Method:             method,
 	}
 }

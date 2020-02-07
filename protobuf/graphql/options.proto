@@ -175,9 +175,10 @@ message MethodOptions {
   // same form as the 'load_one' option, except that the key field specified
   // by the 'request_field_path' and the loaded field specified by the
   // 'response_field_path' must both be repeated fields.
-  // Additionally load_many has an extra field: object_key_path
-  // this field tells the dataloader how to map the input to the response object
-  // "<protobuf_type>:<request_field_path>:<response_field_path>:<object_key_path>"
+  // Additionally load_many has an extra field: 'object_key_field_path'.
+  // This is a dot separated field path in the loaded Protobuf message to the
+  // field representing its primary key. This field can be used by DataLoaders
+  // to order the response corresponding to the input keys.
   string load_many = 4;
 
   // GraphQL directive to generate for the field. Do not include the @ sign,
