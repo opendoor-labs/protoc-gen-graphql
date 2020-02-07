@@ -107,11 +107,12 @@ type Method struct {
 
 type Loader struct {
 	// Fully qualified name of the loaded message starting with a '.' including the package name.
-	FullName          string
-	Many              bool
-	RequestFieldPath  []string
-	ResponseFieldPath []string
-	Method            *Method
+	FullName           string
+	Many               bool
+	RequestFieldPath   []string
+	ResponseFieldPath  []string
+	ObjectKeyFieldPath []string
+	Method             *Method
 }
 
 func WrapFile(proto *descriptor.FileDescriptorProto) *File {
