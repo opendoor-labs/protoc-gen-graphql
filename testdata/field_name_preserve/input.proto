@@ -5,6 +5,8 @@ package protoc_gen_graphql.test.basic;
 import "graphql/options.proto";
 
 service FooService {
+  option (graphql.service) = { reference_name: "foo_service" };
+
   rpc BarMethod(ScalarFields) returns (ScalarFields) {
     option (graphql.method) = { operation: "query" };
   }

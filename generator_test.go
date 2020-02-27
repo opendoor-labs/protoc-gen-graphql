@@ -70,7 +70,11 @@ func TestProtobufExtensions(t *testing.T) {
 }
 
 func TestFieldNamePreserve(t *testing.T) {
-	itGeneratesTheCorrectOutput(t, "field_name_preserve", "field_name=preserve")
+	itGeneratesTheCorrectOutput(t, "field_name_preserve", "field_name=preserve,root_type_prefix=")
+}
+
+func TestRootTypePrefix(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "root_type_prefix", "root_type_prefix=")
 }
 
 func TestProto2(t *testing.T) {

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.grpc;
+
+import "graphql/options.proto";
+
+service Service {
+  option (graphql.service) = { reference_name: "service_name" };
+
+  rpc ReadMethod(Request) returns (Response) {
+    option (graphql.method) = { operation: "query" };
+  }
+
+  rpc WriteMethod(Request) returns (Response) {
+    option (graphql.method) = { operation: "mutation" };
+  }
+}
+
+message Request {
+  string request_name = 1;
+}
+
+message Response {
+  string response_name = 1;
+}

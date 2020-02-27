@@ -632,7 +632,7 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 		extends = &graphql.ExtendObject{
 			Name: fmt.Sprintf("%s%s", *m.Params.RootTypePrefix, rootType),
 			Fields: []*graphql.Field{{
-				Name: m.referenceName(service),
+				Name: m.FieldNameTransformer(m.referenceName(service)),
 				TypeName: m.buildGraphqlTypeName(&GraphqlTypeNameParts{
 					Namespace: service.File.Options.GetNamespace(),
 					Package:   service.Package,
