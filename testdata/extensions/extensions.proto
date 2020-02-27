@@ -22,7 +22,7 @@ service Foo {
     option (graphql.method) = {
       field: "getFoos"
       operation: "query"
-      load_many: "protoc_gen_graphql.test.extensions.User:ids:users"
+      load_many: "protoc_gen_graphql.test.extensions.User:ids:users:name"
     };
   }
 

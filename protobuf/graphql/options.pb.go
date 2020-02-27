@@ -409,6 +409,10 @@ type MethodOptions struct {
 	// same form as the 'load_one' option, except that the key field specified
 	// by the 'request_field_path' and the loaded field specified by the
 	// 'response_field_path' must both be repeated fields.
+	// Additionally load_many has an extra field: 'object_key_field_path'.
+	// This is a dot separated field path in the loaded Protobuf message to the
+	// field representing its primary key. This field can be used by DataLoaders
+	// to order the response corresponding to the input keys.
 	LoadMany string `protobuf:"bytes,4,opt,name=load_many,json=loadMany,proto3" json:"load_many,omitempty"`
 	// GraphQL directive to generate for the field. Do not include the @ sign,
 	// do include any arguments within parentheses.

@@ -638,6 +638,7 @@ func (m *Mapper) buildMethodsMapper(service *descriptor.Service, rootType string
 					Package:   service.Package,
 					TypeName:  append(service.TypeName, rootType),
 				}),
+				Modifiers: graphql.TypeModifierNonNull,
 			}},
 		}
 	}
