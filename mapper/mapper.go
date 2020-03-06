@@ -673,7 +673,6 @@ func (m *Mapper) graphqlFieldFromMethod(method *descriptor.Method) *graphql.Fiel
 		Description: method.Comments,
 		TypeName:    m.MessageMappers[method.Proto.GetOutputType()].Object.Name,
 		Arguments:   arguments,
-		Modifiers:   graphql.TypeModifierNonNull,
 		Directives:  method.Options.GetDirective(),
 	}
 	if method.Proto.Options.GetDeprecated() {

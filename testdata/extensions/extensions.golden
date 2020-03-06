@@ -5,8 +5,8 @@ extend type Query {
 }
 
 type MyPackage_Foo_Query {
-  getFoo(input: MyRequestInput!): MyResponse! @foo @bar(arg: "baz")
-  getFoos(input: MyPackage_BatchRequestInput!): MyPackage_BatchResponse!
+  getFoo(input: MyRequestInput!): MyResponse @foo @bar(arg: "baz")
+  getFoos(input: MyPackage_BatchRequestInput!): MyPackage_BatchResponse
 }
 
 extend type Mutation {
@@ -14,7 +14,7 @@ extend type Mutation {
 }
 
 type MyPackage_Foo_Mutation {
-  setFoo(input: MyRequestInput!): MyResponse!
+  setFoo(input: MyRequestInput!): MyResponse
 }
 
 extend type Subscription {
@@ -22,7 +22,7 @@ extend type Subscription {
 }
 
 type MyPackage_Foo_Subscription {
-  subscriptionMethod(input: MyRequestInput!): MyResponse!
+  subscriptionMethod(input: MyRequestInput!): MyResponse
 }
 
 type MyRequest {

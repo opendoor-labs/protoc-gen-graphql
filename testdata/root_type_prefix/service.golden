@@ -5,7 +5,7 @@ extend type Query {
 }
 
 type ProtocGenGraphqlTestGrpc_Service_Query {
-  readMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response!
+  readMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response
 }
 
 extend type Mutation {
@@ -13,7 +13,7 @@ extend type Mutation {
 }
 
 type ProtocGenGraphqlTestGrpc_Service_Mutation {
-  writeMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response!
+  writeMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response
 }
 
 type ProtocGenGraphqlTestGrpc_Request {

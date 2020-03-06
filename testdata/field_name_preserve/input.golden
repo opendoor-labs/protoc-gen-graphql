@@ -5,8 +5,8 @@ extend type Query {
 }
 
 type ProtocGenGraphqlTestBasic_FooService_Query {
-  BarMethod(input: ProtocGenGraphqlTestBasic_ScalarFieldsInput!): ProtocGenGraphqlTestBasic_ScalarFields!
-  BazMethod(input: ProtocGenGraphqlTestBasic_ScalarFieldsInput!): ProtocGenGraphqlTestBasic_ScalarFields!
+  BarMethod(input: ProtocGenGraphqlTestBasic_ScalarFieldsInput!): ProtocGenGraphqlTestBasic_ScalarFields
+  BazMethod(input: ProtocGenGraphqlTestBasic_ScalarFieldsInput!): ProtocGenGraphqlTestBasic_ScalarFields
 }
 
 type ProtocGenGraphqlTestBasic_ScalarFields {

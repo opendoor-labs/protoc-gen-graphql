@@ -13,9 +13,9 @@ type ProtocGenGraphqlTestGrpc_Service_Query {
 
   And this is its second paragraph.
   """
-  method(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response!
-  methodB(input: ProtocGenGraphqlTestGrpc_RequestBInput!): ProtocGenGraphqlTestGrpc_ResponseB!
-  deprecatedMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response! @deprecated
+  method(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response
+  methodB(input: ProtocGenGraphqlTestGrpc_RequestBInput!): ProtocGenGraphqlTestGrpc_ResponseB
+  deprecatedMethod(input: ProtocGenGraphqlTestGrpc_RequestInput!): ProtocGenGraphqlTestGrpc_Response @deprecated
 }
 
 type ProtocGenGraphqlTestGrpc_Request {
