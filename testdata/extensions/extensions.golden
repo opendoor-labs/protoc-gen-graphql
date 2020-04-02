@@ -37,7 +37,7 @@ type MyResponse {
   userId: String!
   user: MyUser
   userIds: [String!]!
-  users: [MyUser]!
+  users: [MyUser!]
 }
 
 input MyResponseInput {

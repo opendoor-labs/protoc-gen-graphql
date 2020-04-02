@@ -310,7 +310,7 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 
 			var modifiers graphql.TypeModifier
 			if field.Proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
-				modifiers = graphql.TypeModifierList | graphql.TypeModifierNonNullList
+				modifiers = graphql.TypeModifierList | graphql.TypeModifierNonNull
 			}
 
 			fields = append(fields, &graphql.Field{
