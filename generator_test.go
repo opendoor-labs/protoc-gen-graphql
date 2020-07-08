@@ -84,3 +84,7 @@ func TestProto2(t *testing.T) {
 func TestTrimPrefix(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "trim_prefix", "trim_prefix=ProtocGenGraphql")
 }
+
+func TestEmptyProto(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "empty", "")
+}

@@ -104,11 +104,6 @@ func (g *Generator) generateFiles() {
 			gqlTypes = append(gqlTypes, g.mapper.EnumMappers[enum.FullName].Enum)
 		}
 
-		// Don't generate files without any type declarations.
-		if len(gqlTypes) == 0 {
-			continue
-		}
-
 		var b strings.Builder
 		b.WriteString(header)
 		for _, gqlType := range gqlTypes {
