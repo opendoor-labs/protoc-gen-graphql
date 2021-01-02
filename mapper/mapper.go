@@ -5,14 +5,14 @@ import (
 	"os"
 	"strings"
 
-	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
-	"github.com/golang/protobuf/protoc-gen-go/generator"
+	"google.golang.org/protobuf/types/descriptorpb"
+
 	"github.com/martinxsliu/protoc-gen-graphql/descriptor"
 	"github.com/martinxsliu/protoc-gen-graphql/graphql"
 )
 
 type Mapper struct {
-	FilePbs []*pb.FileDescriptorProto
+	FilePbs []*descriptorpb.FileDescriptorProto
 
 	Params                *Parameters
 	FieldNameTransformer  func(string) string
@@ -75,7 +75,7 @@ type MethodsMapper struct {
 
 // New creates a new Mapper with all mappings populated from the provided file
 // descriptors. The provided file descriptors must be in topological order.
-func New(filePbs []*pb.FileDescriptorProto, params *Parameters) *Mapper {
+func New(filePbs []*descriptorpb.FileDescriptorProto, params *Parameters) *Mapper {
 	m := &Mapper{
 		FilePbs: filePbs,
 		Params:  params,
@@ -167,7 +167,7 @@ func (m *Mapper) buildMessageTypeMaps(message *descriptor.Message, input bool) {
 	nameMap[message.FullName] = m.messageName(message, input)
 
 	for _, field := range message.Proto.GetField() {
-		if field.GetType() == pb.FieldDescriptorProto_TYPE_MESSAGE {
+		if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_MESSAGE {
 			m.buildMessageTypeMaps(m.Messages[field.GetTypeName()], input)
 		}
 	}
@@ -263,7 +263,7 @@ func (m *Mapper) buildMessageMapper(message *descriptor.Message, input bool) {
 	mapper.Oneofs = oneofMappers
 
 	for _, field := range message.Proto.GetField() {
-		if field.GetType() == pb.FieldDescriptorProto_TYPE_MESSAGE {
+		if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_MESSAGE {
 			m.buildMessageMapper(m.Messages[field.GetTypeName()], input)
 		}
 	}
@@ -309,7 +309,7 @@ func (m *Mapper) graphqlFields(message *descriptor.Message, input bool) []*graph
 			}
 
 			var modifiers graphql.TypeModifier
-			if field.Proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
+			if field.Proto.GetLabel() == descriptorpb.FieldDescriptorProto_LABEL_REPEATED {
 				modifiers = graphql.TypeModifierList | graphql.TypeModifierNonNull
 			}
 
@@ -348,23 +348,23 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 	nullableScalars := m.nullableScalars(f, input)
 
 	switch proto.GetType() {
-	case pb.FieldDescriptorProto_TYPE_STRING, pb.FieldDescriptorProto_TYPE_BYTES:
+	case descriptorpb.FieldDescriptorProto_TYPE_STRING, descriptorpb.FieldDescriptorProto_TYPE_BYTES:
 		field.TypeName = graphql.ScalarString.TypeName()
 		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
-	case pb.FieldDescriptorProto_TYPE_FLOAT, pb.FieldDescriptorProto_TYPE_DOUBLE,
-		pb.FieldDescriptorProto_TYPE_INT32, pb.FieldDescriptorProto_TYPE_UINT32, pb.FieldDescriptorProto_TYPE_SINT32,
-		pb.FieldDescriptorProto_TYPE_FIXED32, pb.FieldDescriptorProto_TYPE_SFIXED32:
+	case descriptorpb.FieldDescriptorProto_TYPE_FLOAT, descriptorpb.FieldDescriptorProto_TYPE_DOUBLE,
+		descriptorpb.FieldDescriptorProto_TYPE_INT32, descriptorpb.FieldDescriptorProto_TYPE_UINT32, descriptorpb.FieldDescriptorProto_TYPE_SINT32,
+		descriptorpb.FieldDescriptorProto_TYPE_FIXED32, descriptorpb.FieldDescriptorProto_TYPE_SFIXED32:
 
 		field.TypeName = graphql.ScalarFloat.TypeName()
 		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
-	case pb.FieldDescriptorProto_TYPE_INT64, pb.FieldDescriptorProto_TYPE_UINT64, pb.FieldDescriptorProto_TYPE_SINT64,
-		pb.FieldDescriptorProto_TYPE_FIXED64, pb.FieldDescriptorProto_TYPE_SFIXED64:
+	case descriptorpb.FieldDescriptorProto_TYPE_INT64, descriptorpb.FieldDescriptorProto_TYPE_UINT64, descriptorpb.FieldDescriptorProto_TYPE_SINT64,
+		descriptorpb.FieldDescriptorProto_TYPE_FIXED64, descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
 
 		if m.Params.JS64BitType == JS64BitTypeString {
 			field.TypeName = graphql.ScalarString.TypeName()
@@ -375,19 +375,19 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
-	case pb.FieldDescriptorProto_TYPE_BOOL:
+	case descriptorpb.FieldDescriptorProto_TYPE_BOOL:
 		field.TypeName = graphql.ScalarBoolean.TypeName()
 		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
-	case pb.FieldDescriptorProto_TYPE_ENUM:
+	case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
 		field.TypeName = m.EnumMappers[proto.GetTypeName()].Enum.Name
 		if !nullableScalars {
 			field.Modifiers = graphql.TypeModifierNonNull
 		}
 
-	case pb.FieldDescriptorProto_TYPE_MESSAGE:
+	case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
 		if input {
 			field.TypeName = m.InputNames[proto.GetTypeName()]
 		} else {
@@ -405,7 +405,7 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 
 	field = m.graphqlSpecialTypes(field, proto.GetTypeName())
 
-	if proto.GetLabel() == pb.FieldDescriptorProto_LABEL_REPEATED {
+	if proto.GetLabel() == descriptorpb.FieldDescriptorProto_LABEL_REPEATED {
 		field.Modifiers = field.Modifiers | graphql.TypeModifierNonNull | graphql.TypeModifierList
 		if !input {
 			field.Modifiers = field.Modifiers | graphql.TypeModifierNonNullList
@@ -695,7 +695,7 @@ func (m *Mapper) buildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 	if parts.Namespace != "" {
 		b.WriteString(parts.Namespace)
 	} else {
-		b.WriteString(generator.CamelCaseSlice(strings.Split(parts.Package, ".")))
+		b.WriteString(CamelCaseSlice(strings.Split(parts.Package, ".")))
 	}
 
 	for i, name := range parts.TypeName {
@@ -704,7 +704,7 @@ func (m *Mapper) buildGraphqlTypeName(parts *GraphqlTypeNameParts) string {
 		}
 
 		b.WriteString("_")
-		b.WriteString(generator.CamelCase(name))
+		b.WriteString(CamelCase(name))
 	}
 	if parts.IsProtoMap {
 		b.WriteString("Entry")
@@ -771,7 +771,7 @@ func (m *Mapper) nullableScalars(field *descriptor.Field, input bool) bool {
 	}
 	switch field.Parent.File.Proto.GetSyntax() {
 	case "proto2", "":
-		return field.Proto.GetLabel() == pb.FieldDescriptorProto_LABEL_OPTIONAL
+		return field.Proto.GetLabel() == descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL
 	}
 	return false
 }

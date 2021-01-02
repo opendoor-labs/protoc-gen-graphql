@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+	"google.golang.org/protobuf/types/descriptorpb"
 
 	graphqlpb "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 )
 
 type File struct {
-	Proto   *descriptor.FileDescriptorProto
+	Proto   *descriptorpb.FileDescriptorProto
 	Options *graphqlpb.FileOptions
 	// All the protobuf types defined in this file, including nested types.
 	Messages []*Message
@@ -20,7 +20,7 @@ type File struct {
 
 // Message represents a protobuf message.
 type Message struct {
-	Proto   *descriptor.DescriptorProto
+	Proto   *descriptorpb.DescriptorProto
 	Options *graphqlpb.MessageOptions
 	Package string
 	File    *File
@@ -44,7 +44,7 @@ type Message struct {
 type Field struct {
 	Name string
 	// nil if IsProtoOneof is true.
-	Proto      *descriptor.FieldDescriptorProto
+	Proto      *descriptorpb.FieldDescriptorProto
 	Options    *graphqlpb.FieldOptions
 	Parent     *Message
 	IsOneof    bool
@@ -60,13 +60,13 @@ type ForeignKey struct {
 }
 
 type Oneof struct {
-	Proto  *descriptor.OneofDescriptorProto
+	Proto  *descriptorpb.OneofDescriptorProto
 	Parent *Message
 	Fields []*Field
 }
 
 type Enum struct {
-	Proto   *descriptor.EnumDescriptorProto
+	Proto   *descriptorpb.EnumDescriptorProto
 	Options *graphqlpb.EnumOptions
 	Package string
 	File    *File
@@ -80,13 +80,13 @@ type Enum struct {
 }
 
 type EnumValue struct {
-	Proto    *descriptor.EnumValueDescriptorProto
+	Proto    *descriptorpb.EnumValueDescriptorProto
 	Options  *graphqlpb.EnumValueOptions
 	Comments string
 }
 
 type Service struct {
-	Proto    *descriptor.ServiceDescriptorProto
+	Proto    *descriptorpb.ServiceDescriptorProto
 	Options  *graphqlpb.ServiceOptions
 	Package  string
 	File     *File
@@ -98,7 +98,7 @@ type Service struct {
 }
 
 type Method struct {
-	Proto    *descriptor.MethodDescriptorProto
+	Proto    *descriptorpb.MethodDescriptorProto
 	Options  *graphqlpb.MethodOptions
 	Service  *Service
 	Loaders  []*Loader
@@ -115,7 +115,7 @@ type Loader struct {
 	Method             *Method
 }
 
-func WrapFile(proto *descriptor.FileDescriptorProto) *File {
+func WrapFile(proto *descriptorpb.FileDescriptorProto) *File {
 	file := &File{
 		Proto:   proto,
 		Options: getFileOptions(proto),
@@ -135,7 +135,7 @@ func WrapFile(proto *descriptor.FileDescriptorProto) *File {
 	return file
 }
 
-func wrapService(file *File, proto *descriptor.ServiceDescriptorProto) {
+func wrapService(file *File, proto *descriptorpb.ServiceDescriptorProto) {
 	service := &Service{
 		Proto:    proto,
 		Options:  getServiceOptions(proto),
@@ -166,7 +166,7 @@ func wrapMethods(service *Service) {
 	}
 }
 
-func wrapMessage(file *File, proto *descriptor.DescriptorProto, parent *Message) {
+func wrapMessage(file *File, proto *descriptorpb.DescriptorProto, parent *Message) {
 	typeName := calculateTypeName(proto.GetName(), parent)
 	msg := &Message{
 		Proto:    proto,
@@ -248,7 +248,7 @@ func wrapOneofs(parent *Message) {
 	}
 }
 
-func wrapEnum(file *File, proto *descriptor.EnumDescriptorProto, parent *Message) {
+func wrapEnum(file *File, proto *descriptorpb.EnumDescriptorProto, parent *Message) {
 	typeName := calculateTypeName(proto.GetName(), parent)
 
 	var values []*EnumValue
@@ -329,7 +329,7 @@ func setComments(file *File) {
 	}
 }
 
-func setMessageComments(file *File, proto *descriptor.DescriptorProto, location *descriptor.SourceCodeInfo_Location, relativePath []int32) {
+func setMessageComments(file *File, proto *descriptorpb.DescriptorProto, location *descriptorpb.SourceCodeInfo_Location, relativePath []int32) {
 	var message *Message
 	for _, m := range file.Messages {
 		if m.Proto == proto {
@@ -378,7 +378,7 @@ func setMessageComments(file *File, proto *descriptor.DescriptorProto, location 
 	}
 }
 
-func setEnumComments(file *File, proto *descriptor.EnumDescriptorProto, location *descriptor.SourceCodeInfo_Location, relativePath []int32) {
+func setEnumComments(file *File, proto *descriptorpb.EnumDescriptorProto, location *descriptorpb.SourceCodeInfo_Location, relativePath []int32) {
 	var enum *Enum
 	for _, e := range file.Enums {
 		if e.Proto == proto {
@@ -421,7 +421,7 @@ func calculateTypeName(name string, parent *Message) []string {
 	return parts
 }
 
-func combineComments(location *descriptor.SourceCodeInfo_Location) string {
+func combineComments(location *descriptorpb.SourceCodeInfo_Location) string {
 	// Ignore leading detached comments because it is likely that the comment
 	// does not relate directly to the definition.
 	leading := formatComments(location.GetLeadingComments())

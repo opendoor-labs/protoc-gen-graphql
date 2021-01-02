@@ -9,16 +9,16 @@ GO_SRC := $(wildcard */*.go) $(wildcard *.go)
 build: $(BINARY)
 
 $(BINARY): protoc $(GO_SRC)
-	GO111MODULE=on go build -o $@ *.go
+	go build -o $@ *.go
 
 .PHONY: install
 install: protoc $(GO_SRC)
-	GO111MODULE=on go install .
+	go install .
 
 .PHONY: test
 test: build
 	find testdata -name "*.graphql" -type f -delete
-	GO111MODULE=on go test ./...
+	go test ./...
 
 .PHONY: protoc
 protoc: $(GRAPHQL_PROTOS_GO_SRC)

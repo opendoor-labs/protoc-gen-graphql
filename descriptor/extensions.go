@@ -5,12 +5,12 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	pb "github.com/golang/protobuf/protoc-gen-go/descriptor"
+	"google.golang.org/protobuf/types/descriptorpb"
 
 	graphqlpb "github.com/martinxsliu/protoc-gen-graphql/protobuf/graphql"
 )
 
-func getFileOptions(file *pb.FileDescriptorProto) *graphqlpb.FileOptions {
+func getFileOptions(file *descriptorpb.FileDescriptorProto) *graphqlpb.FileOptions {
 	options := file.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_File) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_File)
@@ -22,7 +22,7 @@ func getFileOptions(file *pb.FileDescriptorProto) *graphqlpb.FileOptions {
 	return &graphqlpb.FileOptions{}
 }
 
-func getMessageOptions(message *pb.DescriptorProto) *graphqlpb.MessageOptions {
+func getMessageOptions(message *descriptorpb.DescriptorProto) *graphqlpb.MessageOptions {
 	options := message.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_Message) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_Message)
@@ -34,7 +34,7 @@ func getMessageOptions(message *pb.DescriptorProto) *graphqlpb.MessageOptions {
 	return &graphqlpb.MessageOptions{}
 }
 
-func getFieldOptions(field *pb.FieldDescriptorProto) *graphqlpb.FieldOptions {
+func getFieldOptions(field *descriptorpb.FieldDescriptorProto) *graphqlpb.FieldOptions {
 	options := field.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_Field) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_Field)
@@ -46,7 +46,7 @@ func getFieldOptions(field *pb.FieldDescriptorProto) *graphqlpb.FieldOptions {
 	return &graphqlpb.FieldOptions{}
 }
 
-func getEnumOptions(enum *pb.EnumDescriptorProto) *graphqlpb.EnumOptions {
+func getEnumOptions(enum *descriptorpb.EnumDescriptorProto) *graphqlpb.EnumOptions {
 	options := enum.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_PbEnum) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_PbEnum)
@@ -58,7 +58,7 @@ func getEnumOptions(enum *pb.EnumDescriptorProto) *graphqlpb.EnumOptions {
 	return &graphqlpb.EnumOptions{}
 }
 
-func getEnumValueOptions(enumValue *pb.EnumValueDescriptorProto) *graphqlpb.EnumValueOptions {
+func getEnumValueOptions(enumValue *descriptorpb.EnumValueDescriptorProto) *graphqlpb.EnumValueOptions {
 	options := enumValue.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_EnumValue) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_EnumValue)
@@ -70,7 +70,7 @@ func getEnumValueOptions(enumValue *pb.EnumValueDescriptorProto) *graphqlpb.Enum
 	return &graphqlpb.EnumValueOptions{}
 }
 
-func getServiceOptions(service *pb.ServiceDescriptorProto) *graphqlpb.ServiceOptions {
+func getServiceOptions(service *descriptorpb.ServiceDescriptorProto) *graphqlpb.ServiceOptions {
 	options := service.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_Service) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_Service)
@@ -82,7 +82,7 @@ func getServiceOptions(service *pb.ServiceDescriptorProto) *graphqlpb.ServiceOpt
 	return &graphqlpb.ServiceOptions{}
 }
 
-func getMethodOptions(method *pb.MethodDescriptorProto) *graphqlpb.MethodOptions {
+func getMethodOptions(method *descriptorpb.MethodDescriptorProto) *graphqlpb.MethodOptions {
 	options := method.GetOptions()
 	if proto.HasExtension(options, graphqlpb.E_Method) {
 		ext, err := proto.GetExtension(options, graphqlpb.E_Method)
