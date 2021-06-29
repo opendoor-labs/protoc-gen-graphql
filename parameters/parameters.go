@@ -1,4 +1,4 @@
-package mapper
+package parameters
 
 import (
 	"fmt"
@@ -27,6 +27,7 @@ type Parameters struct {
 	RootTypePrefix    *string
 	FieldName         string
 	TrimPrefix        string
+	NullableListTypes bool
 }
 
 func NewParameters(parameter string) (*Parameters, error) {
@@ -63,6 +64,8 @@ func NewParameters(parameter string) (*Parameters, error) {
 			params.StructTypeName = value
 		case "null_wrappers":
 			params.WrappersAsNull = true
+		case "nullable_list_types":
+			params.NullableListTypes = true
 		case "input_mode":
 			params.InputMode = value
 		case "js_64bit_type":

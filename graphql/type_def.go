@@ -1,19 +1,22 @@
 package graphql
 
-import "strings"
+import (
+	"github.com/martinxsliu/protoc-gen-graphql/parameters"
+	"strings"
+)
 
 // TypeDef returns the schema definition language (SDL) representation
 // of the GraphQL type.
-func TypeDef(graphqlType Type) string {
+func TypeDef(graphqlType Type, params *parameters.Parameters) string {
 	switch graphqlType := graphqlType.(type) {
 	case *Scalar:
 		return typeDefScalar(graphqlType)
 	case *Object:
-		return typeDefObject(graphqlType)
+		return typeDefObject(graphqlType, params.NullableListTypes)
 	case *ExtendObject:
-		return typeDefExtendObject(graphqlType)
+		return typeDefExtendObject(graphqlType, params.NullableListTypes)
 	case *Input:
-		return typeDefInput(graphqlType)
+		return typeDefInput(graphqlType, params.NullableListTypes)
 	case *Enum:
 		return typeDefEnum(graphqlType)
 	case *Union:
@@ -27,7 +30,7 @@ func typeDefScalar(scalar *Scalar) string {
 	return scalar.Name
 }
 
-func typeDefObject(object *Object) string {
+func typeDefObject(object *Object, nullableListTypes bool) string {
 	b := &strings.Builder{}
 
 	if object.Description != "" {
@@ -41,7 +44,7 @@ func typeDefObject(object *Object) string {
 	if len(object.Fields) > 0 {
 		b.WriteString(" {\n")
 		for _, field := range object.Fields {
-			typeDefField(b, field)
+			typeDefField(b, field, nullableListTypes)
 			b.WriteString("\n")
 		}
 		b.WriteString("}")
@@ -50,7 +53,7 @@ func typeDefObject(object *Object) string {
 	return b.String()
 }
 
-func typeDefField(b *strings.Builder, field *Field) {
+func typeDefField(b *strings.Builder, field *Field, nullableListTypes bool) {
 	typeName := field.TypeName
 	if field.Modifiers&TypeModifierNonNull > 0 {
 		typeName = typeName + "!"
@@ -58,7 +61,7 @@ func typeDefField(b *strings.Builder, field *Field) {
 	if field.Modifiers&TypeModifierList > 0 {
 		// Protobuf repeated values are always non-null, but can have length 0.
 		typeName = "[" + typeName + "]"
-		if field.Modifiers&TypeModifierNonNullList > 0 {
+		if !nullableListTypes && field.Modifiers&TypeModifierNonNullList > 0 {
 			typeName = typeName + "!"
 		}
 	}
@@ -108,7 +111,7 @@ func typeDefArgument(b *strings.Builder, argument *Argument) string {
 	return b.String()
 }
 
-func typeDefExtendObject(object *ExtendObject) string {
+func typeDefExtendObject(object *ExtendObject, nullableListTypes bool) string {
 	b := &strings.Builder{}
 	b.WriteString("extend type ")
 	b.WriteString(object.Name)
@@ -117,7 +120,7 @@ func typeDefExtendObject(object *ExtendObject) string {
 	if len(object.Fields) > 0 {
 		b.WriteString(" {\n")
 		for _, field := range object.Fields {
-			typeDefField(b, field)
+			typeDefField(b, field, nullableListTypes)
 			b.WriteString("\n")
 		}
 		b.WriteString("}")
@@ -126,7 +129,7 @@ func typeDefExtendObject(object *ExtendObject) string {
 	return b.String()
 }
 
-func typeDefInput(input *Input) string {
+func typeDefInput(input *Input, nullableListTypes bool) string {
 	b := &strings.Builder{}
 
 	if input.Description != "" {
@@ -140,7 +143,7 @@ func typeDefInput(input *Input) string {
 	if len(input.Fields) > 0 {
 		b.WriteString(" {\n")
 		for _, field := range input.Fields {
-			typeDefField(b, field)
+			typeDefField(b, field, nullableListTypes)
 			b.WriteString("\n")
 		}
 		b.WriteString("}")
