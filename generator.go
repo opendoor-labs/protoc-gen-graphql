@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/martinxsliu/protoc-gen-graphql/parameters"
 	"strings"
 
 	"google.golang.org/protobuf/compiler/protogen"
@@ -33,17 +34,17 @@ func (g *Generator) Generate() (err error) {
 		}
 	}()
 
-	params, err := mapper.NewParameters(g.req.GetParameter())
+	params, err := parameters.NewParameters(g.req.GetParameter())
 	if err != nil {
 		return err
 	}
 
 	g.mapper = mapper.New(g.req.GetProtoFile(), params)
-	g.generateFiles()
+	g.generateFiles(params)
 	return nil
 }
 
-func (g *Generator) generateFiles() {
+func (g *Generator) generateFiles(params *parameters.Parameters) {
 	for _, fileName := range g.req.GetFileToGenerate() {
 		fileResp := &pluginpb.CodeGeneratorResponse_File{}
 		fileResp.Name = stringPtr(graphqlFileName(fileName))
@@ -109,7 +110,7 @@ func (g *Generator) generateFiles() {
 		_, _ = genFile.Write(header)
 		for _, gqlType := range gqlTypes {
 			_, _ = genFile.Write([]byte("\n\n"))
-			_, _ = genFile.Write([]byte(graphql.TypeDef(gqlType)))
+			_, _ = genFile.Write([]byte(graphql.TypeDef(gqlType, params)))
 		}
 		_, _ = genFile.Write([]byte("\n"))
 	}

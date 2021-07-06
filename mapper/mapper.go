@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"github.com/martinxsliu/protoc-gen-graphql/parameters"
 	"os"
 	"strings"
 
@@ -14,7 +15,7 @@ import (
 type Mapper struct {
 	FilePbs []*descriptorpb.FileDescriptorProto
 
-	Params                *Parameters
+	Params                *parameters.Parameters
 	FieldNameTransformer  func(string) string
 	MethodNameTransformer func(string) string
 
@@ -75,7 +76,7 @@ type MethodsMapper struct {
 
 // New creates a new Mapper with all mappings populated from the provided file
 // descriptors. The provided file descriptors must be in topological order.
-func New(filePbs []*descriptorpb.FileDescriptorProto, params *Parameters) *Mapper {
+func New(filePbs []*descriptorpb.FileDescriptorProto, params *parameters.Parameters) *Mapper {
 	m := &Mapper{
 		FilePbs: filePbs,
 		Params:  params,
@@ -94,10 +95,10 @@ func New(filePbs []*descriptorpb.FileDescriptorProto, params *Parameters) *Mappe
 	}
 
 	switch params.FieldName {
-	case FieldNameDefault, "":
+	case parameters.FieldNameDefault, "":
 		m.FieldNameTransformer = LowerUnderscoreToLowerCamelTransformer
 		m.MethodNameTransformer = UpperCamelToLowerCamelTransformer
-	case FieldNamePreserve:
+	case parameters.FieldNamePreserve:
 		m.FieldNameTransformer = PreserveTransformer
 		m.MethodNameTransformer = PreserveTransformer
 	}
@@ -185,21 +186,21 @@ func (m *Mapper) buildMappers() {
 			m.buildMessageMapper(message, false)
 		}
 
-		if m.Params.InputMode == InputModeAll {
+		if m.Params.InputMode == parameters.InputModeAll {
 			for _, message := range file.Messages {
 				m.buildMessageMapper(message, true)
 			}
 		}
 
 		for _, service := range file.Services {
-			if m.Params.InputMode == InputModeService {
+			if m.Params.InputMode == parameters.InputModeService {
 				for _, method := range service.Proto.GetMethod() {
 					m.buildMessageMapper(m.Messages[method.GetInputType()], true)
 				}
 			}
 
 			// Build service mapper last, after all dependencies are mapped.
-			if m.Params.InputMode != InputModeNone {
+			if m.Params.InputMode != parameters.InputModeNone {
 				m.buildServiceMapper(service)
 			}
 		}
@@ -366,7 +367,7 @@ func (m *Mapper) graphqlField(f *descriptor.Field, input bool) *graphql.Field {
 	case descriptorpb.FieldDescriptorProto_TYPE_INT64, descriptorpb.FieldDescriptorProto_TYPE_UINT64, descriptorpb.FieldDescriptorProto_TYPE_SINT64,
 		descriptorpb.FieldDescriptorProto_TYPE_FIXED64, descriptorpb.FieldDescriptorProto_TYPE_SFIXED64:
 
-		if m.Params.JS64BitType == JS64BitTypeString {
+		if m.Params.JS64BitType == parameters.JS64BitTypeString {
 			field.TypeName = graphql.ScalarString.TypeName()
 		} else {
 			field.TypeName = graphql.ScalarFloat.TypeName()
@@ -433,7 +434,7 @@ func (m *Mapper) graphqlSpecialTypes(field *graphql.Field, protoTypeName string)
 		case ".google.protobuf.StringValue", ".google.protobuf.BytesValue":
 			field.TypeName = graphql.ScalarString.TypeName()
 		case ".google.protobuf.Int64Value", ".google.protobuf.UInt64Value":
-			if m.Params.JS64BitType == JS64BitTypeString {
+			if m.Params.JS64BitType == parameters.JS64BitTypeString {
 				field.TypeName = graphql.ScalarString.TypeName()
 			} else {
 				field.TypeName = graphql.ScalarFloat.TypeName()

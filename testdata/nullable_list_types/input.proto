@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package protoc_gen_graphql.test.wrappers;
+
+message WithEmptyList {
+  repeated string canBeNullable = 1;
+}

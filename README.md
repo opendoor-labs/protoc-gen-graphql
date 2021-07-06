@@ -38,6 +38,7 @@ Available parameters are:
 | `timestamp` | string | | GraphQL type name to use for the well known `google.protobuf.Timestamp` type. |
 | `duration` | string | | GraphQL type name to use for the well known `google.protobuf.Duration` type. |
 | `struct` | string | | GraphQL type name to use for the well known `google.protobuf.Struct` type. |
+| `nullable_list_types` | bool | `false` | If true, list types will have a nullable type definition. |
 
 ### Protobuf options
 

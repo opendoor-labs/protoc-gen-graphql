@@ -88,3 +88,7 @@ func TestTrimPrefix(t *testing.T) {
 func TestEmptyProto(t *testing.T) {
 	itGeneratesTheCorrectOutput(t, "empty", "")
 }
+
+func TestNullableListTypes(t *testing.T) {
+	itGeneratesTheCorrectOutput(t, "nullable_list_types", "nullable_list_types")
+}
