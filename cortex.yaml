@@ -16,6 +16,7 @@ info:
     channel: infra
   - type: group
     name: opendoor-labs/devex
+    provider: GITHUB
   x-cortex-groups:
   - golang
   - infra_tools
