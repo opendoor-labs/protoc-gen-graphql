@@ -1,0 +1,48 @@
+# https://opendoor.atlassian.net/wiki/spaces/ENG/pages/2341896216/Cortex+-+Services
+openapi: 3.0.1
+info:
+  title: Protoc-gen-graphql
+  description: Protoc-gen-graphql is a protoc plugin to generate GraphQL schema definition language (SDL) files.
+  x-cortex-tag: go-tools-protoc-gen-graphql
+  x-cortex-git:
+    github:
+      repository: opendoor-labs/protoc-gen-graphql
+  x-cortex-oncall:
+    pagerduty:
+      id: P02ZA5Z
+      type: SCHEDULE
+  x-cortex-owners:
+  - type: slack
+    channel: infra
+  - type: group
+    name: opendoor-labs/devex
+    provider: GITHUB
+  x-cortex-groups:
+  - golang
+  - infra_tools
+  - plugin
+  - backend
+  - library
+  x-cortex-link:
+  - name: Code Link - go/tools/protoc-gen-graphql
+    type: codelink
+    url: https://github.com/opendoor-labs/protoc-gen-graphql
+  x-cortex-custom-metadata:
+    language: golang
+    security:
+      lifecycle: actively-maintained
+      scanned-by-web-vulnerability-scanner: false
+      security-metadata-reviewed-date: 2024-06-18
+      data-classification: public
+      reachability:
+        - internal
+      user-type:
+        - internal
+      availability: low
+      behind-web-application-firewall: false
+      financial-impact: minor
+      operational-impact: major
+      legal-impact: minor
+      reputational-impact: minor
+      compliance-requirement:
+        - none
